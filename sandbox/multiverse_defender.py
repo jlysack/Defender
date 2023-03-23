@@ -39,6 +39,7 @@ def process_telemetry_data(detections, current_zone):
     return dets_filtered
  
 def set_detection_flags(detection, zone):
+    # TODO: Refactor this using constants_v2.py
     ez_min_range  = const.EZ_MIN_RANGE[zone]
     ez_max_range  = const.EZ_MAX_RANGE[zone]
     ez_min_az     = const.EZ_MIN_AZ[zone]
