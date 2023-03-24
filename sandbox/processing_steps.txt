@@ -1,0 +1,22 @@
+
+
+Check for External Messages
+Process External Messages
+    Process State Change Message
+    Process IFF Initiate Message
+    Process Emergency Stop Message
+    Process Radar Configuration Change Message
+    ...
+Actuate Stepper Motor
+Actuate TinyRad (Obtain Data)
+Filter Detections (on Local Data coordinates)
+Set Zone Flags
+Adjust by Boresight Offset
+Populate Detection Report
+Send Detection Report (DDS)
+Send Health/Status (DDS) -- every 1 second
+
+Proof of concept task: create a function that uses a Queue to pass data between two threads:
+https://superfastpython.com/thread-share-variables/#:~:text=We%20can%20share%20a%20local,Queue%20instance.
+
+Alternatively, just do anything that avoid global variables -- the goal is to be able to pass the internal state information around 
