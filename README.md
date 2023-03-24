@@ -24,6 +24,19 @@ The Defender software application is a RaspberryPi-embedded, multithreaded Pytho
 
 ## Coding Standards
 
+[Generic Python Style Guide](https://peps.python.org/pep-0008/)
+
+### Functional versus OOP
+In general, we should aim to apply the Functional Programming concept of **Pure Functions** as much as possible. We may run into some challenges here regarding keeping track of our internal state (radar state, IFF status, system health parameters, etc.), but some of the alternatives (e.g., the use of global state variables) run the risk of introducing race conditions between threads. In this particular example, we should attempt to pass the internal state information around, perhaps in alignment with the passing of any semaphores/mutexes we use to synchronize/control the execution of our software threads.
+
+With that said, we may want to apply some aspects of OOP, perhaps passing an internal state Object around in our pure functions. In this particular example, we could additionally consider adding a variable to such an Object to keep track of which thread has the semaphore/mutex at any given moment (for help in debugging).
+
+### Defender Naming Conventions (open to discussion):
+- **Functions:** lowercase_with_underscores(args, more_args)
+- **Constants:** UPPERCASE_WITH_UNDERSCORES, stored in a _constants.py_ file
+- **Variables:** lowercase_with_underscores
+- **Classes/Objects:** CamelCase
+
 ## Messages
 | Message Name | Message Number | IN/OUT | External Node | Link |
 | ----------- | ----------- | ----------- | ----------- | ----------- |
