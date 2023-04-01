@@ -15,7 +15,7 @@ ZONES = {
         'EZ_MIN_EL'         :   0.0, # degrees
         'EZ_MAX_EL'         :  15.0, # degrees
         'BORESIGHT_OFFSET'  : -22.5, # degrees
-        'ZONE_ENUM'         :     1, # N/A
+        'ID'                :     1, # N/A
     },
 
     2: {
@@ -32,7 +32,7 @@ ZONES = {
         'EZ_MIN_EL'         :   0.0, # degrees
         'EZ_MAX_EL'         :  15.0, # degrees
         'BORESIGHT_OFFSET'  :  22.5, # degrees
-        'ZONE_ENUM'         :     2, # N/A
+        'ID'                :     2, # N/A
     },
 
     3: {
@@ -49,6 +49,15 @@ ZONES = {
         'EZ_MIN_EL'        :   0.0, # degrees
         'EZ_MAX_EL'        :  15.0, # degrees
         'BORESIGHT_OFFSET' :   0.0, # degrees
-        'ZONE_ENUM'        :     3, # N/A
+        'ID'               :     3, # N/A
     }
+}
+
+LOCAL_ZONE_PARAMS = {
+	'ADA_MIN_AZ'       : -22.5, # degrees
+	'ADA_MAX_AZ'       :  22.5, # degrees
+	'EZ_MIN_AZ'        : -12.5, # degrees
+	'EZ_MAX_AZ'        :  12.5, # degrees
+	'MIN_EL'           :   0.0, # degrees
+	'MAX_EL'           :  15.0, # degrees
 }
