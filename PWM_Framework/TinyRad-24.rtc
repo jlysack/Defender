@@ -1,0 +1,98 @@
+#-----------------------------------------------------
+# Set Global parameters for GUI
+#-----------------------------------------------------
+Gui_SetTitle('TinyRad 24-GHz Evaluation Software')
+Gui_SetFontSiz(16)
+Gui_SetViewIdx(1)								
+Gui_EnaViewFmcw(True)
+Gui_EnaViewRangeDoppler(True)
+Gui_EnaViewStatus(True)
+Gui_EnaViewCal(True)
+
+#-----------------------------------------------------
+# Set Parameters for FMCW Measurement View
+#-----------------------------------------------------
+PageFmcwCfg_SetStrtFreq(24040)						# Set Start Frequency of FMCW chirp in MHZ
+PageFmcwCfg_SetStopFreq(24240)						# Set Stop Frequency of FMCW chirp in MHZ
+PageFmcwCfg_SetSamples(128)							# Set Number of Samples of FMCW chirp
+PageFmcwCfg_SetTInt(80)								# Set TInt in ms
+
+PageFmcwCfg_EnaChn1(True) 							# Enable or disable channel 1
+PageFmcwCfg_EnaChn2(True) 							# Enable or disable channel 2
+PageFmcwCfg_EnaChn3(True)							# Enable or disable channel 3
+PageFmcwCfg_EnaChn4(True) 							# Enable or disable channel 4
+
+PageFmcwMeas_SetNrFrms(1000000) 					# Set number of frames for FMCW measurement page (Argument positive integer)
+PageFmcwMeas_SetRMin(0.25) 							# Set RMin (Argument positive float)
+PageFmcwMeas_SetRMax(30.0) 							# Set RMax (Argument positive float)
+PageFmcwMeas_EnaFFT(False) 							# Enable FFT (argument True or False)
+PageFmcwMeas_EnaAverage(False) 						# Enable Average (argument True or False)
+PageFmcwMeas_SetTxCfg('TX1(80);')					# Set Tx configuration string
+
+PageFmcwTimProf_SetRMin(0.25) 						# Set minimal range in measurement profile
+PageFmcwTimProf_SetRMax(30) 						# Set maximal range in measurement profile
+PageFmcwTimProf_SetNrFrms(200) 						# Set number of frames for history plot
+
+# Set parameters for signal processing in FMCW mode
+PageFmcwMeas_SetFFTSiz(2048) 						# Set FFT Size
+PageFmcwMeas_SetWinType('Hanning') 					# Set Type of window: ('Hanning', 'Hamming', 'BoxCar')
+PageFmcwMeas_SetPltLineWidth(1.0) 					# Set Linewidth for plot function
+
+#-----------------------------------------------------
+# Set Parameters for RangeDoppler Measurement View
+#-----------------------------------------------------
+PageRangeDopplerCfg_SetStrtFreq(24000)				# Set Start Frequency of FMCW chirp in MHZ
+PageRangeDopplerCfg_SetStopFreq(24250)				# Set Stop Frequency of FMCW chirp in MHZ
+PageRangeDopplerCfg_SetSamples(120)					# Set Number of Samples of FMCW chirp
+PageRangeDopplerCfg_SetChirpRep(200)				# Set FMCW chirp repetition interval
+PageRangeDopplerCfg_SetNrChirp(64)					# Set number of chirps for range-Doppler processing
+PageRangeDopplerCfg_SetTInt(100)					# Set TInt in ms
+
+PageRangeDopplerCfg_EnaNormMax(False)				# Limit range-Doppler map to maximum value
+PageRangeDopplerCfg_SetNormLimMin(-130)				# Mimimum value for normalization
+PageRangeDopplerCfg_SetNormSidelobe(25)				# Sidelobe level from maximum value (db)
+PageRangeDopplerCfg_EnaLimMinMax(True)				# Limit range-Doppler map to maximum value
+PageRangeDopplerCfg_SetLimMin(-150)					# Mimimum value for normalization
+PageRangeDopplerCfg_SetLimMax(-100)					# Sidelobe level from maximum value (db)
+
+PageRangeDopplerMeas_SetNrFrms(10ß000) 				# Set number of frames for FMCW measurement page (Argument positive integer)
+PageRangeDopplerMeas_SetRMin(0.5) 					# Set RMin (Argument positive float)
+PageRangeDopplerMeas_SetRMax(30.0) 					# Set RMax (Argument positive float)
+PageRangeDopplerMeas_SetTxCfg('TX2(100);')			# Set Tx configuration string
+
+# Set parameters for signal processing in RangeDoppler mode
+PageRangeDopplerMeas_SetRangeFFTSiz(512) 			# Set FFT Size
+PageRangeDopplerMeas_SetRangeWinType('Hanning') 	# Set Type of window in velocity direction
+PageRangeDopplerMeas_SetVelFFTSiz(256) 				# Set FFT Size
+PageRangeDopplerMeas_SetVelWinType('Hanning') 		# Set Type of window in range direction
+
+#-----------------------------------------------------
+# Set Parameters for DBF Measurement View
+#-----------------------------------------------------
+PageDBFCfg_SetStrtFreq(24000)						# Set Start Frequency of FMCW chirp in MHZ
+PageDBFCfg_SetStopFreq(24250)						# Set Stop Frequency of FMCW chirp in MHZ
+PageDBFCfg_SetSamples(256)							# Set Number of Samples of FMCW chirp
+PageDBFCfg_SetTInt(100)								# Set TInt in ms
+
+PageDBFCfg_EnaNormMax(False)						# Limit range-Doppler map to maximum value
+PageDBFCfg_SetNormLimMin(-130)						# Mimimum value for normalization
+PageDBFCfg_SetNormSidelobe(20)						# Sidelobe level from maximum value (db)
+PageDBFCfg_EnaLimMinMax(True)						# Limit range-Doppler map to maximum value
+PageDBFCfg_SetLimMin(-120)							# Mimimum value for normalization
+PageDBFCfg_SetLimMax(-80)							# Sidelobe level from maximum value (db)
+
+PageDBFMeas_SetNrFrms(10000) 					    # Set number of frames for FMCW measurement page (Argument positive integer)
+PageDBFMeas_SetRMin(0.5) 							# Set RMin (Argument positive float)
+PageDBFMeas_SetRMax(10.0) 							# Set RMax (Argument positive float)
+PageDBFMeas_SetTxCfg('TX1(80); MimoEna;')			# Set Tx configuration string
+
+# Set parameters for signal processing in DBF mode
+PageDBFMeas_SetRangeFFTSiz(512) 					# Set FFT Size 
+PageDBFMeas_SetRangeWinType('Hanning') 				# Set Type of window
+PageDBFMeas_SetAngFFTSiz(256) 						# Set FFT Size for angular direction (not used)
+PageDBFMeas_SetAngWinType('Hanning') 				# Set Type of window (not used)
+PageDBFMeas_SetBpaImSizX(250) 						# Set Image size in x direction
+PageDBFMeas_SetBpaImSizY(180) 						# Set Image size in y direction
+PageDBFMeas_SetBpaViewAng(75) 						# Set Image size in y direction
+PageDBFMeas_EnaBpaSeg(False) 						# Set Image size in y direction
+PageDBFMeas_SetSegLineWidth(2) 						# Set Image size in y direction
