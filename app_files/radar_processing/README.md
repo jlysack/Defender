@@ -1,4 +1,4 @@
-##Functions
+## Functions
 **Process Detections**
 - Set zone flags
 - Filter out spurious/irrelevant detections
