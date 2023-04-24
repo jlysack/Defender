@@ -38,7 +38,6 @@ def process_detections(detections, zone):
     try:
         assert(type(zone) == int)
     except:
-        print("poop")
         sys.exit(0)
 
     # Loop through each detection, filter out non-ADA detections, and set flags
@@ -84,4 +83,4 @@ def compute_detection_flags(detection, zone):
             flags[zone] = (True, False)
 
 if __name__ == "__main__":
-    break
+    print('hello')
