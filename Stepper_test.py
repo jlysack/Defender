@@ -25,8 +25,11 @@ def main():
 
     # ====================== section A ===================
     print("TEST SECTION A")
-
-    # motor_go(clockwise, steptype", steps, stepdelay, verbose, initdelay)
+    print("Pivot CClockwise 22.5degrees")
+    input("Press <Enter> to pivot CClockwise 22.5degrees")
+    mymotortest.motor_go(False, "1/8", 100, .005, True, .05)
+    time.sleep(1)
+    motor_go(clockwise, steptype", steps, stepdelay, verbose, initdelay)
     input("TEST: Press <Enter> to continue  Full 180 turn Test1")
     mymotortest.motor_go(False, "Full", 100, .05, False, .05)
     time.sleep(1)
@@ -46,7 +49,7 @@ def main():
     # ========================== section B =========================
     print("TEST SECTION B")
 
-    # motor_go(clockwise, steptype", steps, stepdelay, verbose, initdelay)
+    motor_go(clockwise, steptype", steps, stepdelay, verbose, initdelay)
     input("TEST: Press <Enter> to continue  half Test6")
     mymotortest.motor_go(False, "Half", 400, .005, True, .05)
     time.sleep(1)
