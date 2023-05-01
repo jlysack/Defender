@@ -33,7 +33,7 @@ def main():
 
     past_ez = "EZ3"
     print("Stepper motor currently pointing at EZ 3")
-    print("Which Zone would you like to point to? (1 or 2)")
+    print("Which Zone would you like to point to? (1 or 2)\n")
     future_ez = input()
     print(future_ez)
 
@@ -41,14 +41,67 @@ def main():
         print("Pivoting to EZ1")
         mymotortest.motor_go(False, "1/8", 100, .005, True, .05)
         time.sleep(1)
-        past_ez = "EZ1"
+        past_ez = "1"
+        print("Stepper is pointing at EZ1")
     elif future_ez == "2":
         print("Pivoting to EZ2")
         mymotortest.motor_go(True, "1/8", 100, .005, True, .05)
         time.sleep(1)
-        past_ez = "EZ2"
+        past_ez = "2"
+        print("Stepper is pointing at EZ2")
     else:
         print("Invalid entry")
+
+    cont="y"
+
+    while(cont=="y"):
+        print("Which zone would you like to point to?")
+        future_ez = input()
+        
+        if future_ez=="1":
+            if past_ez=="2":
+                print("Pivoting to EZ1")
+                mymotortest.motor_go(False,"1/8",200,.005,True,.05)
+                time.sleep(1)
+                past_ez = "1"
+                print("Stepper motor is pointing at EZ")
+            else:
+                print("Pivoting to EZ1\n")
+                mymotortest.motor_go(False,"1/8",100,.005,True,.05)
+                time.sleep(1)
+                past_ez = "1"
+                print("Stepper motor is pointing at EZ1")
+        elif future_ez=="2":
+            if past_ez=="1":
+                print("Pivoting to EZ2")
+                mymotortest.motor_go(True,"1/8",200,.005,True,.05)
+                time.sleep(1)
+                past_ez = "2"
+                print("Stepper motor is pointing at EZ2")
+            else:
+                print("Pivoting to EZ3")
+                mymotortest.motor_go(True,"1/8",100,.005,True,.05)
+                time.sleep(1)
+                past_ez = "EZ2"
+                print("Stepper motor is pointing at EZ2")
+        elif future_ez=="3":
+            if past_ez=="1":
+                print("Pivoting to EZ3")
+                mymotortest.motor_go(True,"1/8",100,.005,True,.05)
+                time.sleep(1)
+                past_ez = "EZ3"
+                print("Stepper motor is pointing at EZ3")
+            else:
+                print("Pivoting to EZ2")
+                mymotortest.motor_go(False,"1/8",100,.005,True,.05)
+                time.sleep(1)
+                past_ez = "EZ3"
+                print("Stepper motor is pointing at EZ3")
+        else:
+            print("Invalid Input\n")
+
+        print("Would you like to continue? (y or n)")
+        cont=input()
 
 # ===================MAIN===============================
 
