@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # Description:
 # Configure FMCW Mode with sequential activation of Tx antennas and measure upchirp IF signal
 #
@@ -14,7 +15,7 @@ sys.path.append("../")
 import  Class.TinyRad as TinyRad
 import  time as time
 import  numpy as np
-from    pyqtgraph.Qt import QtGui, QtCore
+from    pyqtgraph.Qt import QtGui, QtCore, QtWidgets
 import  pyqtgraph as pg
 
 # Configure script
@@ -24,7 +25,7 @@ Disp_JOpt = 1           # display cost function for DBF
 
 # Configure script
 Disp_FrmNr = 1
-Disp_TimSig = 0     # display time signals
+Disp_TimSig = 1     # display time signals
 Disp_RP = 1      # display range profile
 Disp_JOpt = 1      # display cost function for DBF
 
@@ -32,11 +33,11 @@ c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7)
 
 
 if Disp_TimSig > 0 or Disp_RP > 0 or Disp_JOpt > 0:
-    App = QtGui.QApplication([])
+    App = QtWidgets.QApplication([])
 
 if Disp_TimSig > 0:
     
-    WinTim = pg.GraphicsWindow(title="Time signals")
+    WinTim = pg.GraphicsLayoutWidget(show=True, title="Time signals")
     WinTim.setBackground((255, 255, 255))
     WinTim.resize(1000,600)
 
@@ -44,7 +45,7 @@ if Disp_TimSig > 0:
     PltTim.showGrid(x=True, y=True)
 
 if Disp_RP > 0:
-    WinRP = pg.GraphicsWindow(title="Range Profile")
+    WinRP = pg.GraphicsLayoutWidget(show=True, title="Range Profile")
     WinRP.setBackground((255, 255, 255))
     WinRP.resize(1000,600)
 
@@ -169,7 +170,7 @@ for Cycles in range(0, 1000):
         # Odd Framenumbers are for TX1 and even frame numbers for TX2
         # If a frame is missing: DBF processing will fail!!
         FrmCntr     =   Data[0,:]
-        print("FrmCntr: ", FrmCntr)
+        #print("FrmCntr: ", FrmCntr)
 
     # Format data for virtual array and remove overlapping element
     DataV = np.concatenate((Data[1:N,:], Data[N+1:,1:]), axis=1)
@@ -200,7 +201,7 @@ for Cycles in range(0, 1000):
         View.setAspectLocked(False)   
 
 
-    pg.QtGui.QApplication.processEvents()
+    App.processEvents()
     
 
 

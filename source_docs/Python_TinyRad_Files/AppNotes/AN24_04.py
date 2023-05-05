@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # AN24_04 -- Accessing Calibration Data
 
 import sys, os

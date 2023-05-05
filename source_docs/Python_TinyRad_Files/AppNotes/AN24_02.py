@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # AN24_02 -- FMCW Basics
 
 # (1) Connect to TinyRad
@@ -12,22 +13,22 @@ sys.path.append("../")
 import  Class.TinyRad as TinyRad
 import  time as time
 import  numpy as np
-from    pyqtgraph.Qt import QtGui, QtCore
+from    pyqtgraph.Qt import QtGui, QtCore, QtWidgets
 import  pyqtgraph as pg
 
 Disp_FrmNr = 1
-Disp_TimSig = 1
+Disp_TimSig = 0
 Disp_RP = 1
 
 c0 = 3e8
 
 if Disp_TimSig > 0 or Disp_RP > 0:
-    App = QtGui.QApplication([])
+    App = QtWidgets.QApplication([])
 
 if Disp_TimSig > 0:
     
 
-    WinTim = pg.GraphicsWindow(title="Time signals")
+    WinTim = pg.GraphicsLayoutWidget(show=True, title="Time signals")
     WinTim.setBackground((255, 255, 255))
     WinTim.resize(1000,600)
 
@@ -36,7 +37,7 @@ if Disp_TimSig > 0:
 
 if Disp_RP > 0:
 
-    WinRP = pg.GraphicsWindow(title="Range Profile")
+    WinRP = pg.GraphicsLayoutWidget(show=True, title="Range Profile")
     WinRP.setBackground((255, 255, 255))
     WinRP.resize(1000,600)
 
@@ -151,7 +152,8 @@ for Cycles in range(0, 1000):
 
     if Disp_TimSig > 0 or Disp_RP > 0:
         # Generate Event to update plots
-        pg.QtGui.QApplication.processEvents()
+        App.processEvents()
+        pass
 
 
 
