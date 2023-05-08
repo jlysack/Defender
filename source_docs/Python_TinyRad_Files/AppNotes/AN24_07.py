@@ -19,13 +19,8 @@ from    pyqtgraph.Qt import QtGui, QtCore, QtWidgets
 import  pyqtgraph as pg
 
 # Configure script
-Disp_FrmNr = 0
-Disp_TimSig = 0         # display time signals
-Disp_JOpt = 1           # display cost function for DBF
-
-# Configure script
 Disp_FrmNr = 1
-Disp_TimSig = 1     # display time signals
+Disp_TimSig = 0     # display time signals
 Disp_RP = 1      # display range profile
 Disp_JOpt = 1      # display cost function for DBF
 
@@ -126,11 +121,8 @@ kf = Brd.Get('kf')
 vRange = np.arange(NFFT)/NFFT*fs*c0/(2*kf)
 
 # Configure range interval to be displayed
-RMin = 1
-RMax = 10
-
-RMin = 1
-RMax = 10
+RMin = 5
+RMax = 100
 RMinIdx = np.argmin(np.abs(vRange - RMin))
 RMaxIdx = np.argmin(np.abs(vRange - RMax))
 vRangeExt = vRange[RMinIdx:RMaxIdx]
