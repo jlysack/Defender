@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # Getting Started
 
 # (1) Connect to DemoRad

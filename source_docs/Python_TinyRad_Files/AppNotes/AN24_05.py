@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 # Calculate digital beamforming with one TX antenna
 
 # (1) Connect to Radarbook2 with ADF24 Frontend
