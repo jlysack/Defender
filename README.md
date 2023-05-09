@@ -52,3 +52,7 @@ With that said, we may want to apply some aspects of OOP, perhaps passing an int
 ### Logging
 - Scenario #2 in this resource on [Python logging](https://medium.com/analytics-vidhya/the-python-logging-cheatsheet-easy-and-fast-way-to-get-logging-done-in-python-aa3cb99ecfe8#:~:text=The%20fastest%20way%20to%20get,it%20to%20the%20ROOT%20logger) describes an option for thread-safe logging in Python for a multithreaded application.
 
+## Integration and Test TO-DOs
+- Characterize angular behavior of TinyRad in Azimuth and Elevation
+- Test TinyRad in a clear field with minimal targets
+
