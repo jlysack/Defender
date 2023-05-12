@@ -98,24 +98,27 @@ def main():
                 # do nothing, since already pointing at EZ2
                 print("Stepper motor is already pointing at EZ2")
         elif future_ez=="3":
-            # This section ensures that motor pivots to 
+            # This section ensures that motor pivots to EZ3
             if past_ez=="1":
+	        # Currently pointing at EZ1, now pivoting to EZ3
                 print("Pivoting to EZ3")
                 mymotortest.motor_go(True,"1/8",100,.005,True,.05)
                 time.sleep(1)
                 past_ez = "3"
                 print("Stepper motor is pointing at EZ3")
             elif past_ez=="2":
+	        # Currently pointing at EZ1, now pivoting to EZ2
                 print("Pivoting to EZ2")
                 mymotortest.motor_go(False,"1/8",100,.005,True,.05)
                 time.sleep(1)
                 past_ez = "3"
                 print("Stepper motor is pointing at EZ3")
             else:
+	        # do nothing, since already pointing to EZ3
                 print("Stepper motor is already pointing at EZ3")
         else:
             print("Invalid Input\n")
-        # receive user input if they would like to continue (eventually get rid of this step
+        # receive user input if they would like to continue (eventually get rid of this step)
         print("Would you like to continue? (y or n)")
         cont=input()
 
