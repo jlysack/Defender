@@ -10,6 +10,7 @@
 # (6) Configure signal processing
 # (7) Calculate DBF algorithm
 
+import matplotlib.pyplot as plt
 import sys, os
 sys.path.append("../")
 import  Class.TinyRad as TinyRad
@@ -32,7 +33,7 @@ Disp_FrmNr = 1
 Disp_TimSig = 0     # display time signals
 Disp_RP = 1      # display range profile
 Disp_Sum = 1
-Disp_JOpt = 0      # display cost function for DBF
+Disp_JOpt = 1      # display cost function for DBF
 
 c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7)
 
@@ -50,7 +51,7 @@ if Disp_TimSig > 0:
     PltTim.showGrid(x=True, y=True)
 
 if Disp_RP > 0:
-    WinRP = pg.GraphicsLayoutWidget(show=False, title="Range Profile")
+    WinRP = pg.GraphicsLayoutWidget(show=True, title="Range Profile")
     WinRP.setBackground((255, 255, 255))
     WinRP.resize(1000,600)
 
@@ -58,7 +59,7 @@ if Disp_RP > 0:
     PltRP.showGrid(x=True, y=True)
 
 if Disp_Sum > 0:
-    WinSum = pg.GraphicsLayoutWidget(show=False, title="Sum Channel Data")
+    WinSum = pg.GraphicsLayoutWidget(show=True, title="Sum Channel Data")
     WinSum.setBackground((255, 255, 255))
     WinSum.resize(1000,600)
 
@@ -142,8 +143,8 @@ kf = Brd.Get('kf')
 vRange = np.arange(NFFT)/NFFT*fs*c0/(2*kf)
 
 # Configure range interval to be displayed
-RMin = 0
-RMax = 5
+RMin = 5
+RMax = 100
 RMinIdx = np.argmin(np.abs(vRange - RMin))
 RMaxIdx = np.argmin(np.abs(vRange - RMax))
 vRangeExt = vRange[RMinIdx:RMaxIdx]
@@ -226,6 +227,14 @@ for Cycles in range(0, 500):
     if Disp_JOpt > 0:
         JOpt = np.fft.fftshift(np.fft.fft(RP*WinAnt2D, NFFTAnt, axis=1)/ScaWinAnt, axes=1)
         
+        #i = np.real(JOpt)
+        #q = np.imag(JOpt)
+
+        #print(i[1,:])
+        #plt.scatter(i,q)
+        #plt.pause(0.05)
+
+        
         JdB = 20*np.log10(np.abs(JOpt))
         JMax = np.max(JdB)
         JNorm = JdB - JMax
@@ -233,6 +242,7 @@ for Cycles in range(0, 500):
     
         Img.setImage(JNorm.T, pos=[-1,RMin], scale=[2.0/NFFTAnt,(RMax - RMin)/vRangeExt.shape[0]]) 
         View.setAspectLocked(False)   
+        #plt.show()
 
 
     App.processEvents()
