@@ -36,14 +36,16 @@ def main():
     print("Stepper motor currently pointing at EZ 3")
     print("Search or Stare state? (1 = Search, 2 = Stare)")
     mode_select = input()
-    
+
     if mode_select == "1":
-	    print("Search State Test\n")
+        print("Search State Test\n")
         past_ez = "3"
-        while True:
-            past_ez = past_ez + 1
-            print(past_ez)
-            time.sleep(1)
+        dumb = 0
+        try:
+            while True:
+                dumb = dumb + 1
+                print(dumb)
+                time.sleep(1)
         except KeyboardInterrupt:
             pass
     elif mode_select == "2":
