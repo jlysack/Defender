@@ -38,7 +38,14 @@ def main():
     mode_select = input()
     
     if mode_select == "1":
-	print("Search State Test")
+	    print("Search State Test\n")
+        past_ez = "3"
+        while True:
+            past_ez = past_ez + 1
+            print(past_ez)
+            time.sleep(1)
+        except KeyboardInterrupt:
+            pass
     elif mode_select == "2":
         print("Which Zone would you like to point to? (1 or 2)")
         future_ez = input()
@@ -114,7 +121,7 @@ def main():
             print("Would you like to continue? (y or n)")
             cont=input()
     else:
-	print("Invalid entry")
+	    print("Invalid entry")
 	
 # ===================MAIN===============================
 
