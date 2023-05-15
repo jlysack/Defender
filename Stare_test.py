@@ -40,12 +40,32 @@ def main():
     if mode_select == "1":
         print("Search State Test\n")
         past_ez = "3"
+	past_ez2 = "2"
         dumb = 0
         try:
             while True:
-                dumb = dumb + 1
-                print(dumb)
-                time.sleep(1)
+                if past_ez == "3" and past_ez2 == "2":
+                    print("Pivoting to EZ1")
+                    mymotortest.motor_go(False,"1/8",100,.005,True,.05)
+                    past_ez2 = "1"
+		    time.sleep(3)
+	        elif past_ez == "3" and past_ez2 == "2":
+		    print("Pivoting to EZ2")
+                    mymotortest.motor_go(False,"1/8",100,.005,True,.05)
+                    time.sleep(3)
+                    past_ez = "3"
+		elif past_ez == "3" and past_ez2 == "1":
+		    print("Pivoting to EZ2")
+                    mymotortest.motor_go(True,"1/8",100,.005,True,.05)
+                    time.sleep(3)
+                    past_ez = "2"
+		elif past_ez == "1" and past_ez2 == "3":
+		    print("Pivoting to EZ3")
+                    mymotortest.motor_go(True,"1/8",100,.005,True,.05)
+                    time.sleep(1)
+                    past_ez = "3"
+		else:
+		    print("Error1")
         except KeyboardInterrupt:
             pass
     elif mode_select == "2":
@@ -96,7 +116,7 @@ def main():
                     past_ez = "2"
                     print("Stepper motor is pointing at EZ2")
                 elif past_ez=="3":
-                    print("Pivoting to EZ3")
+                    print("Pivoting to EZ2")
                     mymotortest.motor_go(True,"1/8",100,.005,True,.05)
                     time.sleep(1)
                     past_ez = "2"
@@ -120,10 +140,11 @@ def main():
                     print("Stepper motor is already pointing at EZ3")
             else:
                 print("Invalid Input\n")
+
             print("Would you like to continue? (y or n)")
             cont=input()
     else:
-	    print("Invalid entry")
+        print("Invalid entry")
 	
 # ===================MAIN===============================
 
