@@ -18,7 +18,7 @@ class TinyRad(UsbADI.UsbADI):
     def __init__(self, stConType='Usb', *args):
         # Call Constructor of DemoRad Class
         super(TinyRad, self).__init__(stConType, *args)
-        self.DebugInf                   =   0
+        self.DebugInf                   =   0 # RM: use me for debug
         #>  Object of first receiver (DevAdf5904 class object)
         self.Adf_Rx                =   []
         #>  Object of transmitter (DevAdf5901 class object)
