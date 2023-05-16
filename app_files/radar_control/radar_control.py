@@ -232,6 +232,21 @@ def main_loop(Brd, sigpro_cfg, display_cfg):
         #    Img.setImage(JNorm.T, pos=[-1,RMin], scale=[2.0/NFFTAnt,(RMax - RMin)/vRangeExt.shape[0]])
         #    View.setAspectLocked(False)
 
+def dictify_board_config(BoardCfg):
+    brd_cfg = dict()
+    brd_cfg['fStrt']        = BoardCfg.fStrt
+    brd_cfg['fStop']        = BoardCfg.fStop
+    brd_cfg['TRampUp']      = BoardCfg.TRampUp
+    brd_cfg['Perd']         = BoardCfg.Perd
+    brd_cfg['N']            = BoardCfg.N
+    brd_cfg['Seq']          = BoardCfg.Seq
+    brd_cfg['CycSiz']       = BoardCfg.CycSiz
+    brd_cfg['FrmSiz']       = BoardCfg.FrmSiz
+    brd_cfg['FrmMeasSiz']   = BoardCfg.FrmMeasSiz
+
+    return brd_cfg
+
+
 def configure_sigpro(Brd):
     c0 = const.c0
     # TODO: Change brd_cfg dict to class/object Brbrd_cfg (maybe have them both inherit from a general Config class)
@@ -250,7 +265,6 @@ def configure_sigpro(Brd):
     brd_cfg['CycSiz']       = 4
     brd_cfg['FrmSiz']       = 128
     brd_cfg['FrmMeasSiz']   = 1 
-
     Brd.RfMeas(brd_cfg)
 
 
