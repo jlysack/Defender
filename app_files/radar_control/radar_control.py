@@ -194,6 +194,11 @@ def compute_range_and_angle(normalized_amp, sigpro_cfg):
     angle_sample_idx = -1111
     range_sample_idx = -1111
 
+    # TODO: Add in processing to handle situations where there are NO targets,
+    #       since we don't want to report the range/angle of the max amplitude
+    #       of noise --> this might just require changing amp_floor in the 
+    #       compute_sum_data function
+
     # Iterate over each angle increment
     for angle_idx, angle_data in enumerate(normalized_amp):
         # If the max amplitude across all range samples for the given angle
