@@ -258,8 +258,7 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
         range_val, angle_val = compute_range_and_angle(normalized_amp, sigpro_cfg)
 
         # Log Range and Angle values
-#        logger.info(f"Range: {range_val}, \t Angle: {angle_val}")
-        print(f"Range: {range_val}, \t Angle: {angle_val}")
+        logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg")
 
         # TODO: Revisit this section if we decide we want to actually plot things
         if plot_cfg.time_signals is True:
