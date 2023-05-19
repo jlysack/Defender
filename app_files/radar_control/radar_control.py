@@ -5,16 +5,14 @@ import logging
 import sys, os
 sys.path.append("../")
 import Class.TinyRad as TinyRad
-import time as time
+from Class.Configuration import SigProConfig, PlotConfig, BoardConfig
 import numpy as np
 import matplotlib.pyplot as plt
-import pyqtgraph as pg
-from pyqtgraph.Qt import QtGui, QtCore, QtWidgets
 import signal
 import constants as const
-import scipy
+import argparse
 
-def init_rad_control_logger():
+def init_rad_control_logger(debug_enabled = False):
     # Get current Python filename
     app_name = str(os.path.basename(__file__)).strip('.py')
 
@@ -26,12 +24,16 @@ def init_rad_control_logger():
 
     # Create file handler 
     now = str(datetime.now().strftime('%Y%m%d_%H%M%S'))
-    file_handler = logging.FileHandler(filename = str(app_name + '_' + now + '.log'))
+    file_handler = logging.FileHandler(filename = str('logs/' + app_name + '_' + now + '.log'))
 
     # Set default logging levels for logger, console handler and file handler
     logger.setLevel(logging.DEBUG)
-    stream_handler.setLevel(logging.WARN)
     file_handler.setLevel(logging.DEBUG)
+    
+    if debug_enabled is True:
+        stream_handler.setLevel(logging.DEBUG)
+    else:
+        stream_handler.setLevel(logging.WARN)
 
     # Create formatter
     formatter = logging.Formatter('%(asctime)s: %(name)s - %(funcName)s - %(levelname)s: %(message)s')
@@ -49,6 +51,7 @@ def init_rad_control_logger():
 
 def signal_handler(sig, frame):    
     print('\nCtrl-C entered. Killing processes.')
+    os.killpg(0, signal.SIGKILL)
     sys.exit(0)
 
 def configure_tinyrad():
@@ -73,7 +76,7 @@ def configure_tinyrad():
     
     return Brd
 
-def plot_time_signals(DataV, NrChn, N):
+def plot_time_signals(DataV, num_channels, N):
     # TODO: Clean-up -- do I need to keep this?
 
     N = np.arange(int(N))
@@ -82,7 +85,7 @@ def plot_time_signals(DataV, NrChn, N):
 
     #plt.figure('Time Signals')
 
-    #for chan_index in np.arange(2*NrChn - 1):
+    #for chan_index in np.arange(2*num_channels - 1):
     #    plt.plot(N[1:], DataV[:, chan_index], label = str('Channel ' + \
     #                                                  str(chan_index)))
 
@@ -100,19 +103,19 @@ def plot_time_signals(DataV, NrChn, N):
     plt.pause(0.0001)
     plt.clf()
 
-def plot_range_profile(rp_iq_data, range_extent_vec, NrChn, N):
+def plot_range_profile(rp_iq_data, range_extent_vec, num_channels, N):
     # TODO: Clean-up
 
     plt.figure('Range Profile')
 
     amplitudes = []
-    for chan_index in np.arange(2*NrChn - 1):
+    for chan_index in np.arange(2*num_channels - 1):
         chan_amp_db = 20*np.log10(np.abs(rp_iq_data[:, chan_index]))
         chan_phase = np.angle(rp_iq_data[:, chan_index])
         amplitudes.append(chan_amp_db)
-        #plt.plot(range_extent_vec, chan_amp_db, label = str('Channel ' + \
-        plt.plot(range_extent_vec, chan_phase, label = str('Channel ' + \
-                                                         str(chan_index)))
+        plt.plot(range_extent_vec, chan_amp_db, label = str('Channel ' + \
+        #plt.plot(range_extent_vec, chan_phase, label = str('Channel ' + \
+                                                        str(chan_index)))
     plt.draw()
     plt.legend()
     plt.xlim([min(range_extent_vec), max(range_extent_vec)])
@@ -122,91 +125,8 @@ def plot_range_profile(rp_iq_data, range_extent_vec, NrChn, N):
 
     return amplitudes
 
-def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
-    #plt.figure('Sum Data')
-
-    logger = sigpro_cfg['logger']
-
-    normalized_amp = compute_sum_data(rp_iq_data, sigpro_cfg) 
-
-    range_val, angle_val = compute_range_and_angle(normalized_amp, sigpro_cfg)
-
-    logger.info(f"Range: {range_val}, Angle: {angle_val}")
-
-    return 0, 1
-
-    iq_sum = np.zeros_like(rp_iq_data[:, 0])
-
-    #for chan_index in np.arange(2*NrChn - 1):
-    #    iq_sum += rp_iq_data[:, chan_index]
-
-    # RM DEBUG START
-
-    JOpt = np.fft.fftshift(np.fft.fft(rp_iq_data*sigpro_cfg['WinAnt2D'], \
-                                                 sigpro_cfg['NFFTAnt'], axis=1)/  \
-                                                 sigpro_cfg['ScaWinAnt'], axes=1)
-
-    JdB = 20*np.log10(np.abs(JOpt))
-    JMax = np.max(JdB)
-    JNorm = JdB - JMax
-    JFloor = -25
-    JNorm[JNorm < JFloor] = JFloor # TODO: -25 being used as a floor value --> what happens if we change this?
-
-    max_val = -1e9
-    angle = -1
-    for i, angle_offset in enumerate(JNorm.T):
-        if angle_offset.max() > max_val:
-            max_val = angle_offset.max()
-            sample_num = angle_offset.argmax()
-            print("sample: " + str(sample_num))
-            angle = i
-            print("angle: " + str(angle))
-
-    print('Range: ' + str(range_extent_vec[sample_num]))
-    #print('Angle: ' + str(angle))
-    print('Angle: ' + str(sigpro_cfg['vAngDeg'][angle]))
-    print('')
-        
-
-# TODO: Move this code somewhere with the function to print 2D HeatMap
-#    x_data = np.arange(len(JOpt))
-#    y_data = range_extent_vec
-#    z_data = JNorm
-#
-#    fig, ax = plt.subplots(num=99, clear=True)
-#    im = ax.imshow(z_data)
-#
-#    ax.set_xticks(x_data)
-#    ax.set_yticks(y_data)
-#
-#    fig.tight_layout()
-#
-#    plt.draw()
-#    plt.pause(0.0001)
-#    plt.clf()
-#
-    return JdB, JMax
-
-def compute_sum_data(rp_iq_data, sigpro_cfg):
-    logger = sigpro_cfg['logger']
-
-    amplitude_map_iq = (np.fft.fftshift(
-                        np.fft.fft(rp_iq_data * sigpro_cfg['WinAnt2D'], \
-                                                sigpro_cfg['NFFTAnt'], axis=1)/ \
-                                                sigpro_cfg['ScaWinAnt'], axes=1))
-
-    amplitude_map_db = 20*np.log10(np.abs(amplitude_map_iq))
-
-    amp_max  = np.max(amplitude_map_db)
-    normalized_amp = amplitude_map_db - amp_max
-
-    amp_floor = -25
-    normalized_amp[normalized_amp < amp_floor] = amp_floor # Filter out values with amplitudes below floor threshold
-
-    return normalized_amp.T # Normalized Amplitude, indexed by Angle and then Sample
-
-
-# TODO: Clean-up this entire section after the return above...
+def plot_sum_data(rp_iq_data, range_extent_vec, num_channels, N, sigpro_cfg):
+    # TODO: Clean-up this entire section after the return above...
     plt.plot(range_extent_vec, JNorm.T[0])
     plt.xlim([min(range_extent_vec), max(range_extent_vec)])
     plt.draw()
@@ -218,14 +138,14 @@ def compute_sum_data(rp_iq_data, sigpro_cfg):
     amplitudes = []
     angles = []
 
-    for chan_index in np.arange(2*NrChn - 1):
+    for chan_index in np.arange(2*num_channels - 1):
         chan_amp_iq = np.abs(rp_iq_data[:, chan_index]) 
         chan_phase = np.angle(rp_iq_data[:, chan_index])
         amplitudes.append(chan_amp_iq)
         angles.append(chan_phase)
 
 
-    for chan_index in np.arange(2*NrChn - 1):
+    for chan_index in np.arange(2*num_channels - 1):
         iq_sum += amplitudes[chan_index]*np.exp(-1j*angles[chan_index])
 
 
@@ -248,207 +168,144 @@ def compute_sum_data(rp_iq_data, sigpro_cfg):
 
     return iq_sum, sum_amp
 
+def compute_sum_data(rp_iq_data, sigpro_cfg):
+    # Create 2D "Heat Map" of I/Q data
+    amplitude_map_iq = (np.fft.fftshift(
+                        np.fft.fft(rp_iq_data * sigpro_cfg.ant_window_2d, \
+                                                sigpro_cfg.NFFTAnt, axis=1)/ \
+                                                sigpro_cfg.sca_ant_window, axes=1))
+
+    # Convert to dB
+    amplitude_map_db = 20*np.log10(np.abs(amplitude_map_iq))
+
+    # Pull out the max and normalize the 2D matrix
+    amp_max  = np.max(amplitude_map_db)
+    normalized_amp = amplitude_map_db - amp_max # subtract instead of divide since it's log math
+
+    # Filter out values with amplitudes below threshold "floor" value
+    amp_floor = -25 #TODO: Make this value part of sigpro_cfg
+    normalized_amp[normalized_amp < amp_floor] = amp_floor 
+
+    return normalized_amp.T # Normalized Amplitude, indexed by Angle and then Sample
+
 def compute_range_and_angle(normalized_amp, sigpro_cfg):
-    logger = sigpro_cfg['logger']
     # Initialize intermediate variables
-    max_val_tmp      = -1e9
+    max_val_tmp      = -1111
     angle_sample_idx = -1111
     range_sample_idx = -1111
 
+    # TODO: Add in processing to handle situations where there are NO targets,
+    #       since we don't want to report the range/angle of the max amplitude
+    #       of noise --> this might just require changing amp_floor in the 
+    #       compute_sum_data function
+
+    # Iterate over each angle increment
     for angle_idx, angle_data in enumerate(normalized_amp):
+        # If the max amplitude across all range samples for the given angle
+        # increment is larger than the stored max, save the new max and store
+        # the range sample and angle increment/sample at which the max amplitude
+        # was found
         if angle_data.max() > max_val_tmp:
             max_val_tmp = angle_data.max()
             
             tgt_range_sample = angle_data.argmax()
             tgt_angle_sample = angle_idx
 
-    range_val = sigpro_cfg['range_extent_vec'][tgt_range_sample]
-    angle_val = sigpro_cfg['vAngDeg'][tgt_angle_sample]
+    # Index the range and angle extent vectors using the saved max amp indices
+    range_val = sigpro_cfg.range_extent_vec[tgt_range_sample]
+    angle_val = sigpro_cfg.angle_extent_vec[tgt_angle_sample]
 
     return range_val, angle_val
 
-def main_loop(Brd, sigpro_cfg, display_cfg):
-    # TODO: RENAME MAIN_LOOP TO SOMETHING ELSE
-    # TODO: Replace sigpro_cfg with a class/object SigProConfig
-    N = sigpro_cfg['num_samples']
-    NrChn = sigpro_cfg['num_channels']
-    Win2D = sigpro_cfg['Win2D']
-    ScaWin = sigpro_cfg['ScaWin']
-    RMin = sigpro_cfg['min_range']
-    RMax = sigpro_cfg['max_range']
-    RMinIdx = sigpro_cfg['min_range_idx']
-    RMaxIdx = sigpro_cfg['max_range_idx']
-    NFFT = sigpro_cfg['NFFT']
-    vRangeExt = sigpro_cfg['range_extent_vec']
+def radar_search(Brd, sigpro_cfg, plot_cfg):
+    # Store SigPro Config object variables locally
+    num_samples         = sigpro_cfg.num_samples
+    num_channels        = sigpro_cfg.num_channels
+    hann_window_2d      = sigpro_cfg.hann_window_2d
+    sca_hann_window     = sigpro_cfg.sca_hann_window
+    min_range_idx       = sigpro_cfg.min_range_idx
+    max_range_idx       = sigpro_cfg.max_range_idx
+    NFFT                = sigpro_cfg.NFFT
+    range_extent_vector = sigpro_cfg.range_extent_vec
+    logger              = sigpro_cfg.logger
 
     #--------------------------------------------------------------------------
-    # Measure and calculate DBF
+    # Radiate and Perform Signal Processing
     #--------------------------------------------------------------------------
     while True:
         # Record data for Tx1 and Tx2
-        Data = Brd.BrdGetData()
+        Data = Brd.BrdGetData() # NOTE: RF SAFETY IMPLICATIONS
 
-        #if Disp_FrmNr > 0:
-        #    # Framenumber is used to check measurement sequence.
-        #    # Odd Framenumbers are for TX1 and even frame numbers for TX2
-        #    # If a frame is missing: DBF processing will fail!!
-        #    FrmCntr     =   Data[0,:]
-        #    #print("FrmCntr: ", FrmCntr)
+        if plot_cfg.frame_numbers is True:
+            # Framenumber is used to check measurement sequence.
+            # Odd Framenumbers are for TX1 and even frame numbers for TX2
+            # If a frame is missing: DBF processing will fail!!
+            frame_counter = Data[0,:]
+            logger.debug(f"FrmCntr: {frame_counter}")
 
         # Format data for virtual array and remove overlapping element
-        DataV = np.concatenate((Data[1:N,:], Data[N+1:,1:]), axis=1)
+        DataV = np.concatenate((Data[1:num_samples,:], \
+                                Data[num_samples+1:,1:]), axis=1)
 
         # Calculate range profile including calibration
-        RP = 2*np.fft.fft(DataV[:,:]*Win2D, n=NFFT, axis=0)/ScaWin*Brd.FuSca
-        RP = RP[RMinIdx:RMaxIdx,:] # IQ data for ranges between RMin and RMax
+        rp_iq_data = 2 * np.fft.fft(DataV[:,:] * hann_window_2d, n=NFFT, axis=0) \
+                        / sca_hann_window * Brd.FuSca
 
-        #print(len(RP))
-        #print(len(RP[0]))
-        #for chan, data in enumerate(RP):
-        #    print('Channel '+str(chan)+': '+str(data))
+        # Filter out IQ data outside min to max range
+        rp_iq_data = rp_iq_data[min_range_idx:max_range_idx,:]
 
+        # Get normalized amplitude matrix, indexed by angle increment and then range sample 
+        normalized_amp = compute_sum_data(rp_iq_data, sigpro_cfg) 
+        
+        # Pull out range and angle values of maximum amplitude detection
+        #   range_val units: meters
+        #   angle_val units: degrees
+        range_val, angle_val = compute_range_and_angle(normalized_amp, sigpro_cfg)
 
-        if display_cfg['time_signals'] is True:
-            plot_time_signals(DataV, NrChn, N)
+        # Log Range and Angle values
+        logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg")
 
-        if display_cfg['range_profile'] is True:
-            chan_amps_db                = plot_range_profile(RP, vRangeExt, NrChn, N)
+        # TODO: Revisit this section if we decide we want to actually plot things
+        if plot_cfg.time_signals is True:
+            plot_time_signals(DataV, num_channels, N)
 
-        if display_cfg['sum_data'] is True:
-            sum_chan_iq, sum_chan_db    = plot_sum_data(RP, vRangeExt, NrChn, N, sigpro_cfg)
+        if plot_cfg.range_profile is True:
+            chan_amps_db                = plot_range_profile(rp_iq_data, range_extent_vector, num_channels, N)
 
-        #if Disp_JOpt > 0:
-        #    JOpt = np.fft.fftshift(np.fft.fft(RP*WinAnt2D, NFFTAnt, axis=1)/ScaWinAnt, axes=1)
+        if plot_cfg.sum_data is True:
+           sum_chan_iq, sum_chan_db    = plot_sum_data(rp_iq_data, range_extent_vector, num_channels, N, sigpro_cfg)
 
-        #    JdB = 20*np.log10(np.abs(JOpt))
-        #    JMax = np.max(JdB)
-        #    JNorm = JdB - JMax
-        #    JNorm[JNorm < -25] = -25
-
-        #    Img.setImage(JNorm.T, pos=[-1,RMin], scale=[2.0/NFFTAnt,(RMax - RMin)/vRangeExt.shape[0]])
-        #    View.setAspectLocked(False)
-
-def dictify_board_config(BoardCfg):
-    brd_cfg = dict()
-    brd_cfg['fStrt']        = BoardCfg.fStrt
-    brd_cfg['fStop']        = BoardCfg.fStop
-    brd_cfg['TRampUp']      = BoardCfg.TRampUp
-    brd_cfg['Perd']         = BoardCfg.Perd
-    brd_cfg['N']            = BoardCfg.N
-    brd_cfg['Seq']          = BoardCfg.Seq
-    brd_cfg['CycSiz']       = BoardCfg.CycSiz
-    brd_cfg['FrmSiz']       = BoardCfg.FrmSiz
-    brd_cfg['FrmMeasSiz']   = BoardCfg.FrmMeasSiz
-
-    return brd_cfg
-
-
-def configure_sigpro(Brd):
-    c0 = const.c0
-    # TODO: Change brd_cfg dict to class/object Brbrd_cfg (maybe have them both inherit from a general Config class)
-    sigpro_cfg = dict()
-    # Configure Measurements
-    # Cfg.Perd: time between measuremnets: must be greater than 1 us*N + 10us
-    # Cfg.N: number of samples collected: 1e66 * TRampUp = N; if N is smaller
-    # only the first part of the ramp is sampled; if N is larger than the
-    brd_cfg = dict()
-    brd_cfg['fStrt']        = 24.00e9
-    brd_cfg['fStop']        = 24.25e9
-    brd_cfg['TRampUp']      = 256e-6
-    brd_cfg['Perd']         = 0.4e-3  # 400 us
-    brd_cfg['N']            = 256
-    brd_cfg['Seq']          = [1, 2]
-    brd_cfg['CycSiz']       = 4
-    brd_cfg['FrmSiz']       = 128
-    brd_cfg['FrmMeasSiz']   = 1 
-    Brd.RfMeas(brd_cfg)
-
-
-    # Read actual board configuration
-    NrChn    = int(Brd.Get('NrChn'))
-    N        = int(Brd.Get('N'))
-    fs       = Brd.Get('fs')        # Sampling Frequency (1 MHz)
-
-    # Configure Signal Processing
-    
-    # Processing of Range Profile
-    NFFT = 2**12
-
-    Win2D = Brd.hanning(N-1, 2*NrChn-1)
-    ScaWin = np.sum(Win2D[:,0])
-    kf = Brd.Get('kf')
-    vRange = np.arange(NFFT)/NFFT*fs*c0/(2*kf)
-
-    # Configure range interval to be displayed
-    RMin = 0 # meters
-    RMax = 5 # meters
-    RMinIdx = np.argmin(np.abs(vRange - RMin)) # array index of RMin meters
-    RMaxIdx = np.argmin(np.abs(vRange - RMax)) # array index of RMax meters
-    DataRate = 16*NrChn*N*brd_cfg['FrmMeasSiz']/(brd_cfg['FrmSiz']*brd_cfg['Perd'])
-    print('DataRate: ', (DataRate/1e6), ' MBit/s')
-    vRangeExt = vRange[RMinIdx:RMaxIdx]        # array of ranges between RMin and RMax
-
-    # Window function for receive channels
-    NFFTAnt = 256
-    WinAnt2D = Brd.hanning(2*NrChn-1, len(vRangeExt))
-    ScaWinAnt = np.sum(WinAnt2D[:,0])
-    WinAnt2D = WinAnt2D.transpose()
-    vAngDeg  = np.arcsin(2*np.arange(-NFFTAnt//2, NFFTAnt//2)/NFFTAnt)/np.pi*180
-
-    sigpro_cfg['board_params']      = brd_cfg
-    sigpro_cfg['num_channels']      = NrChn
-    sigpro_cfg['num_samples']       = N
-    sigpro_cfg['samp_freq']         = fs
-    sigpro_cfg['NFFT']              = NFFT
-    sigpro_cfg['Win2D']             = Win2D
-    sigpro_cfg['ScaWin']            = ScaWin
-    sigpro_cfg['kf']                = kf
-    sigpro_cfg['vRange']            = vRange
-    sigpro_cfg['min_range']         = RMin
-    sigpro_cfg['max_range']         = RMax
-    sigpro_cfg['min_range_idx']     = RMinIdx
-    sigpro_cfg['max_range_idx']     = RMaxIdx
-    sigpro_cfg['range_extent_vec']  = vRangeExt
-    sigpro_cfg['NFFTAnt']           = NFFTAnt
-    sigpro_cfg['WinAnt2D']          = WinAnt2D
-    sigpro_cfg['ScaWinAnt']         = ScaWinAnt
-    sigpro_cfg['vAngDeg']           = vAngDeg
-
-    return sigpro_cfg
 
 if __name__ == "__main__":
-
-    logger = init_rad_control_logger()
-    # Handle Ctrl+C
+    # Initialize Ctrl+C signal handler
     signal.signal(signal.SIGINT, signal_handler)
+    os.setpgrp()
 
-    # Configure plots
-    # TODO: Change Display Config dict to a class/object
-    display_cfg = dict()
-    display_cfg['frame_numbers']     = False # display frame numbers
-    display_cfg['time_signals']      = False # display time signals
-    display_cfg['range_profile']     = False  # display range profiles
-    display_cfg['sum_data']          = True # display sum of all (7) range profile channels
-    display_cfg['dbf_cost_function'] = False # display "cost function for dbf"
+    # Initialize argparse and save CLI arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('min_range', type=int, help="Minimum range (in meters) for RF Signal Processing")
+    parser.add_argument('max_range', type=int, help="Maximum range (in meters) for RF Signal Processing")
+    parser.add_argument('-l', '--log', required=False, help="Enable debug logging to the command line", action="store_true")
+    args = parser.parse_args()
 
-    # Constants
-    c0 = const.c0
+    # Initialize logger
+    logger = init_rad_control_logger(args.log)
 
+    # Initialize Plot Config
+    plot_cfg = PlotConfig()
+
+    # Initialize Board object
     Brd = configure_tinyrad()
 
-    sigpro_cfg = configure_sigpro(Brd)
-    sigpro_cfg['logger'] = logger
+    # Initialize SigPro Config
+    sigpro_cfg = SigProConfig(Brd)
+    sigpro_cfg.logger = logger
+    
+    # NOTE: __main__ only -- Adjust min/max range based on CLI arguments
+    sigpro_cfg.min_range = args.min_range
+    sigpro_cfg.max_range = args.max_range
 
-
-    main_loop(Brd, sigpro_cfg, display_cfg)
-
-    del Brd
+    # Main loop
+    radar_search(Brd, sigpro_cfg, plot_cfg)
 
     signal.pause()
-
-    # TODO: Implement section for configuration of signal processor constants
-        # TODO: Make both of the above configurable on-the-fly
-    # TODO: Implement board control function (reset, get data, etc.) with return
-            # value checking
-    # TODO 5/14/2023: Sum Data plotting now prints out range and angle of max 
-    #                 amplitude -- need to test this out in a clear test area
