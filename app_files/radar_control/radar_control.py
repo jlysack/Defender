@@ -17,6 +17,8 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 def configure_tinyrad():
+    # TODO: Clean-up, add more functionality?
+
     # Setup Connection
     Brd = TinyRad.TinyRad('Usb')
     
@@ -37,6 +39,8 @@ def configure_tinyrad():
     return Brd
 
 def plot_time_signals(DataV, NrChn, N):
+    # TODO: Clean-up -- do I need to keep this?
+
     N = np.arange(int(N))
 
     fig, ax = plt.subplots(4, sharex='col', sharey='row', num=99, clear=True)
@@ -62,6 +66,8 @@ def plot_time_signals(DataV, NrChn, N):
     plt.clf()
 
 def plot_range_profile(rp_iq_data, range_extent_vec, NrChn, N):
+    # TODO: Clean-up
+
     plt.figure('Range Profile')
 
     amplitudes = []
@@ -91,14 +97,17 @@ def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
 
     # RM DEBUG START
 
-    JOpt = np.fft.fftshift(np.fft.fft(rp_iq_data*sigpro_cfg['WinAnt2D'], sigpro_cfg['NFFTAnt'], axis=1)/ \
-                           sigpro_cfg['ScaWinAnt'], axes=1)
+    JOpt = np.fft.fftshift(np.fft.fft(rp_iq_data*sigpro_cfg['WinAnt2D'], \
+                                                 sigpro_cfg['NFFTAnt'], axis=1)/  \
+                                                 sigpro_cfg['ScaWinAnt'], axes=1)
 
     JdB = 20*np.log10(np.abs(JOpt))
     JMax = np.max(JdB)
     JNorm = JdB - JMax
-    JNorm[JNorm < -25] = -25
+    JFloor = -25
+    JNorm[JNorm < JFloor] = JFloor # TODO: -25 being used as a floor value --> what happens if we change this?
 
+# TODO: Move this code somewhere with the function to print 2D HeatMap
 #    x_data = np.arange(len(JOpt))
 #    y_data = range_extent_vec
 #    z_data = JNorm
@@ -131,6 +140,7 @@ def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
 
     return JdB, JMax
 
+# TODO: Clean-up this entire section after the return above...
     plt.plot(range_extent_vec, JNorm.T[0])
     plt.xlim([min(range_extent_vec), max(range_extent_vec)])
     plt.draw()
@@ -173,6 +183,7 @@ def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
     return iq_sum, sum_amp
 
 def main_loop(Brd, sigpro_cfg, display_cfg):
+    # TODO: RENAME MAIN_LOOP TO SOMETHING ELSE
     # TODO: Replace sigpro_cfg with a class/object SigProConfig
     N = sigpro_cfg['num_samples']
     NrChn = sigpro_cfg['num_channels']
