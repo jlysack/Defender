@@ -18,31 +18,33 @@ def init_rad_control_logger():
     # Get current Python filename
     app_name = str(os.path.basename(__file__)).strip('.py')
 
-    # Create the logger and set its default level
+    # Create the logger
     logger = logging.getLogger(app_name)
-    logger.setLevel(logging.DEBUG)
 
-    # create console handler and set level to DEBUG
+    # Create console handler 
     stream_handler = logging.StreamHandler()
-    stream_handler.setLevel(logging.WARN)
 
-    # create file handler and set level to DEBUG
+    # Create file handler 
     now = str(datetime.now().strftime('%Y%m%d_%H%M%S'))
     file_handler = logging.FileHandler(filename = str(app_name + '_' + now + '.log'))
+
+    # Set default logging levels for logger, console handler and file handler
+    logger.setLevel(logging.DEBUG)
+    stream_handler.setLevel(logging.WARN)
     file_handler.setLevel(logging.DEBUG)
 
-    # create formatter
+    # Create formatter
     formatter = logging.Formatter('%(asctime)s: %(name)s - %(funcName)s - %(levelname)s: %(message)s')
 
-    # add formatters to our handlers
+    # Add formatters to our handlers
     stream_handler.setFormatter(formatter)
     file_handler.setFormatter(formatter)
 
-    # add Handlers to our logger
+    # Add Handlers to our logger
     logger.addHandler(stream_handler)
     logger.addHandler(file_handler)
 
-    # return the logger for future use
+    # Return the logger for future use
     return logger 
 
 def signal_handler(sig, frame):    
