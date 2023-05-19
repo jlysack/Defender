@@ -131,9 +131,6 @@ def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
 
     range_val, angle_val = compute_range_and_angle(normalized_amp, sigpro_cfg)
 
-    #print('Range: ' + str(range_val))
-    #print('Angle: ' + str(angle_val))
-
     logger.info(f"Range: {range_val}, Angle: {angle_val}")
 
     return 0, 1
