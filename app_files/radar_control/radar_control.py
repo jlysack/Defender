@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from datetime import datetime
+import logging
 import sys, os
 sys.path.append("../")
 import Class.TinyRad as TinyRad
@@ -11,6 +13,37 @@ from pyqtgraph.Qt import QtGui, QtCore, QtWidgets
 import signal
 import constants as const
 import scipy
+
+def init_rad_control_logger():
+    # Get current Python filename
+    app_name = str(os.path.basename(__file__)).strip('.py')
+
+    # Create the logger and set its default level
+    logger = logging.getLogger(app_name)
+    logger.setLevel(logging.DEBUG)
+
+    # create console handler and set level to DEBUG
+    stream_handler = logging.StreamHandler()
+    stream_handler.setLevel(logging.WARN)
+
+    # create file handler and set level to DEBUG
+    now = str(datetime.now().strftime('%Y%m%d_%H%M%S'))
+    file_handler = logging.FileHandler(filename = str(app_name + '_' + now + '.log'))
+    file_handler.setLevel(logging.DEBUG)
+
+    # create formatter
+    formatter = logging.Formatter('%(asctime)s: %(name)s - %(funcName)s - %(levelname)s: %(message)s')
+
+    # add formatters to our handlers
+    stream_handler.setFormatter(formatter)
+    file_handler.setFormatter(formatter)
+
+    # add Handlers to our logger
+    logger.addHandler(stream_handler)
+    logger.addHandler(file_handler)
+
+    # return the logger for future use
+    return logger 
 
 def signal_handler(sig, frame):    
     print('\nCtrl-C entered. Killing processes.')
@@ -90,6 +123,19 @@ def plot_range_profile(rp_iq_data, range_extent_vec, NrChn, N):
 def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
     #plt.figure('Sum Data')
 
+    logger = sigpro_cfg['logger']
+
+    normalized_amp = compute_sum_data(rp_iq_data, sigpro_cfg) 
+
+    range_val, angle_val = compute_range_and_angle(normalized_amp, sigpro_cfg)
+
+    #print('Range: ' + str(range_val))
+    #print('Angle: ' + str(angle_val))
+
+    logger.info(f"Range: {range_val}, Angle: {angle_val}")
+
+    return 0, 1
+
     iq_sum = np.zeros_like(rp_iq_data[:, 0])
 
     #for chan_index in np.arange(2*NrChn - 1):
@@ -106,6 +152,22 @@ def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
     JNorm = JdB - JMax
     JFloor = -25
     JNorm[JNorm < JFloor] = JFloor # TODO: -25 being used as a floor value --> what happens if we change this?
+
+    max_val = -1e9
+    angle = -1
+    for i, angle_offset in enumerate(JNorm.T):
+        if angle_offset.max() > max_val:
+            max_val = angle_offset.max()
+            sample_num = angle_offset.argmax()
+            print("sample: " + str(sample_num))
+            angle = i
+            print("angle: " + str(angle))
+
+    print('Range: ' + str(range_extent_vec[sample_num]))
+    #print('Angle: ' + str(angle))
+    print('Angle: ' + str(sigpro_cfg['vAngDeg'][angle]))
+    print('')
+        
 
 # TODO: Move this code somewhere with the function to print 2D HeatMap
 #    x_data = np.arange(len(JOpt))
@@ -124,21 +186,26 @@ def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
 #    plt.pause(0.0001)
 #    plt.clf()
 #
-    max_val = -1e9
-    angle = -1
-    for i, angle_offset in enumerate(JNorm.T):
-        if angle_offset.max() > max_val:
-            max_val = angle_offset.max()
-            sample_num = angle_offset.argmax()
-            angle = i
-    
-    print('Range: ' + str(range_extent_vec[sample_num]))
-    #print('Angle: ' + str(angle))
-    print('Angle: ' + str(sigpro_cfg['vAngDeg'][angle]))
-    print('')
-        
-
     return JdB, JMax
+
+def compute_sum_data(rp_iq_data, sigpro_cfg):
+    logger = sigpro_cfg['logger']
+
+    amplitude_map_iq = (np.fft.fftshift(
+                        np.fft.fft(rp_iq_data * sigpro_cfg['WinAnt2D'], \
+                                                sigpro_cfg['NFFTAnt'], axis=1)/ \
+                                                sigpro_cfg['ScaWinAnt'], axes=1))
+
+    amplitude_map_db = 20*np.log10(np.abs(amplitude_map_iq))
+
+    amp_max  = np.max(amplitude_map_db)
+    normalized_amp = amplitude_map_db - amp_max
+
+    amp_floor = -25
+    normalized_amp[normalized_amp < amp_floor] = amp_floor # Filter out values with amplitudes below floor threshold
+
+    return normalized_amp.T # Normalized Amplitude, indexed by Angle and then Sample
+
 
 # TODO: Clean-up this entire section after the return above...
     plt.plot(range_extent_vec, JNorm.T[0])
@@ -181,6 +248,25 @@ def plot_sum_data(rp_iq_data, range_extent_vec, NrChn, N, sigpro_cfg):
     #print(np.average(sum_amp))
 
     return iq_sum, sum_amp
+
+def compute_range_and_angle(normalized_amp, sigpro_cfg):
+    logger = sigpro_cfg['logger']
+    # Initialize intermediate variables
+    max_val_tmp      = -1e9
+    angle_sample_idx = -1111
+    range_sample_idx = -1111
+
+    for angle_idx, angle_data in enumerate(normalized_amp):
+        if angle_data.max() > max_val_tmp:
+            max_val_tmp = angle_data.max()
+            
+            tgt_range_sample = angle_data.argmax()
+            tgt_angle_sample = angle_idx
+
+    range_val = sigpro_cfg['range_extent_vec'][tgt_range_sample]
+    angle_val = sigpro_cfg['vAngDeg'][tgt_angle_sample]
+
+    return range_val, angle_val
 
 def main_loop(Brd, sigpro_cfg, display_cfg):
     # TODO: RENAME MAIN_LOOP TO SOMETHING ELSE
@@ -332,6 +418,8 @@ def configure_sigpro(Brd):
     return sigpro_cfg
 
 if __name__ == "__main__":
+
+    logger = init_rad_control_logger()
     # Handle Ctrl+C
     signal.signal(signal.SIGINT, signal_handler)
 
@@ -350,6 +438,7 @@ if __name__ == "__main__":
     Brd = configure_tinyrad()
 
     sigpro_cfg = configure_sigpro(Brd)
+    sigpro_cfg['logger'] = logger
 
 
     main_loop(Brd, sigpro_cfg, display_cfg)
