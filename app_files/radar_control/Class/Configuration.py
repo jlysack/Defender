@@ -3,7 +3,7 @@ import numpy as np
 
 class SigProConfig:
 
-    def __init__(self, Brd):
+    def __init__(self, Brd, min_range, max_range):
         # Constant speed of light
         c0 = const.c0
 
@@ -27,8 +27,8 @@ class SigProConfig:
         range_vector    = np.arange(NFFT)/NFFT*samp_freq*c0/(2*kf)
 
         # Configure range interval to be displayed
-        min_range           = 0 # meters
-        max_range           = 5 # meters
+        min_range           = min_range # meters
+        max_range           = max_range # meters
         min_range_idx       = np.argmin(np.abs(range_vector - min_range)) # array index of min_range meters
         max_range_idx       = np.argmin(np.abs(range_vector - max_range)) # array index of RMax meters
         range_extent_vector = range_vector[min_range_idx:max_range_idx]        # array of ranges between min_range and max_range
@@ -72,7 +72,7 @@ class PlotConfig:
         self.frame_numbers  = False # print frame numbers (deprecated)
         self.time_signals   = False # plot time-domain signals (deprecated)
         self.range_profile  = False # plot range profiles
-        self.sum_data       = False # plot sum of all 7 range profile channels
+        self.sum_data       = True # plot sum of all 7 range profile channels
         self.heat_map       = False # plot 2D heat map of summed RP channels
 
 class BoardConfig:

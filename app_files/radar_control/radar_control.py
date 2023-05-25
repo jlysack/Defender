@@ -12,6 +12,7 @@ import signal
 import constants as const
 import argparse
 
+# NOTE: This function will need to be called in the defender_main.py function
 def init_rad_control_logger(debug_enabled = False):
     # Get current Python filename
     app_name = str(os.path.basename(__file__)).strip('.py')
@@ -127,12 +128,13 @@ def plot_range_profile(rp_iq_data, range_extent_vec, num_channels, N):
 
 def plot_sum_data(rp_iq_data, range_extent_vec, num_channels, N, sigpro_cfg):
     # TODO: Clean-up this entire section after the return above...
-    plt.plot(range_extent_vec, JNorm.T[0])
+    plt.plot(range_extent_vec, compute_sum_data(rp_iq_data, sigpro_cfg)[0])
     plt.xlim([min(range_extent_vec), max(range_extent_vec)])
     plt.draw()
     plt.pause(0.0001)
     plt.clf()
 
+    return 0, 1
     return JdB, JMax
 
     amplitudes = []
@@ -169,6 +171,7 @@ def plot_sum_data(rp_iq_data, range_extent_vec, num_channels, N, sigpro_cfg):
     return iq_sum, sum_amp
 
 def compute_sum_data(rp_iq_data, sigpro_cfg):
+    # TODO: ADD PROCESSING HERE TO GET CLEARER DETECTIONS
     # Create 2D "Heat Map" of I/Q data
     amplitude_map_iq = (np.fft.fftshift(
                         np.fft.fft(rp_iq_data * sigpro_cfg.ant_window_2d, \
@@ -270,10 +273,10 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
             plot_time_signals(DataV, num_channels, N)
 
         if plot_cfg.range_profile is True:
-            chan_amps_db                = plot_range_profile(rp_iq_data, range_extent_vector, num_channels, N)
+            chan_amps_db                = plot_range_profile(rp_iq_data, range_extent_vector, num_channels, num_samples)
 
         if plot_cfg.sum_data is True:
-           sum_chan_iq, sum_chan_db    = plot_sum_data(rp_iq_data, range_extent_vector, num_channels, N, sigpro_cfg)
+           sum_chan_iq, sum_chan_db    = plot_sum_data(rp_iq_data, range_extent_vector, num_channels, num_samples, sigpro_cfg)
 
 
 if __name__ == "__main__":
@@ -298,7 +301,8 @@ if __name__ == "__main__":
     Brd = configure_tinyrad()
 
     # Initialize SigPro Config
-    sigpro_cfg = SigProConfig(Brd)
+    # NOTE: __main__ only -- Adjust min/max range based on CLI arguments
+    sigpro_cfg = SigProConfig(Brd, args.min_range, args.max_range)
     sigpro_cfg.logger = logger
     
     # NOTE: __main__ only -- Adjust min/max range based on CLI arguments
