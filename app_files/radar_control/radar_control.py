@@ -104,71 +104,84 @@ def plot_time_signals(DataV, num_channels, N):
     plt.pause(0.0001)
     plt.clf()
 
-def plot_range_profile(rp_iq_data, range_extent_vec, num_channels, N):
-    # TODO: Clean-up
-
-    plt.figure('Range Profile')
+def plot_range_profile(rp_iq_data, sigpro_cfg):
+    plt.figure('Amplitude vs Range Across 7-element Virtual Array of Channels')
 
     amplitudes = []
-    for chan_index in np.arange(2*num_channels - 1):
+    for chan_index in np.arange(2*sigpro_cfg.num_channels - 1):
         chan_amp_db = 20*np.log10(np.abs(rp_iq_data[:, chan_index]))
         chan_phase = np.angle(rp_iq_data[:, chan_index])
         amplitudes.append(chan_amp_db)
-        plt.plot(range_extent_vec, chan_amp_db, label = str('Channel ' + \
-        #plt.plot(range_extent_vec, chan_phase, label = str('Channel ' + \
-                                                        str(chan_index)))
+        plt.plot(sigpro_cfg.range_extent_vec, chan_amp_db, \
+                 label = str('Channel ' + str(chan_index)))
+
     plt.draw()
     plt.legend()
-    plt.xlim([min(range_extent_vec), max(range_extent_vec)])
-    #plt.ylim([-100, -35])
+    plt.xlim([min(sigpro_cfg.range_extent_vec), \
+              max(sigpro_cfg.range_extent_vec)])
     plt.pause(0.0001)
     plt.clf()
 
-    return amplitudes
+    return
 
-def plot_sum_data(rp_iq_data, range_extent_vec, num_channels, N, sigpro_cfg):
-    # TODO: Clean-up this entire section after the return 
-    plt.plot(range_extent_vec, compute_sum_data(rp_iq_data, sigpro_cfg)[0])
-    plt.xlim([min(range_extent_vec), max(range_extent_vec)])
+def plot_sum_data(rp_iq_data, sigpro_cfg):
+    plt.figure('Amplitude vs Range for All Azimuth Angles')
+
+    # RM DEBUG START
+    x_axis_in_degrees = False
+    if x_axis_in_degrees is True:
+        for range_sample in compute_sum_data(rp_iq_data, sigpro_cfg).T:
+            plt.plot(sigpro_cfg.angle_extent_vec, range_sample)
+        plt.xlim([min(sigpro_cfg.angle_extent_vec), max(sigpro_cfg.angle_extent_vec)])
+        plt.draw()
+        plt.pause(0.0001)
+        plt.clf
+        
+        return
+    # RM DEUB END
+
+    for az_increment in compute_sum_data(rp_iq_data, sigpro_cfg):
+        plt.plot(sigpro_cfg.range_extent_vec, az_increment)
+    plt.xlim([min(sigpro_cfg.range_extent_vec), max(sigpro_cfg.range_extent_vec)])
     plt.draw()
     plt.pause(0.0001)
     plt.clf()
 
-    return 0, 1
-    return JdB, JMax
+    return
 
-    amplitudes = []
-    angles = []
+# TODO: Either delete this or figure out what is useful from it
+    #amplitudes = []
+    #angles = []
 
-    for chan_index in np.arange(2*num_channels - 1):
-        chan_amp_iq = np.abs(rp_iq_data[:, chan_index]) 
-        chan_phase = np.angle(rp_iq_data[:, chan_index])
-        amplitudes.append(chan_amp_iq)
-        angles.append(chan_phase)
-
-
-    for chan_index in np.arange(2*num_channels - 1):
-        iq_sum += amplitudes[chan_index]*np.exp(-1j*angles[chan_index])
+    #for chan_index in np.arange(2*num_channels - 1):
+    #    chan_amp_iq = np.abs(rp_iq_data[:, chan_index]) 
+    #    chan_phase = np.angle(rp_iq_data[:, chan_index])
+    #    amplitudes.append(chan_amp_iq)
+    #    angles.append(chan_phase)
 
 
-    # RM DEBUG END
+    #for chan_index in np.arange(2*num_channels - 1):
+    #    iq_sum += amplitudes[chan_index]*np.exp(-1j*angles[chan_index])
 
-    #noise_floor = -106.809205223974
-    #sum_amp = 20*np.log10(np.abs(iq_sum))-noise_floor
-    sum_amp = 20*np.log10(np.abs(iq_sum))
-    #sum_angle = np.angle(iq_sum)
 
-    plt.plot(range_extent_vec, sum_amp)
-    #plt.plot(range_extent_vec, sum_angle)
-    plt.xlim([min(range_extent_vec), max(range_extent_vec)])
-    #plt.ylim(-20, 50)
-    plt.draw()
-    plt.pause(0.0001)
-    plt.clf()
+    ## RM DEBUG END
 
-    #print(np.average(sum_amp))
+    ##noise_floor = -106.809205223974
+    ##sum_amp = 20*np.log10(np.abs(iq_sum))-noise_floor
+    #sum_amp = 20*np.log10(np.abs(iq_sum))
+    ##sum_angle = np.angle(iq_sum)
 
-    return iq_sum, sum_amp
+    #plt.plot(range_extent_vec, sum_amp)
+    ##plt.plot(range_extent_vec, sum_angle)
+    #plt.xlim([min(range_extent_vec), max(range_extent_vec)])
+    ##plt.ylim(-20, 50)
+    #plt.draw()
+    #plt.pause(0.0001)
+    #plt.clf()
+
+    ##print(np.average(sum_amp))
+
+    #return iq_sum, sum_amp
 
 def compute_sum_data(rp_iq_data, sigpro_cfg):
     # TODO: ADD PROCESSING HERE TO GET CLEARER DETECTIONS
@@ -186,7 +199,7 @@ def compute_sum_data(rp_iq_data, sigpro_cfg):
     normalized_amp = amplitude_map_db - amp_max # subtract instead of divide since it's log math
 
     # Filter out values with amplitudes below threshold "floor" value
-    amp_floor = -25 #TODO: Make this value part of sigpro_cfg
+    amp_floor = -35 #TODO: Make this value part of sigpro_cfg AND CONFIGURABLE --> More negative == more sensitive
     normalized_amp[normalized_amp < amp_floor] = amp_floor 
 
     return normalized_amp.T # Normalized Amplitude, indexed by Angle and then Sample
@@ -219,6 +232,29 @@ def compute_range_and_angle(normalized_amp, sigpro_cfg):
     angle_val = sigpro_cfg.angle_extent_vec[tgt_angle_sample]
 
     return range_val, angle_val
+
+def samples_to_meters(samples, sigpro_cfg):
+    assert isinstance(samples, np.ndarray)
+    return sigpro_cfg.range_extent_vec[samples]
+
+def get_detections(normalized_amp, sigpro_cfg):
+    dets = []
+
+    thresh_db = -10
+
+    for i, az_data in enumerate(normalized_amp):
+        filter_arr = az_data > thresh_db
+        new_az_data = az_data[filter_arr]
+        range_samples = np.argwhere(az_data > thresh_db).T
+        if range_samples.any():
+            #print(samples_to_meters(range_samples, sigpro_cfg))
+            avg_range = np.average(samples_to_meters(range_samples, sigpro_cfg))
+            #print(f"Az: {sigpro_cfg.angle_extent_vec[i]:.4f} deg, Range: {avg_range:.4f} m") 
+
+    
+
+    sys.exit(0)
+    return True
 
 def radar_search(Brd, sigpro_cfg, plot_cfg):
     # Store SigPro Config object variables locally
@@ -259,6 +295,8 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
 
         # Get normalized amplitude matrix, indexed by angle increment and then range sample 
         normalized_amp = compute_sum_data(rp_iq_data, sigpro_cfg) 
+
+        #detection_list = get_detections(normalized_amp, sigpro_cfg)
         
         # Pull out range and angle values of maximum amplitude detection
         #   range_val units: meters
@@ -273,10 +311,10 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
             plot_time_signals(DataV, num_channels, N)
 
         if plot_cfg.range_profile is True:
-            chan_amps_db                = plot_range_profile(rp_iq_data, range_extent_vector, num_channels, num_samples)
+            plot_range_profile(rp_iq_data, sigpro_cfg)
 
         if plot_cfg.sum_data is True:
-           sum_chan_iq, sum_chan_db    = plot_sum_data(rp_iq_data, range_extent_vector, num_channels, num_samples, sigpro_cfg)
+            plot_sum_data(rp_iq_data, sigpro_cfg)
 
 
 if __name__ == "__main__":
