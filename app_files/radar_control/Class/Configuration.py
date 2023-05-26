@@ -72,7 +72,7 @@ class PlotConfig:
         self.frame_numbers  = False # print frame numbers (deprecated)
         self.time_signals   = False # plot time-domain signals (deprecated)
         self.range_profile  = False # plot range profiles
-        self.sum_data       = True # plot sum of all 7 range profile channels
+        self.sum_data       = False # plot sum of all 7 range profile channels
         self.heat_map       = False # plot 2D heat map of summed RP channels
 
 class BoardConfig:

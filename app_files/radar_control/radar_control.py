@@ -127,7 +127,7 @@ def plot_range_profile(rp_iq_data, range_extent_vec, num_channels, N):
     return amplitudes
 
 def plot_sum_data(rp_iq_data, range_extent_vec, num_channels, N, sigpro_cfg):
-    # TODO: Clean-up this entire section after the return above...
+    # TODO: Clean-up this entire section after the return 
     plt.plot(range_extent_vec, compute_sum_data(rp_iq_data, sigpro_cfg)[0])
     plt.xlim([min(range_extent_vec), max(range_extent_vec)])
     plt.draw()
@@ -289,6 +289,8 @@ if __name__ == "__main__":
     parser.add_argument('min_range', type=int, help="Minimum range (in meters) for RF Signal Processing")
     parser.add_argument('max_range', type=int, help="Maximum range (in meters) for RF Signal Processing")
     parser.add_argument('-l', '--log', required=False, help="Enable debug logging to the command line", action="store_true")
+    parser.add_argument('-p', '--plot', choices=['frame_nums', 'time_signals', 'range_profile', 'sum_data', 'heat_map'], \
+                        required=False, help="Plotting options.")
     args = parser.parse_args()
 
     # Initialize logger
@@ -296,6 +298,11 @@ if __name__ == "__main__":
 
     # Initialize Plot Config
     plot_cfg = PlotConfig()
+    # Modify plot config NOTE: __main__ only, TODO: make this configurable via DDS?
+    if args.plot == 'range_profile':    plot_cfg.range_profile  = True
+    if args.plot == 'sum_data':         plot_cfg.sum_data       = True
+    if args.plot == 'time_signals':     plot_cfg.time_signals   = True
+    if args.plot == 'heat_map':         plot_cfg.heat_map       = True
 
     # Initialize Board object
     Brd = configure_tinyrad()
