@@ -66,6 +66,7 @@ def main():
     # Search State Selected
     if mode_select == "1":
         print("Search State Test\n")
+        #Think about a better method for this past_ez past_ez2 situation, Jake thinks making use of an Array to compare previous data
         past_ez = "3"
         past_ez2 = "2"
         try:
