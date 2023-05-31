@@ -128,8 +128,7 @@ def plot_sum_data(rp_iq_data, sigpro_cfg):
     plt.figure('Amplitude vs Range for All Azimuth Angles')
 
     # RM DEBUG START
-    x_axis_in_degrees = False
-    if x_axis_in_degrees is True:
+    if plot_cfg.az_data is True:
         for range_sample in compute_sum_data(rp_iq_data, sigpro_cfg).T:
             plt.plot(sigpro_cfg.angle_extent_vec, range_sample)
         plt.xlim([min(sigpro_cfg.angle_extent_vec), max(sigpro_cfg.angle_extent_vec)])
@@ -138,7 +137,7 @@ def plot_sum_data(rp_iq_data, sigpro_cfg):
         plt.clf
         
         return
-    # RM DEUB END
+    # RM DEBUG END
 
     for az_increment in compute_sum_data(rp_iq_data, sigpro_cfg):
         plt.plot(sigpro_cfg.range_extent_vec, az_increment)
@@ -199,7 +198,7 @@ def compute_sum_data(rp_iq_data, sigpro_cfg):
     normalized_amp = amplitude_map_db - amp_max # subtract instead of divide since it's log math
 
     # Filter out values with amplitudes below threshold "floor" value
-    amp_floor = -35 #TODO: Make this value part of sigpro_cfg AND CONFIGURABLE --> More negative == more sensitive
+    amp_floor = sigpro_cfg.noise_floor #TODO: Make this value part of sigpro_cfg AND CONFIGURABLE --> More negative == more sensitive
     normalized_amp[normalized_amp < amp_floor] = amp_floor 
 
     return normalized_amp.T # Normalized Amplitude, indexed by Angle and then Sample
@@ -326,7 +325,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('min_range', type=int, help="Minimum range (in meters) for RF Signal Processing")
     parser.add_argument('max_range', type=int, help="Maximum range (in meters) for RF Signal Processing")
+    parser.add_argument('-a', '--az', required=False, help="Flip the sum data plot option to show azimuth versus amplitude", action="store_true")
     parser.add_argument('-l', '--log', required=False, help="Enable debug logging to the command line", action="store_true")
+    parser.add_argument('-f', '--floor', required=False, help="Configurable noise floor / threshold", type=int)
     parser.add_argument('-p', '--plot', choices=['frame_nums', 'time_signals', 'range_profile', 'sum_data', 'heat_map'], \
                         required=False, help="Plotting options.")
     args = parser.parse_args()
@@ -338,16 +339,23 @@ if __name__ == "__main__":
     plot_cfg = PlotConfig()
     # Modify plot config NOTE: __main__ only, TODO: make this configurable via DDS?
     if args.plot == 'range_profile':    plot_cfg.range_profile  = True
-    if args.plot == 'sum_data':         plot_cfg.sum_data       = True
     if args.plot == 'time_signals':     plot_cfg.time_signals   = True
     if args.plot == 'heat_map':         plot_cfg.heat_map       = True
+    if args.plot == 'sum_data':         
+        plot_cfg.sum_data = True
+        if args.az is True:
+            plot_cfg.az_data = True
+        else:
+            plot_cfg.az_data = False
+
+    if args.floor is None: args.floor = -35
 
     # Initialize Board object
     Brd = configure_tinyrad()
 
     # Initialize SigPro Config
     # NOTE: __main__ only -- Adjust min/max range based on CLI arguments
-    sigpro_cfg = SigProConfig(Brd, args.min_range, args.max_range)
+    sigpro_cfg = SigProConfig(Brd, args.min_range, args.max_range, args.floor)
     sigpro_cfg.logger = logger
     
     # NOTE: __main__ only -- Adjust min/max range based on CLI arguments

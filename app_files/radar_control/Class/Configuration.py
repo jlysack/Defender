@@ -3,7 +3,7 @@ import numpy as np
 
 class SigProConfig:
 
-    def __init__(self, Brd, min_range, max_range):
+    def __init__(self, Brd, min_range, max_range, noise_floor=-35):
         # Constant speed of light
         c0 = const.c0
 
@@ -27,8 +27,7 @@ class SigProConfig:
         range_vector    = np.arange(NFFT)/NFFT*samp_freq*c0/(2*kf)
 
         # Configure range interval to be displayed
-        min_range           = min_range # meters
-        max_range           = max_range # meters
+        # min and max range in meters
         min_range_idx       = np.argmin(np.abs(range_vector - min_range)) # array index of min_range meters
         max_range_idx       = np.argmin(np.abs(range_vector - max_range)) # array index of RMax meters
         range_extent_vector = range_vector[min_range_idx:max_range_idx]        # array of ranges between min_range and max_range
@@ -45,6 +44,7 @@ class SigProConfig:
         angle_extent_vec = np.arcsin(2*np.arange(-NFFTAnt//2, NFFTAnt//2)/NFFTAnt)/np.pi*180
 
         # Store variables in object
+        self.noise_floor      = noise_floor
         self.board_params     = brd_cfg
         self.num_channels     = num_channels
         self.num_samples      = num_samples
