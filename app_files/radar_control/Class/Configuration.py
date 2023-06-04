@@ -72,8 +72,9 @@ class PlotConfig:
         self.frame_numbers  = False # print frame numbers (deprecated)
         self.time_signals   = False # plot time-domain signals (deprecated)
         self.range_profile  = False # plot range profiles
-        self.sum_data       = False # plot sum of all 7 range profile channels
-        self.heat_map       = False # plot 2D heat map of summed RP channels
+        self.sum_data       = False # plot sum of all 7 range profile channels across all angles
+        self.az_data        = False # plot sum of all 7 range profile channels across all range cells
+        self.heat_map       = False # plot 2D heat map of amplitudes across angle and range
 
 class BoardConfig:
 
@@ -84,13 +85,36 @@ class BoardConfig:
         self.fStrt          = 24.00e9   # Chirp Frequency Start (GHz)
         self.fStop          = 24.25e9   # Chirp Frequency Stop (GHz)
         self.TRampUp        = 256e-6    # Duration of the upchirp (sec)
-        self.Perd           = 0.4e-3    # Chirp repetition interval (sec)
         self.N              = 256       # Number of samples per chirp (for 1 MHz, = TRampUp * 1000000)
+        self.Perd           = 0.4e-3    # Chirp repetition interval (sec)
         self.Seq            = [1, 2]    # Array used to hold antenna sequence
         self.CycSiz         = 4         # Number of buffers in the DSP to store data
         self.FrmSiz         = 128       # Number of chirps for one measurement cycle NOTE: this affects runtime speed a lot
+        self.FrmSiz         = 1       # Number of chirps for one measurement cycle NOTE: this affects runtime speed a lot
         self.FrmMeasSiz     = 1         # Number of chirps in which data is collected
     
+        # Table 6 from TinyRad Datasheet
+        #self.fStrt          = 24.00e9   # Chirp Frequency Start (GHz)
+        #self.fStop          = 24.25e9   # Chirp Frequency Stop (GHz)
+        #self.TRampUp        = 512e-6    # Duration of the upchirp (sec)
+        #self.N              = 512       # Number of samples per chirp (for 1 MHz, = TRampUp * 1000000)
+        #self.Perd           = 1.0e-3    # Chirp repetition interval (sec)
+        #self.Seq            = [1]    # Array used to hold antenna sequence
+        #self.CycSiz         = 2         # Number of buffers in the DSP to store data
+        #self.FrmSiz         = 4       # Number of chirps for one measurement cycle NOTE: this affects runtime speed a lot
+        #self.FrmMeasSiz     = 2         # Number of chirps in which data is collected
+
+        # Table 7 from TinyRad Datasheet
+        #self.fStrt          = 24.00e9   # Chirp Frequency Start (GHz)
+        #self.fStop          = 24.25e9   # Chirp Frequency Stop (GHz)
+        #self.TRampUp        = 256e-6    # Duration of the upchirp (sec)
+        #self.N              = 256       # Number of samples per chirp (for 1 MHz, = TRampUp * 1000000)
+        #self.Perd           = 0.3e-3    # Chirp repetition interval (sec)
+        #self.Seq            = [1, 2]    # Array used to hold antenna sequence
+        #self.CycSiz         = 2         # Number of buffers in the DSP to store data
+        #self.FrmSiz         = 3       # Number of chirps for one measurement cycle NOTE: this affects runtime speed a lot
+        #self.FrmMeasSiz     = 2         # Number of chirps in which data is collected
+
     # Put Boardconfig contents into a dictionary for use with Brd.RfMeas
     def dictify(self):
         brd_cfg = dict()

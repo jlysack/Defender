@@ -124,20 +124,37 @@ def plot_range_profile(rp_iq_data, sigpro_cfg):
 
     return
 
-def plot_sum_data(rp_iq_data, sigpro_cfg):
+def plot_heat_map(rp_iq_data, sigpro_cfg):
+
+    data = compute_sum_data(rp_iq_data, sigpro_cfg)
+
+    #plt.imshow(data, cmap='hot', interpolation='none', \
+    plt.imshow(data, interpolation='none', \
+               extent=[sigpro_cfg.range_extent_vec[0],\
+                       sigpro_cfg.range_extent_vec[-1],\
+                       sigpro_cfg.angle_extent_vec[0],
+                       sigpro_cfg.angle_extent_vec[-1]], \
+               aspect='auto')
+
+    plt.draw()
+    plt.pause(0.0001)
+    plt.clf()
+
+    return
+
+def plot_az_data(rp_iq_data, sigpro_cfg):
     plt.figure('Amplitude vs Range for All Azimuth Angles')
 
-    # RM DEBUG START
-    if plot_cfg.az_data is True:
-        for range_sample in compute_sum_data(rp_iq_data, sigpro_cfg).T:
-            plt.plot(sigpro_cfg.angle_extent_vec, range_sample)
-        plt.xlim([min(sigpro_cfg.angle_extent_vec), max(sigpro_cfg.angle_extent_vec)])
-        plt.draw()
-        plt.pause(0.0001)
-        plt.clf
+    for range_sample in compute_sum_data(rp_iq_data, sigpro_cfg).T:
+        plt.plot(sigpro_cfg.angle_extent_vec, range_sample)
+    plt.xlim([min(sigpro_cfg.angle_extent_vec), max(sigpro_cfg.angle_extent_vec)])
+    plt.draw()
+    plt.pause(0.0001)
+    plt.clf
         
-        return
-    # RM DEBUG END
+    return
+
+def plot_sum_data(rp_iq_data, sigpro_cfg):
 
     for az_increment in compute_sum_data(rp_iq_data, sigpro_cfg):
         plt.plot(sigpro_cfg.range_extent_vec, az_increment)
@@ -303,7 +320,8 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
         range_val, angle_val = compute_range_and_angle(normalized_amp, sigpro_cfg)
 
         # Log Range and Angle values
-        logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg")
+        if abs(angle_val) <= 30.0:
+            logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg")
 
         # TODO: Revisit this section if we decide we want to actually plot things
         if plot_cfg.time_signals is True:
@@ -314,6 +332,12 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
 
         if plot_cfg.sum_data is True:
             plot_sum_data(rp_iq_data, sigpro_cfg)
+
+        if plot_cfg.az_data is True:
+            plot_az_data(rp_iq_data, sigpro_cfg)
+
+        if plot_cfg.heat_map is True:
+            plot_heat_map(rp_iq_data, sigpro_cfg)
 
 
 if __name__ == "__main__":
@@ -328,7 +352,7 @@ if __name__ == "__main__":
     parser.add_argument('-a', '--az', required=False, help="Flip the sum data plot option to show azimuth versus amplitude", action="store_true")
     parser.add_argument('-l', '--log', required=False, help="Enable debug logging to the command line", action="store_true")
     parser.add_argument('-f', '--floor', required=False, help="Configurable noise floor / threshold", type=int)
-    parser.add_argument('-p', '--plot', choices=['frame_nums', 'time_signals', 'range_profile', 'sum_data', 'heat_map'], \
+    parser.add_argument('-p', '--plot', choices=['frame_nums', 'time_signals', 'range_profile', 'sum_data', 'az_data', 'heat_map'], \
                         required=False, help="Plotting options.")
     args = parser.parse_args()
 
@@ -340,13 +364,9 @@ if __name__ == "__main__":
     # Modify plot config NOTE: __main__ only, TODO: make this configurable via DDS?
     if args.plot == 'range_profile':    plot_cfg.range_profile  = True
     if args.plot == 'time_signals':     plot_cfg.time_signals   = True
+    if args.plot == 'az_data':          plot_cfg.az_data        = True
+    if args.plot == 'sum_data':         plot_cfg.sum_data       = True
     if args.plot == 'heat_map':         plot_cfg.heat_map       = True
-    if args.plot == 'sum_data':         
-        plot_cfg.sum_data = True
-        if args.az is True:
-            plot_cfg.az_data = True
-        else:
-            plot_cfg.az_data = False
 
     if args.floor is None: args.floor = -35
 
