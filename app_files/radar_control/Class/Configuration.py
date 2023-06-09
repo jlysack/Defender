@@ -65,6 +65,7 @@ class SigProConfig:
         self.sca_ant_window   = sca_ant_window 
         self.angle_extent_vec = angle_extent_vec
         self.logger           = None
+        self.tactical_mode    = False # True = Azimuth data filtered between +/- 22.5 deg
 
 class PlotConfig:
 
