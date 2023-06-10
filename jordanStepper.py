@@ -58,22 +58,28 @@ EZ2 = 98 #steps - right
 allowRadarMovement = True #Flag to allow movement, once movement is complete we can change to false
 
 #Functions that you just put the amount of steps required to move left/right
-def move_stepperLeft(stepsRequired):
+async def move_stepperLeft(stepsRequired):
     global currentStepPos
     global allowRadarMovement
-    print("Move motor left")
-    mymotortest.motor_go(False,"1/8", stepsRequired,.005,False,.05)
+    global mymotortest
+    print("Move motor left", flush = True)
+    await mymotortest.motor_go(False,"1/8", stepsRequired,.005,False,.05)
     currentStepPos = currentStepPos - stepsRequired 
     sendScanResponse()
+    print("motor set to true")
+    #time.sleep(1)
     allowRadarMovement = True
 
-def move_stepperRight(stepsRequired):
+async def move_stepperRight(stepsRequired):
     global currentStepPos
     global allowRadarMovement
-    print("Move motor right")
-    mymotortest.motor_go(True,"1/8", stepsRequired,.005,False,.05)
+    global mymotortest
+    print("Move motor right", flush = True)
+    await mymotortest.motor_go(True,"1/8", stepsRequired,.005,False,.05)
     currentStepPos = currentStepPos + stepsRequired 
     sendScanResponse()
+    print("motor set to true")
+    #time.sleep(1)
     allowRadarMovement = True
 
 def sendScanResponse():
@@ -91,81 +97,106 @@ def sendScanResponse():
 
 #Async updater for ComponentHealth
 async def update_componentHealth():
-    async for data in componentHealth_reader.take_data_async():
-        global componentHealth_ReceivedData 
-        componentHealth_ReceivedData = data
+    while True:    
+        async for data in componentHealth_reader.take_data_async():
+            global componentHealth_ReceivedData 
+            componentHealth_ReceivedData = data
+
+        await asyncio.sleep(1)
 
 #Async updater for ScanInstruction
 async def update_scanInstruction():
-    async for data in scanInstruction_reader.take_data_async():
-        global scanInstruction_ReceivedData 
-        scanInstruction_ReceivedData = data
-
+    while True:
+        print("Hello, this is jordan scan intruction")
+        async for data in scanInstruction_reader.take_data_async():
+            global scanInstruction_ReceivedData 
+            scanInstruction_ReceivedData = data
+        
+        await asyncio.sleep(1)
 
 #Custom async coroutines           
 async def update_motorLogic():
-    print("Hello, this is Jordan")
-    try:
-        global scanInstruction_ReceivedData 
-        global currentStepPos
-        #Could either have all motorlogic in 1 function like this or make routines for every "setting" - discuss with wider team
-        if scanInstruction_ReceivedData.manualScanSetting == 1:
-            print("Instructed to scan zone 1")   
-            if(allowRadarMovement):
-                print("Radar movement allowed, attempting movement")
-                allowRadarMovement = False #Locking radar movement
-                if (currentStepPos != EZ1): #If we are not looking at zone 1 already then we need to move left
-                    move_stepperLeft(abs(EZ1) + currentStepPos)
+    while True:
+        print("Hello, this is Jordan")
+        try:
+            global scanInstruction_ReceivedData 
+            global currentStepPos
+            global allowRadarMovement
+            #Could either have all motorlogic in 1 function like this or make routines for every "setting" - discuss with wider team
+            if scanInstruction_ReceivedData.manualScanSetting == 1:
+                print("Instructed to scan zone 1")   
+                if (allowRadarMovement):
+                    print("Radar movement allowed, attempting movement")
+                    allowRadarMovement = False #Locking radar movement
+                    if (currentStepPos != EZ1): #If we are not looking at zone 1 already then we need to move left
+                        await move_stepperLeft(abs(EZ1) + currentStepPos)
 
-        if scanInstruction_ReceivedData.manualScanSetting == 2:
-            print("Instructed to scan zone 2")
-            if(allowRadarMovement):
-                print("Radar movement allowed, attempting movement")
-                allowRadarMovement = False #Locking radar movement
-                if (currentStepPos!=EZ2): #If we are not lookling at zone 2 already then we need to move right
-                    move_stepperRight(abs(currentStepPos) + EZ2)
+            if scanInstruction_ReceivedData.manualScanSetting == 2:
+                print("Instructed to scan zone 2")
+                if (allowRadarMovement):
+                    print("Radar movement allowed, attempting movement")
+                    allowRadarMovement = False #Locking radar movement
+                    if (currentStepPos!=EZ2): #If we are not lookling at zone 2 already then we need to move right
+                        await move_stepperRight(abs(currentStepPos) + EZ2)
             
-        if scanInstruction_ReceivedData.manualScanSetting == 3:
-            print("Instructed to scan zone 3")
-            if(allowRadarMovement):
-                print("Radar movement allowed, attempting movement")
-                allowRadarMovement = False #Locking radar movement
-                if (currentStepPos==EZ1): #If we were looking at zone, 1 then move right
-                    move_stepperRight(abs(EZ1))
-                if (currentStepPos==EZ2): #If we were looking at zone, 2 then move left
-                    move_stepperLeft(EZ2)
+            if scanInstruction_ReceivedData.manualScanSetting == 3:
+                print("Instructed to scan zone 3")
+                if (allowRadarMovement == True):
+                    print("Radar movement allowed, attempting movement")
+                    allowRadarMovement = False #Locking radar movement
+                    if (currentStepPos==EZ1): #If we were looking at zone, 1 then move right
+                        await move_stepperRight(abs(EZ1))
+                    if (currentStepPos==EZ2): #If we were looking at zone, 2 then move left
+                        await move_stepperLeft(EZ2)
                 
+            await asyncio.sleep(1)
+        except Exception as e:
+            print(f"Error in update_motorLogic(): {e}")
 
-    except Exception as e:
-        print(f"Error in update_motorLogic(): {e}")
 
-
-# Define the main loop coroutine
+# Define the ma	in loop coroutine
 async def main_loop():
     #Tell the main thread to use the global variables
     global componentHealth_ReceivedData 
     global scanInstruction_ReceivedData 
-   
+    global allowRadarMovement
 
     while True:
         print("Main loop")
+
+        print(allowRadarMovement)
         #print(componentHealth_ReceivedData)     
         #print(scanInstruction_ReceivedData)
 
         #await update_motorLogic() #Not sure the impact of this await keyword
         #await update_componentHealth()
         #await update_scanInstruction()
-        #await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
-
+        await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
+     
+        print("Test, after Main loop sleep")
 
 
 # Create and run the event loop
-loop = asyncio.get_event_loop()
+#loop = asyncio.get_event_loop()
 #Add the async tasks to the task list
-tasks = asyncio.gather(main_loop())
-update_componentHealth()
-update_scanInstruction()
-update_motorLogic()
-
+#tasks = asyncio.gather(main_loop(),
+#update_componentHealth(),
+#update_scanInstruction(),
+#update_motorLogic()
+#)
 #Now loop the task list
-loop.run_until_complete(tasks)
+#loop.run_until_complete(tasks)
+
+
+async def run_event_loop():
+    loop = asyncio.get_event_loop()
+    tasks = [
+        asyncio.ensure_future(main_loop()),
+        asyncio.ensure_future(update_componentHealth()),
+        asyncio.ensure_future(update_scanInstruction()),
+        asyncio.ensure_future(update_motorLogic())
+    ]
+    await asyncio.gather(*tasks)
+
+
+asyncio.run(run_event_loop())
