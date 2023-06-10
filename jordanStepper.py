@@ -51,11 +51,11 @@ mymotortest = A4988Nema(direction, step, GPIO_pins, "A4988")
 # (6) initdelay, type = float, default = 1mS, help = Intial delay after GPIO pins initialized but before motor is moved.
 
 
-int currentStepPos = 0; #Assuming we configured it to 0 properly!
-int EZ1 = -99 #steps - left
-int EZ3 = 0 #steps - center
-int EZ2 = 98 #steps - right
-bool allowRadarMovement = true #Flag to allow movement, once movement is complete we can change to false
+currentStepPos = 0; #Assuming we configured it to 0 properly!
+EZ1 = -99 #steps - left
+EZ3 = 0 #steps - center
+EZ2 = 98 #steps - right
+allowRadarMovement = True #Flag to allow movement, once movement is complete we can change to false
 
 #Functions that you just put the amount of steps required to move left/right
 def move_stepperLeft(stepsRequired):
@@ -65,7 +65,7 @@ def move_stepperLeft(stepsRequired):
     mymotortest.motor_go(False,"1/8", stepsRequired,.005,False,.05)
     currentStepPos = currentStepPos - stepsRequired 
     sendScanResponse()
-    allowRadarMovement = true
+    allowRadarMovement = True
 
 def move_stepperRight(stepsRequired):
     global currentStepPos
@@ -74,17 +74,17 @@ def move_stepperRight(stepsRequired):
     mymotortest.motor_go(True,"1/8", stepsRequired,.005,False,.05)
     currentStepPos = currentStepPos + stepsRequired 
     sendScanResponse()
-    allowRadarMovement = true
+    allowRadarMovement = True
 
 def sendScanResponse():
     global currentStepPos
     global scanResponse_SendingData
     #Check which zone and set the paramter
-    if(currentStepPos==EZ1)
+    if(currentStepPos==EZ1):
         scanResponse_SendingData.ZoneNumber = 1
-    if(currentStepPos==EZ2)
+    if(currentStepPos==EZ2):
         scanResponse_SendingData.ZoneNumber = 2
-    if(currentStepPos==EZ3)
+    if(currentStepPos==EZ3):
         scanResponse_SendingData.ZoneNumber = 3
     #Now send message
     scanResponse_writer.write(scanResponse_SendingData)
@@ -104,6 +104,7 @@ async def update_scanInstruction():
 
 #Custom async coroutines           
 async def update_motorLogic():
+    print("Hello, this is Jordan")
     try:
         global scanInstruction_ReceivedData 
         global currentStepPos
@@ -112,26 +113,26 @@ async def update_motorLogic():
             print("Instructed to scan zone 1")   
             if(allowRadarMovement):
                 print("Radar movement allowed, attempting movement")
-                allowRadarMovement = false #Locking radar movement
-                if(currentStepPos != EZ1) #If we are not looking at zone 1 already then we need to move left
+                allowRadarMovement = False #Locking radar movement
+                if (currentStepPos != EZ1): #If we are not looking at zone 1 already then we need to move left
                     move_stepperLeft(abs(EZ1) + currentStepPos)
 
         if scanInstruction_ReceivedData.manualScanSetting == 2:
             print("Instructed to scan zone 2")
             if(allowRadarMovement):
                 print("Radar movement allowed, attempting movement")
-                allowRadarMovement = false #Locking radar movement
-                if(currentStepPos!=EZ2) #If we are not lookling at zone 2 already then we need to move right
+                allowRadarMovement = False #Locking radar movement
+                if (currentStepPos!=EZ2): #If we are not lookling at zone 2 already then we need to move right
                     move_stepperRight(abs(currentStepPos) + EZ2)
             
         if scanInstruction_ReceivedData.manualScanSetting == 3:
             print("Instructed to scan zone 3")
             if(allowRadarMovement):
                 print("Radar movement allowed, attempting movement")
-                allowRadarMovement = false #Locking radar movement
-                if(currentStepPos==EZ1) #If we were looking at zone, 1 then move right
+                allowRadarMovement = False #Locking radar movement
+                if (currentStepPos==EZ1): #If we were looking at zone, 1 then move right
                     move_stepperRight(abs(EZ1))
-                if(currentStepPos==EZ2) #If we were looking at zone, 2 then move left
+                if (currentStepPos==EZ2): #If we were looking at zone, 2 then move left
                     move_stepperLeft(EZ2)
                 
 
@@ -151,18 +152,20 @@ async def main_loop():
         #print(componentHealth_ReceivedData)     
         #print(scanInstruction_ReceivedData)
 
-        await update_motorLogic() #Not sure the impact of this await keyword
-        await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
+        #await update_motorLogic() #Not sure the impact of this await keyword
+        #await update_componentHealth()
+        #await update_scanInstruction()
+        #await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 
 
 
 # Create and run the event loop
 loop = asyncio.get_event_loop()
 #Add the async tasks to the task list
-tasks = asyncio.gather(main_loop(), 
-update_componentHealth(), 
-update_scanInstruction(), 
+tasks = asyncio.gather(main_loop())
+update_componentHealth()
+update_scanInstruction()
 update_motorLogic()
-)
+
 #Now loop the task list
 loop.run_until_complete(tasks)
