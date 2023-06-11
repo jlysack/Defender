@@ -16,14 +16,16 @@ class ddsWriter:
 
     #Creating data objects and filling
 
+    #userinput = input("zone?: ")
+
     #ScanInstruction - Can write it as a 1 liner or assign things after, or mix.
     #scanInstruction_data = DDS.Scanning.ScanInstruction(radarSetting = 1, manualScanSetting = 2)
     scanInstruction_data = DDS.Scanning.ScanInstruction
     scanInstruction_data.radarSetting = 1
-    scanInstruction_data.manualScanSetting = 2 #Change this to 1 2 or 3 and restart the code!
+    scanInstruction_data.manualScanSetting = 3 #Change this to 1 2 or 3 and restart the code!
 
     #Loop data sending
-    for count in range(1):
+    for count in range(2):
             # Catch control-C interrupt
             try:
                 #Print counter
