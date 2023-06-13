@@ -46,7 +46,14 @@ currentIFFState = "Unknown"
 
 #async def request_IFF():
 
-
+async def update_IFFCode():
+    while True:
+        print("Updating IFF Code based on recieved input.....")
+        async for data in responseIFF_reader.take_data_async():
+            global responseIFF_ReceivedData
+            responseIFF_ReceivedData = data
+            
+        await asyncio.sleep(1)
 
 async def formatresponse_IFF():
     while True:
@@ -55,12 +62,22 @@ async def formatresponse_IFF():
             global currentIFFState
             print(currentIFFState)
 
+            if (responseIFF_ReceivedData.ObjectIdentity == 1):
+                currentIFFState = "Foe"
+            if (responseIFF_ReceivedData.ObjectIdentity == 2):
+                currentIFFState = "Friend"
+            if (responseIFF_ReceivedData.ObjectIdentity == 0):
+                currentIFFState = "Unknown"
+
+
             if (currentIFFState == "Foe"):
                 print("UAV is Foe")
             if (currentIFFState == "Friend"):
                 print("UAV is Friend")
             if (currentIFFState == "Unknown"):
                 print("UAV is Unknown")
+                
+            await asyncio.sleep(3)
 
         except Exception as e:
             print(f"Error in formatresponse_IFF(): {e}")
@@ -79,8 +96,8 @@ async def run_event_loop():
     loop = asyncio.get_event_loop()
     tasks = [
         asyncio.ensure_future(main_loop()),
+        asyncio.ensure_future(update_IFFCode()),
         asyncio.ensure_future(formatresponse_IFF()),
-        #asyncio.ensure_future(update_scanInstruction()),
         #asyncio.ensure_future(update_motorLogic())
     ]
     await asyncio.gather(*tasks)
