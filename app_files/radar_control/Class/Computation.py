@@ -3,8 +3,8 @@ import  sys
 import  numpy
 from    numpy import *
 
-from    pyqtgraph.Qt import QtGui, QtCore
-import  pyqtgraph as pg
+#from    pyqtgraph.Qt import QtGui, QtCore
+#import  pyqtgraph as pg
 
 class Computation():
 
