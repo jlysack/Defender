@@ -1,8 +1,5 @@
 import time
-#import RPi.GPIO as GPIO
 import sys
-#sys.path.insert(0, '/home/jlysack')
-#from RpiMotorLib import A4988Nema
 import rti.connextdds as dds
 import rti.asyncio
 import asyncio #Need both
@@ -24,12 +21,10 @@ componentHealth_reader = dds.DataReader(participant.implicit_subscriber, compone
 requestIFF_reader = dds.DataReader(participant.implicit_subscriber, requestIFF_topic)
 responseIFF_reader = dds.DataReader(participant.implicit_subscriber, responseIFF_topic)
 
-
 #Creating global data holders, these act as data pointers essentially, I wrote this code coming from a C++ background so excuse any weird-ness
 componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
 requestIFF_ReceivedData = DDS.IFF.IFFRequest
 responseIFF_ReceivedData = DDS.IFF.IFFResponse
-
 
 
 # ----------------------
