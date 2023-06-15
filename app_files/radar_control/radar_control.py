@@ -365,7 +365,16 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
         # Log Range, Angle, and Amplitude values
         logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
 
-        # TODO: Revisit this section if we decide we want to actually plot things
+        # TODO: INTEGRATE THIS CODE FOR REAL FOR DDS
+        # sigpro_cfg.dds_writer.send_radar_report(range_val, angle_val, amplitude, zone_number, engagement_zone_flag)
+
+        # This is what will need to go in the dds_writer object's send_radar report function:
+        # radar_report_data.Range               = range_val
+        # radar_report_data.Azimuth             = angle_val
+        # radar_report_data.Amplitude           = amplitude
+        # radar_report_data.ZoneNumber          = zone_number
+        # radar_report_data.EngagementZoneFlag  = engagement_zone_flag
+
         if plot_cfg.time_signals is True:
             plot_time_signals(DataV, num_channels, N)
 
