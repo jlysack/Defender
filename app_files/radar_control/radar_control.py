@@ -9,7 +9,6 @@ from Class.Configuration import SigProConfig, PlotConfig, BoardConfig
 import numpy as np
 import matplotlib.pyplot as plt
 import signal
-import constants as const
 import argparse
 
 # NOTE: This function will need to be called in the defender_main.py function

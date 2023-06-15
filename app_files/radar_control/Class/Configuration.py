@@ -1,11 +1,10 @@
-import constants as const
 import numpy as np
 
 class SigProConfig:
 
     def __init__(self, Brd, min_range, max_range, noise_floor=-35):
         # Constant speed of light
-        c0 = const.c0
+        c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7) 
 
         # Initialize TinyRad Board Config Object
         brd_cfg = BoardConfig()
