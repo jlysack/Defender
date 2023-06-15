@@ -12,14 +12,21 @@ participant = dds.DomainParticipant(domain_id=1)
 componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
 requestIFF_topic = dds.Topic(participant, "IFFRequest", DDS.IFF.IFFRequest)
 responseIFF_topic = dds.Topic(participant, "IFFResponse", DDS.IFF.IFFResponse)
+requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.IFFRequest.UAV)
+responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.IFFResponse.UAV)
+
 
 #Define Writers
-requestIFF_writer = dds.DataWriter(participant.implicit_publisher, requestIFF_topic)
+responseIFF_writer = dds.DataWriter(participant.implicit_publisher, requestIFF_topic) # Send IFF Back to SADT
+requestUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, requestUAVIFF_topic) # Send IFF Request to UAV
 
-#Readers
 componentHealth_reader = dds.DataReader(participant.implicit_subscriber, componentHealth_topic)
-requestIFF_reader = dds.DataReader(participant.implicit_subscriber, requestIFF_topic)
-responseIFF_reader = dds.DataReader(participant.implicit_subscriber, responseIFF_topic)
+#Readers (Between SADT to Tactical Assembly)
+requestIFF_reader = dds.DataReader(participant.implicit_subscriber, requestIFF_topic) # Request for IFF from SADT
+
+#Readers (Between Tactical Assembly to UAV)
+responseUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, responseUAVIFF_topic)
+
 
 #Creating global data holders, these act as data pointers essentially, I wrote this code coming from a C++ background so excuse any weird-ness
 componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
@@ -43,19 +50,21 @@ currentIFFState = "Unknown"
 
 async def update_IFFCode():
     while True:
-        print("Updating IFF Code based on recieved input.....")
-        async for data in responseIFF_reader.take_data_async():
-            global responseIFF_ReceivedData
-            responseIFF_ReceivedData = data
+        #print("Updating IFF Code based on recieved input.....")
+        async for data in responseUAVIFF_reader.take_data_async():
+            global responseUAVIFF_ReceivedData
+            responseUAVIFF_ReceivedData = data
+
+            print("recieved an IFF response")
             
         await asyncio.sleep(1)
 
 async def formatresponse_IFF():
     while True:
-        print("Recieved IFF Response, formatting....")
+        #print("Recieved IFF Response, formatting....")
         try:
             global currentIFFState
-            print(currentIFFState)
+            #print(currentIFFState)
 
             if (responseIFF_ReceivedData.ObjectIdentity == 1):
                 currentIFFState = "Foe"
@@ -84,7 +93,7 @@ async def main_loop():
     while True:
         print("Main loop")
         await asyncio.sleep(2)  # Simulating some work and slow thread so we can read it
-        print("Test, after Main loop sleep")
+        #print("Test, after Main loop sleep")
 
 
 async def run_event_loop():
