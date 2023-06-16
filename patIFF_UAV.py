@@ -15,7 +15,7 @@ requestIFF_topic = dds.Topic(participant, "IFFRequest", DDS.IFF.IFFRequest)
 responseIFF_topic = dds.Topic(participant, "IFFResponse", DDS.IFF.IFFResponse)
 requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.RequestIFF_UAV)
 responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.ResponseIFF_UAV)
-IFFCode_topic = dds.Topic(participant, "UAVIFFCodeSet", DDS.IFF.SetCode)
+IFFCode_topic = dds.Topic(participant, "IFFCode", DDS.IFF.SetCode)
 
 #Define Writers
 responseUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, responseUAVIFF_topic)
@@ -31,6 +31,7 @@ componentUAVIFFHealth_ReceivedData = DDS.Metrics.ComponentHealth
 requestUAVIFF_ReceivedData = DDS.IFF.RequestIFF_UAV
 responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
 requestIFF_data = DDS.IFF.IFFRequest
+IFFCode_ReceivedData = DDS.IFF.SetCode
 
 
 async def find_variable_value(contents, search_string):
@@ -127,34 +128,35 @@ async def WaitforIFF_Response():
 
 async def UpdateIFF_Code(filename, variable_name):
     global IFF_CODE
-    
+    print("Changing Stored IFF Code")
     while True:
-        print("Changing Stored IFF Code")
-        try:
-            async for sample in IFFCode_reader.take_data_async():
-                print("Before Code Change processing")
+        
+        async for sample in IFFCode_reader.take_data_async():
+            print("Before Code Change processing")
 
-                with open(filename, mode='r') as file:
-                    lines = file.readlines()
+            print(IFFCode_ReceivedData.IFFCode)
+            
+            IFF_CODE = IFFCode_ReceivedData.IFFCode
 
-                for i, line in enumerate(lines):
-                    if line.startswith(variable_name):
-                        lines[i] = f'{variable_name} = {new_value}\n'
-                        break
+##                with open(filename, mode='r') as file:
+##                    lines = file.readlines()
+##
+##                for i, line in enumerate(lines):
+##                    if line.startswith(variable_name):
+##                        lines[i] = f'{variable_name} = {new_value}\n'
+##                        break
+##
+##                with open(filename, mode='w') as file:
+##                    file.writelines(lines)
 
-                with open(filename, mode='w') as file:
-                    file.writelines(lines)
-
-                print(f"Successfully updated {variable_name} in {filename}.")
-
-
-                IFF_CODE = IFFCode_reader_ReceivedData.IFFCode
-                print(f"IFF_Code set to {IFF_CODE}.")
+            #print(f"Successfully updated {variable_name} in {filename}.")
+            
+            print(f"IFF_Code set to {IFF_CODE}.")
                 
-        except FileNotFoundError:
-                print(f'{filename} not found.')
-        except Exception as e:
-                print(f'An error occurred: {str(e)}')
+##        except FileNotFoundError:
+##                print(f'{filename} not found.')
+##        except Exception as e:
+##                print(f'An error occurred: {str(e)}')
 
         await asyncio.sleep(1)
 
