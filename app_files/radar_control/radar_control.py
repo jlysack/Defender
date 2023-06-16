@@ -366,15 +366,10 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
         logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
 
         # TODO: INTEGRATE THIS CODE FOR REAL FOR DDS
-        # sigpro_cfg.dds_writer.send_radar_report(range_val, angle_val, amplitude, zone_number, engagement_zone_flag)
+        if sigpro_cfg.dds_enabled is True:
+            sigpro_cfg.radar_report_writer.send(range_val, angle_val) #, amplitude, zone_number, engagement_zone_flag)
 
-        # This is what will need to go in the dds_writer object's send_radar report function:
-        # radar_report_data.Range               = range_val
-        # radar_report_data.Azimuth             = angle_val
-        # radar_report_data.Amplitude           = amplitude
-        # radar_report_data.ZoneNumber          = zone_number
-        # radar_report_data.EngagementZoneFlag  = engagement_zone_flag
-
+        # Plots
         if plot_cfg.time_signals is True:
             plot_time_signals(DataV, num_channels, N)
 
@@ -405,6 +400,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--floor', required=False, help="Configurable noise floor / threshold", type=int)
     parser.add_argument('-p', '--plot', choices=['frame_nums', 'time_signals', 'range_profile', 'sum_data', 'az_data', 'heat_map'], \
                         required=False, help="Plotting options.")
+    parser.add_argument('-d', '--dds', required=False, help="Enable DDS messages to be sent for radar detection reports", action="store_true")
     args = parser.parse_args()
 
     # Initialize logger
@@ -426,7 +422,7 @@ if __name__ == "__main__":
 
     # Initialize SigPro Config
     # NOTE: __main__ only -- Adjust min/max range based on CLI arguments
-    sigpro_cfg = SigProConfig(Brd, args.min_range, args.max_range, args.floor)
+    sigpro_cfg = SigProConfig(Brd, args.min_range, args.max_range, args.floor, args.dds)
     sigpro_cfg.logger = logger
     sigpro_cfg.tactical_mode = True
     

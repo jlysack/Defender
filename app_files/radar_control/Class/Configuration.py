@@ -1,8 +1,11 @@
+import sys
+sys.path.append("../")
+from Class import RadarReport
 import numpy as np
 
 class SigProConfig:
 
-    def __init__(self, Brd, min_range, max_range, noise_floor=-35):
+    def __init__(self, Brd, min_range, max_range, noise_floor=-35, dds_enabled=False):
         # Constant speed of light
         c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7) 
 
@@ -65,6 +68,10 @@ class SigProConfig:
         self.angle_extent_vec = angle_extent_vec
         self.logger           = None
         self.tactical_mode    = False # True = Azimuth data filtered between +/- 22.5 deg
+
+        if dds_enabled is True:
+            self.dds_enabled = True
+            self.radar_report_writer = RadarReportWriter()
 
 class PlotConfig:
 
