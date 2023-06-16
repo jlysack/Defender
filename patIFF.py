@@ -18,15 +18,16 @@ responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.IFFRespo
 
 #Define Writers
 responseIFF_writer = dds.DataWriter(participant.implicit_publisher, requestIFF_topic) # Send IFF Back to SADT
-requestUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, requestUAVIFF_topic) # Send IFF Request to UAV
+requestUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, requestUAVIFF_topic) # Send IFF Request to UAV
 
 componentHealth_reader = dds.DataReader(participant.implicit_subscriber, componentHealth_topic)
+
 #Readers (Between SADT to Tactical Assembly)
 requestIFF_reader = dds.DataReader(participant.implicit_subscriber, requestIFF_topic) # Request for IFF from SADT
 
 #Readers (Between Tactical Assembly to UAV)
 responseUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, responseUAVIFF_topic)
-
+requestUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, requestUAVIFF_topic)
 
 #Creating global data holders, these act as data pointers essentially, I wrote this code coming from a C++ background so excuse any weird-ness
 componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
@@ -59,7 +60,16 @@ async def update_IFFCode():
             
         await asyncio.sleep(1)
 
-#async def WaitforIFF_DashboardRequest():
+async def WaitforIFF_DashboardRequest():
+
+    await asyncio.sleep(1)
+    
+    while True:
+        print("Before processing Dashboard Request")
+
+        async for sample in requestIFF_reader.take_data_async():
+            requestUAVIFF_writer.write(requestIFF_ReceivedData)
+            print("Request Sent")
 
 async def formatresponse_IFF():
     while True:
@@ -104,7 +114,7 @@ async def run_event_loop():
         asyncio.ensure_future(main_loop()),
         asyncio.ensure_future(update_IFFCode()),
         asyncio.ensure_future(formatresponse_IFF()),
-        #asyncio.ensure_future(update_motorLogic())
+        asyncio.ensure_future(WaitforIFF_DashboardRequest())
     ]
     await asyncio.gather(*tasks)
 
