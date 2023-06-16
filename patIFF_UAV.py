@@ -13,8 +13,8 @@ participant = dds.DomainParticipant(domain_id=1)
 componentUAVIFFHealth_topic = dds.Topic(participant, "UAVIFFComponentHealth", DDS.Metrics.ComponentHealth)
 requestIFF_topic = dds.Topic(participant, "IFFRequest", DDS.IFF.IFFRequest)
 responseIFF_topic = dds.Topic(participant, "IFFResponse", DDS.IFF.IFFResponse)
-requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.IFFRequest.UAV)
-responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.IFFResponse.UAV)
+requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.RequestIFF_UAV)
+responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.ResponseIFF_UAV)
 IFFCode_topic = dds.Topic(participant, "UAVIFFCodeSet", DDS.IFF.SetCode)
 
 #Define Writers
@@ -28,8 +28,8 @@ IFFCode_reader = dds.DataReader(participant.implicit_subscriber, IFFCode_topic)
 
 #Recieved Data
 componentUAVIFFHealth_ReceivedData = DDS.Metrics.ComponentHealth
-requestUAVIFF_ReceivedData = DDS.IFF.IFFRequest.UAV
-responseUAVIFF_ReceivedData = DDS.IFF.IFFResponse.UAV
+requestUAVIFF_ReceivedData = DDS.IFF.RequestIFF_UAV
+responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
 requestIFF_data = DDS.IFF.IFFRequest
 
 
@@ -43,19 +43,19 @@ async def find_variable_value(contents, search_string):
 
 async def ReadIFF_Value():
     global IFF_CODE
-
-    await asyncio.sleep(1)
     
     async with aiofiles.open(r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\UAV_IFFCode.txt", mode='r') as file:
         contents = await file.read()
-
         IFF_CODE = await find_variable_value(contents, "UAV_IFF_CODE=")
-        print(IFF_CODE)
+        file.close()
         return IFF_CODE
+
+    await asyncio.sleep(1)
 
 
 async def monitor_file():
     global reported_value
+    print("mointor_file called")
 
     # Get the initial file size
     file_size = 0
@@ -87,23 +87,22 @@ async def monitor_file():
             # Update the file size
             file_size = file.tell()
 
+            file.close()
+
         # Sleep for a specified duration before checking the file again
         await asyncio.sleep(1)
 
 
 async def WaitforIFF_Response():
     global IFF_CODE
-
-    await asyncio.sleep(1)
     
     while True:
             #requestUAVIFF_topic.wait_for_data() # wait for a DDS request message
             async for sample in requestUAVIFF_reader.take_data_async():
                 
                 #responseIFF_data.ObjectIdentity = IFF_CODE
+                #print(IFF_CODE)
 
-
-                print(IFF_CODE)
                 if (IFF_CODE == "0"):
                     responseUAVIFF_ReceivedData.ObjectIdentity = 0
                     print("0 successful")
@@ -114,16 +113,21 @@ async def WaitforIFF_Response():
                     responseUAVIFF_ReceivedData.ObjectIdentity = 2
                     print("2 successful")
 
-                print(IFF_CODE)
-                print("Before message processing")
+                #print(IFF_CODE)
+                #print("Before message processing")
 
                 #print(f"{sample}")
                 # write response back
+                
                 responseUAVIFF_writer.write(responseUAVIFF_ReceivedData)
                 print(responseUAVIFF_ReceivedData.ObjectIdentity)
                 print("Reply Message sent")
 
+    await asyncio.sleep(1)
+
 async def UpdateIFF_Code(filename, variable_name):
+    global IFF_CODE
+    
     while True:
         print("Changing Stored IFF Code")
         try:
@@ -142,7 +146,11 @@ async def UpdateIFF_Code(filename, variable_name):
                     file.writelines(lines)
 
                 print(f"Successfully updated {variable_name} in {filename}.")
-            
+
+
+                IFF_CODE = IFFCode_reader_ReceivedData.IFFCode
+                print(f"IFF_Code set to {IFF_CODE}.")
+                
         except FileNotFoundError:
                 print(f'{filename} not found.')
         except Exception as e:

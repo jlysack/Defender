@@ -12,12 +12,12 @@ participant = dds.DomainParticipant(domain_id=1)
 componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
 requestIFF_topic = dds.Topic(participant, "IFFRequest", DDS.IFF.IFFRequest)
 responseIFF_topic = dds.Topic(participant, "IFFResponse", DDS.IFF.IFFResponse)
-requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.IFFRequest.UAV)
-responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.IFFResponse.UAV)
+requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.RequestIFF_UAV)
+responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.ResponseIFF_UAV)
 
 
 #Define Writers
-responseIFF_writer = dds.DataWriter(participant.implicit_publisher, requestIFF_topic) # Send IFF Back to SADT
+responseIFF_writer = dds.DataWriter(participant.implicit_publisher, responseIFF_topic) # Send IFF Back to SADT
 requestUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, requestUAVIFF_topic) # Send IFF Request to UAV
 
 componentHealth_reader = dds.DataReader(participant.implicit_subscriber, componentHealth_topic)
@@ -33,21 +33,11 @@ requestUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, requestUA
 componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
 requestIFF_ReceivedData = DDS.IFF.IFFRequest
 responseIFF_ReceivedData = DDS.IFF.IFFResponse
-responseUAVIFF_ReceivedData = DDS.IFF.IFFResponse.UAV
-
-# ----------------------
-
-#Define message/data containers for sending
-scanResponse_SendingData = DDS.Scanning.ScanResponse
-scanResponse_SendingData.ZoneNumber = 2
-
-# -------------------------------------------------
+responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
 
 currentIFFState = "Unknown"
 
 # Main Body of Code #
-
-#async def request_IFF():
 
 async def update_IFFCode():
     while True:
@@ -57,34 +47,62 @@ async def update_IFFCode():
             responseUAVIFF_ReceivedData = data
 
             print("recieved an IFF response")
-            print(responseUAVIFF_ReceivedData.ObjectIdentity)
+
+
+            responseIFF_ReceivedData.ObjectIdentity = 2
+            
+            #print(responseUAVIFF_ReceivedData.ObjectIdentity)
+
+            #time.sleep(0.5)
+
+            #print(responseUAVIFF_ReceivedData)
+            #print(responseIFF_ReceivedData)
+            #time.sleep(0.5)
+            
+            responseIFF_writer.write(responseIFF_ReceivedData)
+            print("Dashboard IFF Response sent!")
             
         await asyncio.sleep(1)
 
 async def WaitforIFF_DashboardRequest():
-
-    await asyncio.sleep(1)
-    
     while True:
         print("Before processing Dashboard Request")
 
         async for sample in requestIFF_reader.take_data_async():
             requestUAVIFF_writer.write(requestIFF_ReceivedData)
-            print("Request Sent")
+            print("Request")
+
+    await asyncio.sleep(1)
+
+##async def WritetoDashboard_IFF():
+##    #global responseIFF_ReceivedData
+##    #responseIFF_ReceivedData.RequestID = 1
+##
+##    
+##    while True:
+##        async for sample in responseUAVIFF_reader.take_data_async():
+##            responseIFF_writer.write(responseIFF_ReceivedData)
+##            print("Dashboard IFF Response sent!")
+##
+##    await asyncio.sleep(1)
 
 async def formatresponse_IFF():
+    global currentIFFState
+    
     while True:
         #print("Recieved IFF Response, formatting....")
         try:
-            global currentIFFState
-            print(currentIFFState)
+            #print(currentIFFState)
+            #print(responseIFF_ReceivedData.ObjectIdentity)
 
-            if (responseIFF_ReceivedData.ObjectIdentity == 0):
+            if (responseUAVIFF_ReceivedData.ObjectIdentity == 0):
                 currentIFFState = "Unknown"
-            if (responseIFF_ReceivedData.ObjectIdentity == 1):
+            if (responseUAVIFF_ReceivedData.ObjectIdentity == 2):
                 currentIFFState = "Foe"
-            if (responseIFF_ReceivedData.ObjectIdentity == "Friendly"):
+            if (responseUAVIFF_ReceivedData.ObjectIdentity == 1):
                 currentIFFState = "Friend"
+
+            #print(currentIFFState)
 
 
             if (currentIFFState == "Foe"):
@@ -113,9 +131,10 @@ async def run_event_loop():
     loop = asyncio.get_event_loop()
     tasks = [
         asyncio.ensure_future(main_loop()),
+        asyncio.ensure_future(WaitforIFF_DashboardRequest()),
         asyncio.ensure_future(update_IFFCode()),
         asyncio.ensure_future(formatresponse_IFF()),
-        asyncio.ensure_future(WaitforIFF_DashboardRequest())
+        #asyncio.ensure_future(WritetoDashboard_IFF())
     ]
     await asyncio.gather(*tasks)
 

@@ -194,6 +194,21 @@ class DDS_Tracking_TrackData:
 
 DDS.Tracking.TrackData = DDS_Tracking_TrackData
 
+
+DDS_IFF = idl.get_module("DDS_IFF")
+DDS.IFF = DDS_IFF
+
+@idl.struct(
+    member_annotations = {
+        'Request': [idl.bound(100)],
+    }
+)
+
+class DDS_IFF_SetCode:
+    ObjectIdentity: DDS.SILKTypes.ObjectIdentity = DDS.SILKTypes.ObjectIdentity.Unknown
+
+DDS.IFF.SetCode = DDS_IFF_SetCode
+
 DDS_IFF = idl.get_module("DDS_IFF")
 
 DDS.IFF = DDS_IFF
@@ -215,23 +230,27 @@ class DDS_IFF_IFFResponse:
 
 DDS.IFF.IFFResponse = DDS_IFF_IFFResponse
 
-@idl.struct
-class DDS_IFF_SetCode:
-    IFFCode: DDS.SILKTypes.ObjectIdentity = DDS.SILKTypes.ObjectIdentity.Unknown
 
-DDS.IFF.SetCode = DDS_IFF_SetCode
+UAV_DDS_IFF = idl.get_module("DDS_IFF")
 
-@idl.struct
-class DDS_IFF_RequestIFF_UAV:
+DDS.IFF.UAV = UAV_DDS_IFF
+
+@idl.struct(
+    member_annotations = {
+        'Request': [idl.bound(100)],
+    }
+)
+class DDS_IFF_IFFRequest_UAV:
     RequestID: idl.int32 = 0
+    Request: str = ""
 
-DDS.IFF.RequestIFF_UAV = DDS_IFF_RequestIFF_UAV
+DDS.IFF.IFFRequest.UAV = DDS_IFF_IFFRequest_UAV
 
 @idl.struct
-class DDS_IFF_ResponseIFF_UAV:
+class DDS_IFF_IFFResponse_UAV:
     ObjectIdentity: DDS.SILKTypes.ObjectIdentity = DDS.SILKTypes.ObjectIdentity.Unknown
 
-DDS.IFF.ResponseIFF_UAV = DDS_IFF_ResponseIFF_UAV
+DDS.IFF.IFFResponse.UAV = DDS_IFF_IFFResponse_UAV
 
 DDS_misc = idl.get_module("DDS_misc")
 
