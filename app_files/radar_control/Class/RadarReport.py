@@ -1,8 +1,11 @@
 #!/usr/bin/python3
 import sys
 sys.path.append("../")
-import rti.connextdds as dds
-from interfaces import DDS
+try:
+    import rti.connextdds as dds
+    from interfaces import DDS
+except ModuleNotFoundError:
+    pass
 
 class RadarReportWriter:
 

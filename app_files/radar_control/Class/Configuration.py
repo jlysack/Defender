@@ -72,6 +72,9 @@ class SigProConfig:
         if dds_enabled is True:
             self.dds_enabled = True
             self.radar_report_writer = RadarReportWriter()
+        else:
+            self.dds_enabled = False
+
 
 class PlotConfig:
 
