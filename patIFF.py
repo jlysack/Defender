@@ -33,7 +33,7 @@ requestUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, requestUA
 componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
 requestIFF_ReceivedData = DDS.IFF.IFFRequest
 responseIFF_ReceivedData = DDS.IFF.IFFResponse
-
+responseUAVIFF_ReceivedData = DDS.IFF.IFFResponse.UAV
 
 # ----------------------
 
@@ -57,6 +57,7 @@ async def update_IFFCode():
             responseUAVIFF_ReceivedData = data
 
             print("recieved an IFF response")
+            print(responseUAVIFF_ReceivedData.ObjectIdentity)
             
         await asyncio.sleep(1)
 
@@ -76,14 +77,14 @@ async def formatresponse_IFF():
         #print("Recieved IFF Response, formatting....")
         try:
             global currentIFFState
-            #print(currentIFFState)
+            print(currentIFFState)
 
-            if (responseIFF_ReceivedData.ObjectIdentity == 1):
-                currentIFFState = "Foe"
-            if (responseIFF_ReceivedData.ObjectIdentity == 2):
-                currentIFFState = "Friend"
             if (responseIFF_ReceivedData.ObjectIdentity == 0):
                 currentIFFState = "Unknown"
+            if (responseIFF_ReceivedData.ObjectIdentity == 1):
+                currentIFFState = "Foe"
+            if (responseIFF_ReceivedData.ObjectIdentity == "Friendly"):
+                currentIFFState = "Friend"
 
 
             if (currentIFFState == "Foe"):
