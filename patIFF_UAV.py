@@ -15,6 +15,7 @@ requestIFF_topic = dds.Topic(participant, "IFFRequest", DDS.IFF.IFFRequest)
 responseIFF_topic = dds.Topic(participant, "IFFResponse", DDS.IFF.IFFResponse)
 requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.IFFRequest.UAV)
 responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.IFFResponse.UAV)
+IFFCode_topic = dds.Topic(participant, "UAVIFFCodeSet", DDS.IFF.SetCode)
 
 #Define Writers
 responseUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, responseUAVIFF_topic)
@@ -23,6 +24,7 @@ responseUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, responseU
 componentUAVIFFHealth_reader = dds.DataReader(participant.implicit_subscriber, componentUAVIFFHealth_topic)
 requestUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, requestUAVIFF_topic)
 requestIFF_reader = dds.DataReader(participant.implicit_subscriber, requestIFF_topic)
+IFFCode_reader = dds.DataReader(participant.implicit_subscriber, IFFCode_topic)
 
 #Recieved Data
 componentUAVIFFHealth_ReceivedData = DDS.Metrics.ComponentHealth
@@ -42,7 +44,7 @@ async def find_variable_value(contents, search_string):
 async def ReadIFF_Value():
     global IFF_CODE
     
-    async with aiofiles.open("UAV_IFFCode.txt", mode='r') as file:
+    async with aiofiles.open(r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\UAV_IFFCode.txt", mode='r') as file:
         contents = await file.read()
 
         IFF_CODE = await find_variable_value(contents, "UAV_IFF_CODE=")
@@ -60,7 +62,7 @@ async def WaitforIFF_Response():
             #received_IFFRequest = requestUAVIFF_reader.take_data_async()
 
             print("Before message processing")
-            async for sample in requestIFF_reader.take_data_async():
+            async for sample in requestUAVIFF_reader.take_data_async():
                 
                 #responseIFF_data.ObjectIdentity = IFF_CODE
 
@@ -69,6 +71,31 @@ async def WaitforIFF_Response():
                 # write response back
                 responseUAVIFF_writer.write(responseUAVIFF_ReceivedData)
                 print("Reply Message sent")
+
+async def UpdateIFF_Code(filename, variable_name):
+    while True:
+        print("Changing Stored IFF Code")
+        try:
+            async for sample in IFFCode_reader.take_data_async():
+                print("Before Code Change processing")
+
+                with open(filename, mode='r') as file:
+                    lines = file.readlines()
+
+                for i, line in enumerate(lines):
+                    if line.startswith(variable_name):
+                        lines[i] = f'{variable_name} = {new_value}\n'
+                        break
+
+                with open(filename, mode='w') as file:
+                    file.writelines(lines)
+
+                print(f"Successfully updated {variable_name} in {filename}.")
+            
+        except FileNotFoundError:
+                print(f'{filename} not found.')
+        except Exception as e:
+                print(f'An error occurred: {str(e)}')
 
 # Define the main loop routine
 async def main_loop():
@@ -88,7 +115,7 @@ async def run_event_loop():
         asyncio.ensure_future(main_loop()),
         asyncio.ensure_future(ReadIFF_Value()),
         asyncio.ensure_future(WaitforIFF_Response()),
-        #asyncio.ensure_future(update_motorLogic())
+        asyncio.ensure_future(UpdateIFF_Code(r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\UAV_IFFCode.txt", "UAV_IFF_CODE"))
     ]
     await asyncio.gather(*tasks)
 

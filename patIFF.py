@@ -59,6 +59,8 @@ async def update_IFFCode():
             
         await asyncio.sleep(1)
 
+#async def WaitforIFF_DashboardRequest():
+
 async def formatresponse_IFF():
     while True:
         #print("Recieved IFF Response, formatting....")

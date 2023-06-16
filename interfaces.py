@@ -194,6 +194,22 @@ class DDS_Tracking_TrackData:
 
 DDS.Tracking.TrackData = DDS_Tracking_TrackData
 
+
+DDS_IFF = idl.get_module("DDS_IFF")
+DDS.IFF = DDS_IFF
+
+@idl.struct(
+    member_annotations = {
+        'Request': [idl.bound(100)],
+    }
+)
+
+class DDS_IFF_SetCode:
+    RequestID: idl.int32 = 0
+    ObjectIdentity: DDS.SILKTypes.ObjectIdentity = DDS.SILKTypes.ObjectIdentity.Unknown
+
+DDS.IFF.SetCode = DDS_IFF_SetCode
+
 DDS_IFF = idl.get_module("DDS_IFF")
 
 DDS.IFF = DDS_IFF
