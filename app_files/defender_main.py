@@ -17,9 +17,12 @@
 # Getters/Setters versus Properties
 # Case usage (camelcase or underscores?)
 #
-import constants_v2 as const
+import constants as const
 import sys
 import os
+import rt.connextdds as dds
+import rt.asyncio
+from interfaces import DDS
  
 def print_zone_info(zone):
     for field in const.ZONES[zone]:
@@ -83,4 +86,30 @@ def compute_detection_flags(detection, zone):
             flags[zone] = (True, False)
 
 if __name__ == "__main__":
+
+    # Initialize listener
+    # dds_listener = dds_listener()
+    
+    # Setup Config
+    # sigpro_cfg = ...
+
+    # While True:
+    #   async check for messages
+
+    #       message received logic: check type of message
+
+    #       if radar_start:
+    #           Brd = radar_control.configure_tinyrad()
+
+    #           if zone 1:
+    #               sigpro_cfg.min_range = x
+    #               sigpro_cfg.max_range = y
+    #           elif zone 2: 
+    #               sigpro_cfg.min_range = ...
+    #               ...
+    #
+    #           Start separate process?
+    #           radar_control.radar_search(Brd, sigpro_cfg, plot_cfg)
+
+
     print('hello')
