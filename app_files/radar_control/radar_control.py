@@ -31,9 +31,9 @@ def init_rad_control_logger(debug_enabled = False):
     file_handler.setLevel(logging.DEBUG)
     
     if debug_enabled is True:
-        stream_handler.setLevel(logging.INFO)
+        stream_handler.setLevel(logging.DEBUG)
     else:
-        stream_handler.setLevel(logging.WARN)
+        stream_handler.setLevel(logging.INFO)
 
     # Create formatter
     formatter = logging.Formatter('%(asctime)s: %(name)s - %(funcName)s - %(levelname)s: %(message)s')
@@ -206,7 +206,6 @@ def plot_sum_data(rp_iq_data, sigpro_cfg):
     #return iq_sum, sum_amp
 
 def compute_sum_data(rp_iq_data, sigpro_cfg):
-    # TODO: ADD PROCESSING HERE TO GET CLEARER DETECTIONS
     # Create 2D "Heat Map" of I/Q data
     amplitude_map_iq = (np.fft.fftshift(
                         np.fft.fft(rp_iq_data * sigpro_cfg.ant_window_2d, \
@@ -250,8 +249,6 @@ def no_detection_check(normalized_amp, sigpro_cfg):
         return True
     else:
         return False
-    #return (average_db >= sigpro_cfg.detection_thresh)
-
 
 def compute_range_and_angle(normalized_amp, sigpro_cfg):
     # Initialize intermediate variables
@@ -276,20 +273,15 @@ def compute_range_and_angle(normalized_amp, sigpro_cfg):
             tgt_range_sample = angle_data.argmax()
             tgt_angle_sample = angle_idx
 
-    if tgt_range_sample is not None and tgt_angle_sample is not None:
-        # Index the range and angle extent vectors using the saved max amp indices
-        range_val = sigpro_cfg.range_extent_vec[tgt_range_sample]
-        if sigpro_cfg.tactical_mode is True:
-            angle_val = sigpro_cfg.filt_angle_vec[tgt_angle_sample]
-        else:
-            angle_val = sigpro_cfg.angle_extent_vec[tgt_angle_sample]
+    # Index the range and angle extent vectors using the saved max amp indices
+    range_val = sigpro_cfg.range_extent_vec[tgt_range_sample]
+    if sigpro_cfg.tactical_mode is True:
+        angle_val = sigpro_cfg.filt_angle_vec[tgt_angle_sample]
     else:
-        # TODO: NEED TO DO SOME SORT OF ABSOLUTE CHECK INSTEAD, WILL NEVER GET IN HERE
-        range_val = None
-        angle_val = None
+        angle_val = sigpro_cfg.angle_extent_vec[tgt_angle_sample]
 
     # DEBUG
-    print(f"Average amplitude = {np.average(normalized_amp):.4f} dB")
+    #print(f"Average amplitude = {np.average(normalized_amp):.4f} dB")
 
     # Return range, angle, and amplitude
     return range_val, angle_val, max_val_tmp
@@ -358,26 +350,25 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
 
         #detection_list = get_detections(normalized_amp, sigpro_cfg)
         
-        # Pull out range and angle values of maximum amplitude detection
+        # Pull out range and angle values of maximum amplitude detection after
+        # filtering out azimuth data outside 22.5 degrees and checking the max 
+        # amplitude against a detection threshold across all range/azimuth 
+        # points, since we do not want the radar to report a detection if the
+        # max is just noise.
+        #
         #   range_val units: meters
         #   angle_val units: degrees
         #   amplitude units: dB (relative)
         range_val, angle_val, amplitude = compute_range_and_angle(normalized_amp, sigpro_cfg)
 
-        # TODO TODO TODO TODO : Need to implement processing in which we filter out
-        #                       azimuth data outside 22.5 degrees before choosing a
-        #                       max, and then if the dB isn't above a detection threshold
-        #                       across all range/azimuth points, we declare no detection.
-        #                       Otherwise, the radar is going to report a detection in
-        #                       whatever point in space is the max amplitude, even if noise.
 
         # Log Range, Angle, and Amplitude values
         if range_val is not None:
             logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
         else:
             logger.debug(f"No detections found. Average Amplitude: {np.average(normalized_amp):.4f}")
-        #print(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
 
+        # Send radar_report via DDS
         if sigpro_cfg.dds_enabled is True:
             sigpro_cfg.radar_report_writer.send(range_val, angle_val) #, amplitude, zone_number, engagement_zone_flag)
 
