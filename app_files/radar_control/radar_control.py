@@ -9,7 +9,6 @@ from Class.Configuration import SigProConfig, PlotConfig, BoardConfig
 import numpy as np
 import matplotlib.pyplot as plt
 import signal
-import constants as const
 import argparse
 
 # NOTE: This function will need to be called in the defender_main.py function
@@ -34,7 +33,7 @@ def init_rad_control_logger(debug_enabled = False):
     if debug_enabled is True:
         stream_handler.setLevel(logging.DEBUG)
     else:
-        stream_handler.setLevel(logging.WARN)
+        stream_handler.setLevel(logging.INFO)
 
     # Create formatter
     formatter = logging.Formatter('%(asctime)s: %(name)s - %(funcName)s - %(levelname)s: %(message)s')
@@ -124,17 +123,24 @@ def plot_range_profile(rp_iq_data, sigpro_cfg):
 
     return
 
-def plot_heat_map(rp_iq_data, sigpro_cfg):
+def plot_heat_map(normalized_amp, sigpro_cfg):
 
-    data = compute_sum_data(rp_iq_data, sigpro_cfg)
-
-    #plt.imshow(data, cmap='hot', interpolation='none', \
-    plt.imshow(data, interpolation='none', \
-               extent=[sigpro_cfg.range_extent_vec[0],\
-                       sigpro_cfg.range_extent_vec[-1],\
-                       sigpro_cfg.angle_extent_vec[0],
-                       sigpro_cfg.angle_extent_vec[-1]], \
-               aspect='auto')
+    if sigpro_cfg.tactical_mode is True:
+        #plt.imshow(normalized_amp, cmap='hot', interpolation='none', \
+        plt.imshow(normalized_amp, interpolation='none', \
+                   extent=[sigpro_cfg.range_extent_vec[0],\
+                           sigpro_cfg.range_extent_vec[-1],\
+                           sigpro_cfg.filt_angle_vec[0],
+                           sigpro_cfg.filt_angle_vec[-1]], \
+                   aspect='auto')
+    else:
+        #plt.imshow(normalized_amp, cmap='hot', interpolation='none', \
+        plt.imshow(normalized_amp, interpolation='none', \
+                   extent=[sigpro_cfg.range_extent_vec[0],\
+                           sigpro_cfg.range_extent_vec[-1],\
+                           sigpro_cfg.angle_extent_vec[0],
+                           sigpro_cfg.angle_extent_vec[-1]], \
+                   aspect='auto')
 
     plt.draw()
     plt.pause(0.0001)
@@ -142,10 +148,10 @@ def plot_heat_map(rp_iq_data, sigpro_cfg):
 
     return
 
-def plot_az_data(rp_iq_data, sigpro_cfg):
+def plot_az_data(normalized_amp, sigpro_cfg):
     plt.figure('Amplitude vs Range for All Azimuth Angles')
 
-    for range_sample in compute_sum_data(rp_iq_data, sigpro_cfg).T:
+    for range_sample in normalized_amp.T:
         plt.plot(sigpro_cfg.angle_extent_vec, range_sample)
     plt.xlim([min(sigpro_cfg.angle_extent_vec), max(sigpro_cfg.angle_extent_vec)])
     plt.draw()
@@ -200,7 +206,6 @@ def plot_sum_data(rp_iq_data, sigpro_cfg):
     #return iq_sum, sum_amp
 
 def compute_sum_data(rp_iq_data, sigpro_cfg):
-    # TODO: ADD PROCESSING HERE TO GET CLEARER DETECTIONS
     # Create 2D "Heat Map" of I/Q data
     amplitude_map_iq = (np.fft.fftshift(
                         np.fft.fft(rp_iq_data * sigpro_cfg.ant_window_2d, \
@@ -208,11 +213,11 @@ def compute_sum_data(rp_iq_data, sigpro_cfg):
                                                 sigpro_cfg.sca_ant_window, axes=1))
 
     # Convert to dB
-    amplitude_map_db = 20*np.log10(np.abs(amplitude_map_iq))
+    amplitude_map_db = 20*np.log10(np.abs(amplitude_map_iq)).T
 
-    # TODO: figure out how to do this...
-    #if sigpro_cfg.tactical_mode is True:
-    #    amplitude_map_db = filter_azimuth(amplitude_map_db, sigpro_cfg)
+    # If tactical mode, filter out data outside +/- 22.5 degrees before normalizing
+    if sigpro_cfg.tactical_mode is True:
+        amplitude_map_db = filter_azimuth(amplitude_map_db, sigpro_cfg)
 
     # Pull out the max and normalize the 2D matrix
     amp_max  = np.max(amplitude_map_db)
@@ -222,26 +227,28 @@ def compute_sum_data(rp_iq_data, sigpro_cfg):
     amp_floor = sigpro_cfg.noise_floor # More negative == more sensitive
     normalized_amp[normalized_amp < amp_floor] = amp_floor 
 
-    return normalized_amp.T # Normalized Amplitude, indexed by Angle and then Sample
+    return normalized_amp # Normalized Amplitude, indexed by Angle and then Sample
 
 def filter_azimuth(amplitude_array, sigpro_cfg):
-    min_idx = np.absolute(sigpro_cfg.angle_extent_vec + 23.0).argmin()
-    max_idx = np.absolute(sigpro_cfg.angle_extent_vec - 23.0).argmin()
-
-    filtered_array = amplitude_array.T[min_idx:max_idx]
-    sigpro_cfg.angle_extent_vec = sigpro_cfg.angle_extent_vec[min_idx:max_idx]
-
-    return filtered_array.T, sigpro_cfg
-
-def get_sector_average(normalized_amp, sigpro_cfg):
+    # Find indices for where angle_extent_vec is equal to +/- 22.5 deg
     min_idx = np.absolute(sigpro_cfg.angle_extent_vec + 22.5).argmin()
     max_idx = np.absolute(sigpro_cfg.angle_extent_vec - 22.5).argmin()
 
-    sector_amp = normalized_amp[min_idx:max_idx]
+    # Filter the amplitude array using these values
+    filtered_array = amplitude_array[min_idx:max_idx,:]
 
-    sector_average = np.average(sector_amp)
+    return filtered_array
 
-    return sector_average
+def no_detection_check(normalized_amp, sigpro_cfg):
+    average_db = np.average(normalized_amp)
+
+    # return True to indicate "no detections" if average_db is less negative
+    # than the detection threshold, indicating that the average is close to the
+    # maximum and likely caused by noise
+    if np.abs(average_db) < np.abs(sigpro_cfg.detection_thresh):
+        return True
+    else:
+        return False
 
 def compute_range_and_angle(normalized_amp, sigpro_cfg):
     # Initialize intermediate variables
@@ -249,12 +256,10 @@ def compute_range_and_angle(normalized_amp, sigpro_cfg):
     tgt_range_sample = None
     tgt_angle_sample = None
 
-    poop = get_sector_average(normalized_amp, sigpro_cfg)
-
-    # TODO: Add in processing to handle situations where there are NO targets,
-    #       since we don't want to report the range/angle of the max amplitude
-    #       of noise --> this might just require changing amp_floor in the 
-    #       compute_sum_data function
+    # Perform processing to handle situations where there are NO targets,
+    # since we don't want to report the range/angle of the max amplitude
+    if no_detection_check(normalized_amp, sigpro_cfg) is True:
+        return None, None, None
 
     # Iterate over each angle increment
     for angle_idx, angle_data in enumerate(normalized_amp):
@@ -262,28 +267,23 @@ def compute_range_and_angle(normalized_amp, sigpro_cfg):
         # increment is larger than the stored max, save the new max and store
         # the range sample and angle increment/sample at which the max amplitude
         # was found
-        if sigpro_cfg.tactical_mode is True and \
-                abs(sigpro_cfg.angle_extent_vec[angle_idx]) > 22.5:
-            continue
-
         if angle_data.max() > max_val_tmp:
             max_val_tmp = angle_data.max()
             
             tgt_range_sample = angle_data.argmax()
             tgt_angle_sample = angle_idx
 
-    if tgt_range_sample is not None and tgt_angle_sample is not None:
-        # Index the range and angle extent vectors using the saved max amp indices
-        range_val = sigpro_cfg.range_extent_vec[tgt_range_sample]
-        angle_val = sigpro_cfg.angle_extent_vec[tgt_angle_sample]
+    # Index the range and angle extent vectors using the saved max amp indices
+    range_val = sigpro_cfg.range_extent_vec[tgt_range_sample]
+    if sigpro_cfg.tactical_mode is True:
+        angle_val = sigpro_cfg.filt_angle_vec[tgt_angle_sample]
     else:
-        # TODO: NEED TO DO SOME SORT OF ABSOLUTE CHECK INSTEAD, WILL NEVER GET IN HERE
-        range_val = None
-        angle_val = None
+        angle_val = sigpro_cfg.angle_extent_vec[tgt_angle_sample]
 
     # DEBUG
-    print(f"All azimuths avg = {np.average(normalized_amp):.4f}, 45 deg avg: {poop:.4f}")
+    #print(f"Average amplitude = {np.average(normalized_amp):.4f} dB")
 
+    # Return range, angle, and amplitude
     return range_val, angle_val, max_val_tmp
 
 def samples_to_meters(samples, sigpro_cfg):
@@ -306,8 +306,18 @@ def get_detections(normalized_amp, sigpro_cfg):
             avg_range = np.average(samples_to_meters(range_samples, sigpro_cfg))
             #print(f"Az: {sigpro_cfg.angle_extent_vec[i]:.4f} deg, Range: {avg_range:.4f} m") 
 
-    sys.exit(0)
     return True
+
+def check_engagement_zone(range_m, angle_deg, sigpro_cfg):
+    if range_m > (sigpro_cfg.min_range + feet_to_m(5)) and \
+       range_m < (sigpro_cfg.max_range - feet_to_m(5)) and \
+       angle_deg > -12.5 and angle_deg < 12.5:
+        return True
+
+    return False
+
+def feet_to_m(feet):
+    return feet*0.3048
 
 def radar_search(Brd, sigpro_cfg, plot_cfg):
     # Store SigPro Config object variables locally
@@ -351,22 +361,31 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
 
         #detection_list = get_detections(normalized_amp, sigpro_cfg)
         
-        # Pull out range and angle values of maximum amplitude detection
+        # Pull out range and angle values of maximum amplitude detection after
+        # filtering out azimuth data outside 22.5 degrees and checking the max 
+        # amplitude against a detection threshold across all range/azimuth 
+        # points, since we do not want the radar to report a detection if the
+        # max is just noise.
+        #
         #   range_val units: meters
         #   angle_val units: degrees
+        #   amplitude units: dB (relative)
         range_val, angle_val, amplitude = compute_range_and_angle(normalized_amp, sigpro_cfg)
 
-        # TODO TODO TODO TODO : Need to implement processing in which we filter out
-        #                       azimuth data outside 22.5 degrees before choosing a
-        #                       max, and then if the dB isn't above a detection threshold
-        #                       across all range/azimuth points, we declare no detection.
-        #                       Otherwise, the radar is going to report a detection in
-        #                       whatever point in space is the max amplitude, even if noise.
+        if range_val is not None:
+            engagement_zone_flag = check_engagement_zone(range_val, angle_val, sigpro_cfg)
 
-        # Log Range, Angle, and Amplitude values
-        logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
+            #logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
+            logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Engagement Zone: {engagement_zone_flag}")
 
-        # TODO: Revisit this section if we decide we want to actually plot things
+            # Send radar_report via DDS
+            if sigpro_cfg.dds_enabled is True:
+                sigpro_cfg.radar_report_writer.send(range_val, angle_val, engagement_zone_flag) #, amplitude, zone_number
+        else:
+            logger.debug(f"No detections found. Average Amplitude: {np.average(normalized_amp):.4f}")
+
+
+        # Plots
         if plot_cfg.time_signals is True:
             plot_time_signals(DataV, num_channels, N)
 
@@ -377,10 +396,10 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
             plot_sum_data(rp_iq_data, sigpro_cfg)
 
         if plot_cfg.az_data is True:
-            plot_az_data(rp_iq_data, sigpro_cfg)
+            plot_az_data(normalized_amp, sigpro_cfg)
 
         if plot_cfg.heat_map is True:
-            plot_heat_map(rp_iq_data, sigpro_cfg)
+            plot_heat_map(normalized_amp, sigpro_cfg)
 
 
 if __name__ == "__main__":
@@ -397,6 +416,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--floor', required=False, help="Configurable noise floor / threshold", type=int)
     parser.add_argument('-p', '--plot', choices=['frame_nums', 'time_signals', 'range_profile', 'sum_data', 'az_data', 'heat_map'], \
                         required=False, help="Plotting options.")
+    parser.add_argument('-d', '--dds', required=False, help="Enable DDS messages to be sent for radar detection reports", action="store_true")
     args = parser.parse_args()
 
     # Initialize logger
@@ -418,13 +438,9 @@ if __name__ == "__main__":
 
     # Initialize SigPro Config
     # NOTE: __main__ only -- Adjust min/max range based on CLI arguments
-    sigpro_cfg = SigProConfig(Brd, args.min_range, args.max_range, args.floor)
+    sigpro_cfg = SigProConfig(Brd, args.min_range, args.max_range, args.floor, args.dds)
     sigpro_cfg.logger = logger
     sigpro_cfg.tactical_mode = True
-    
-    # NOTE: __main__ only -- Adjust min/max range based on CLI arguments
-    sigpro_cfg.min_range = args.min_range
-    sigpro_cfg.max_range = args.max_range
 
     # Main loop
     radar_search(Brd, sigpro_cfg, plot_cfg)

@@ -61,3 +61,8 @@ LOCAL_ZONE_PARAMS = {
 	'MIN_EL'           :   0.0, # degrees
 	'MAX_EL'           :  15.0, # degrees
 }
+
+DEFAULT_NOISE_FLOOR = -35 # dB (?)
+
+ENGAGE_ZONE_RANGE_OFFSET = 5  # feet
+ENGAGE_ZONE_ANGLE_OFFSET = 10 # degrees
