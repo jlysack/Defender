@@ -308,6 +308,17 @@ def get_detections(normalized_amp, sigpro_cfg):
 
     return True
 
+def check_engagement_zone(range_m, angle_deg, sigpro_cfg):
+    if range_m > (sigpro_cfg.min_range + feet_to_m(5)) and \
+       range_m < (sigpro_cfg.max_range - feet_to_m(5)) and \
+       angle_deg > -12.5 and angle_deg < 12.5:
+        return True
+
+    return False
+
+def feet_to_m(feet):
+    return feet*0.3048
+
 def radar_search(Brd, sigpro_cfg, plot_cfg):
     # Store SigPro Config object variables locally
     num_samples         = sigpro_cfg.num_samples
@@ -361,16 +372,18 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
         #   amplitude units: dB (relative)
         range_val, angle_val, amplitude = compute_range_and_angle(normalized_amp, sigpro_cfg)
 
-
-        # Log Range, Angle, and Amplitude values
         if range_val is not None:
-            logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
+            engagement_zone_flag = check_engagement_zone(range_val, angle_val, sigpro_cfg)
+
+            #logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
+            logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Engagement Zone: {engagement_zone_flag}")
+
+            # Send radar_report via DDS
+            if sigpro_cfg.dds_enabled is True:
+                sigpro_cfg.radar_report_writer.send(range_val, angle_val, engagement_zone_flag) #, amplitude, zone_number
         else:
             logger.debug(f"No detections found. Average Amplitude: {np.average(normalized_amp):.4f}")
 
-        # Send radar_report via DDS
-        if sigpro_cfg.dds_enabled is True:
-            sigpro_cfg.radar_report_writer.send(range_val, angle_val) #, amplitude, zone_number, engagement_zone_flag)
 
         # Plots
         if plot_cfg.time_signals is True:

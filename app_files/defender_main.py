@@ -103,7 +103,7 @@ if __name__ == "__main__":
     plot_cfg                = radar_control.PlotConfig()
     Brd                     = radar_control.configure_tinyrad()
 
-    zone = 1
+    zone = 3
 
     while True:
         min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
