@@ -1,11 +1,13 @@
-import constants as const
+import sys
+sys.path.append("../")
+from Class import RadarReport
 import numpy as np
 
 class SigProConfig:
 
-    def __init__(self, Brd, min_range, max_range, noise_floor=-35):
+    def __init__(self, Brd, min_range, max_range, noise_floor=-35, dds_enabled=False):
         # Constant speed of light
-        c0 = const.c0
+        c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7) 
 
         # Initialize TinyRad Board Config Object
         brd_cfg = BoardConfig()
@@ -64,8 +66,26 @@ class SigProConfig:
         self.ant_window_2d    = ant_window_2d
         self.sca_ant_window   = sca_ant_window 
         self.angle_extent_vec = angle_extent_vec
+        self.filt_angle_vec   = self.filter_azimuth_cfg()
         self.logger           = None
-        self.tactical_mode    = False # True = Azimuth data filtered between +/- 22.5 deg
+        self.tactical_mode    = True # True = Azimuth data filtered between +/- 22.5 deg
+        self.detection_thresh = -15 # dB TODO: finalize value or make configurable
+
+        if dds_enabled is True:
+            self.dds_enabled = True
+            self.radar_report_writer = RadarReport.RadarReportWriter()
+        else:
+            self.dds_enabled = False
+
+    def filter_azimuth_cfg(self):
+        # Find indices for where angle_extent_vec is equal to +/- 22.5 deg
+        min_idx = np.absolute(self.angle_extent_vec + 22.5).argmin()
+        max_idx = np.absolute(self.angle_extent_vec - 22.5).argmin()
+
+        filt_angle_vec = self.angle_extent_vec[min_idx:max_idx]
+
+        return filt_angle_vec
+
 
 class PlotConfig:
 

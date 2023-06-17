@@ -17,9 +17,17 @@
 # Getters/Setters versus Properties
 # Case usage (camelcase or underscores?)
 #
-import constants_v2 as const
+import constants as const
 import sys
 import os
+#import radar_control.Class as Class
+import Class
+from Class.Configuration import SigProConfig, PlotConfig, BoardConfig
+import radar_control.radar_control as radar_control
+#from radar_control import radar_control
+#import rti.connextdds as dds
+#import rti.asyncio
+#from interfaces import DDS
  
 def print_zone_info(zone):
     for field in const.ZONES[zone]:
@@ -82,5 +90,48 @@ def compute_detection_flags(detection, zone):
        
             flags[zone] = (True, False)
 
+def feet_to_m(feet):
+    return feet * 0.3048
+
 if __name__ == "__main__":
-    print('hello')
+
+    # Initialize listener
+    # dds_listener = dds_listener()
+    
+    # Setup Radar Control Configs
+    radar_control_logger    = radar_control.init_rad_control_logger(True)
+    plot_cfg                = radar_control.PlotConfig()
+    Brd                     = radar_control.configure_tinyrad()
+
+    zone = 3
+
+    while True:
+        min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
+        max_range = feet_to_m(const.ZONES[zone]['ADA_MAX_RANGE'])
+
+        print(f"Zone {zone} - Minimum range: {min_range} m, Maximum range: {max_range} m")
+        sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, False)
+        sigpro_cfg.logger = radar_control_logger
+
+        try:
+            radar_control.radar_search(Brd, sigpro_cfg, plot_cfg)
+        except KeyboardInterrupt:
+            print(f"DONE!!!")
+            break
+
+    #   async check for messages
+
+    #       message received logic: check type of message
+
+    #       if radar_start:
+    #           Brd = radar_control.configure_tinyrad()
+
+    #           if zone 1:
+    #               sigpro_cfg.min_range = x
+    #               sigpro_cfg.max_range = y
+    #           elif zone 2: 
+    #               sigpro_cfg.min_range = ...
+    #               ...
+    #
+    #           Start separate process?
+    #           radar_control.radar_search(Brd, sigpro_cfg, plot_cfg)
