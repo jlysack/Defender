@@ -66,6 +66,7 @@ class SigProConfig:
         self.ant_window_2d    = ant_window_2d
         self.sca_ant_window   = sca_ant_window 
         self.angle_extent_vec = angle_extent_vec
+        self.filt_angle_vec   = self.filter_azimuth_cfg()
         self.logger           = None
         self.tactical_mode    = False # True = Azimuth data filtered between +/- 22.5 deg
 
@@ -74,6 +75,15 @@ class SigProConfig:
             self.radar_report_writer = RadarReport.RadarReportWriter()
         else:
             self.dds_enabled = False
+
+    def filter_azimuth_cfg(self):
+        # Find indices for where angle_extent_vec is equal to +/- 22.5 deg
+        min_idx = np.absolute(self.angle_extent_vec + 22.5).argmin()
+        max_idx = np.absolute(self.angle_extent_vec - 22.5).argmin()
+
+        filt_angle_vec = self.angle_extent_vec[min_idx:max_idx]
+
+        return filt_angle_vec
 
 
 class PlotConfig:
