@@ -31,7 +31,7 @@ def init_rad_control_logger(debug_enabled = False):
     file_handler.setLevel(logging.DEBUG)
     
     if debug_enabled is True:
-        stream_handler.setLevel(logging.DEBUG)
+        stream_handler.setLevel(logging.INFO)
     else:
         stream_handler.setLevel(logging.WARN)
 
@@ -240,15 +240,18 @@ def filter_azimuth(amplitude_array, sigpro_cfg):
 
     return filtered_array
 
-def get_sector_average(normalized_amp, sigpro_cfg):
-    min_idx = np.absolute(sigpro_cfg.angle_extent_vec + 22.5).argmin()
-    max_idx = np.absolute(sigpro_cfg.angle_extent_vec - 22.5).argmin()
+def no_detection_check(normalized_amp, sigpro_cfg):
+    average_db = np.average(normalized_amp)
 
-    sector_amp = normalized_amp[min_idx:max_idx]
+    # return True to indicate "no detections" if average_db is less negative
+    # than the detection threshold, indicating that the average is close to the
+    # maximum and likely caused by noise
+    if np.abs(average_db) < np.abs(sigpro_cfg.detection_thresh):
+        return True
+    else:
+        return False
+    #return (average_db >= sigpro_cfg.detection_thresh)
 
-    sector_average = np.average(sector_amp)
-
-    return sector_average
 
 def compute_range_and_angle(normalized_amp, sigpro_cfg):
     # Initialize intermediate variables
@@ -256,12 +259,10 @@ def compute_range_and_angle(normalized_amp, sigpro_cfg):
     tgt_range_sample = None
     tgt_angle_sample = None
 
-    #sector_avg = get_sector_average(normalized_amp, sigpro_cfg)
-
-    # TODO: Add in processing to handle situations where there are NO targets,
-    #       since we don't want to report the range/angle of the max amplitude
-    #       of noise --> this might just require changing amp_floor in the 
-    #       compute_sum_data function
+    # Perform processing to handle situations where there are NO targets,
+    # since we don't want to report the range/angle of the max amplitude
+    if no_detection_check(normalized_amp, sigpro_cfg) is True:
+        return None, None, None
 
     # Iterate over each angle increment
     for angle_idx, angle_data in enumerate(normalized_amp):
@@ -288,9 +289,9 @@ def compute_range_and_angle(normalized_amp, sigpro_cfg):
         angle_val = None
 
     # DEBUG
-    #print(f"All azimuths avg = {np.average(normalized_amp):.4f}, 45 deg avg: {sector_avg:.4f}")
     print(f"Average amplitude = {np.average(normalized_amp):.4f} dB")
 
+    # Return range, angle, and amplitude
     return range_val, angle_val, max_val_tmp
 
 def samples_to_meters(samples, sigpro_cfg):
@@ -371,7 +372,11 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
         #                       whatever point in space is the max amplitude, even if noise.
 
         # Log Range, Angle, and Amplitude values
-        logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
+        if range_val is not None:
+            logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
+        else:
+            logger.debug(f"No detections found. Average Amplitude: {np.average(normalized_amp):.4f}")
+        #print(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
 
         if sigpro_cfg.dds_enabled is True:
             sigpro_cfg.radar_report_writer.send(range_val, angle_val) #, amplitude, zone_number, engagement_zone_flag)
@@ -432,14 +437,6 @@ if __name__ == "__main__":
     sigpro_cfg = SigProConfig(Brd, args.min_range, args.max_range, args.floor, args.dds)
     sigpro_cfg.logger = logger
     sigpro_cfg.tactical_mode = True
-    
-    # NOTE: __main__ only -- Adjust min/max range based on CLI arguments
-    sigpro_cfg.min_range = args.min_range
-    sigpro_cfg.max_range = args.max_range
-
-    # TODO RM DEBUG:
-    #if sigpro_cfg.tactical_mode is True:
-    #    sigpro_cfg = filter_azimuth_cfg(sigpro_cfg)
 
     # Main loop
     radar_search(Brd, sigpro_cfg, plot_cfg)

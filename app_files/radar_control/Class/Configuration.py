@@ -68,7 +68,8 @@ class SigProConfig:
         self.angle_extent_vec = angle_extent_vec
         self.filt_angle_vec   = self.filter_azimuth_cfg()
         self.logger           = None
-        self.tactical_mode    = False # True = Azimuth data filtered between +/- 22.5 deg
+        self.tactical_mode    = True # True = Azimuth data filtered between +/- 22.5 deg
+        self.detection_thresh = -15 # dB TODO: finalize value or make configurable
 
         if dds_enabled is True:
             self.dds_enabled = True
