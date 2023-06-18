@@ -14,7 +14,7 @@ import signal
 participant = dds.DomainParticipant(domain_id=1)
 
 # Topics
-Command_topic = dds.Topic(participant, "DDS_misc", DDS.misc.Command)
+Command_topic = dds.Topic(participant, "Command", DDS.misc.Command)
 
 # Reader
 Command_Reader = dds.DataReader(participant.implicit_subscriber, Command_topic)
