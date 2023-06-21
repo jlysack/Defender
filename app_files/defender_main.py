@@ -110,7 +110,7 @@ if __name__ == "__main__":
         max_range = feet_to_m(const.ZONES[zone]['ADA_MAX_RANGE'])
 
         print(f"Zone {zone} - Minimum range: {min_range} m, Maximum range: {max_range} m")
-        sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, False)
+        sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, False) # ddsEnabled = False
         sigpro_cfg.logger = radar_control_logger
 
         try:
