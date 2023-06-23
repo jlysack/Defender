@@ -58,6 +58,7 @@ EZ1 = -99 #steps - left
 EZ3 = 0 #steps - center
 EZ2 = 98 #steps - right
 allowRadarMovement = True #Flag to allow movement, once movement is complete we can change to false
+flipFlop = False 
 
 #Functions that you just put the amount of steps required to move left/right
 async def move_stepperLeft(stepsRequired):
@@ -136,7 +137,7 @@ async def update_motorLogic():
             #global scanInstruction_ReceivedData 
             #global currentStepPos
             global allowRadarMovement
-
+            global flipFlop
             #print(type(currentStepPos))
             #print(type(allowRadarMovement))
             #print(type(EZ1))
@@ -146,7 +147,6 @@ async def update_motorLogic():
             #Could either have all motorlogic in 1 function like this or make routines for every "setting" - discuss with wider team
             if scanInstruction_ReceivedData.manualScanSetting == 0:
                 # Block1 #
-                flipFlop = False 
 
                 if (allowRadarMovement):
                     if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
