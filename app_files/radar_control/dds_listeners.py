@@ -12,7 +12,6 @@ class ScanInstructionListener:
 
         self.reader = dds.DataReader(self.participant.implicit_subscriber, self.topic)
 
-    async def print_data(self):
-
+    async def get_data(self):
         async for data in self.reader.take_data_async():
             return data

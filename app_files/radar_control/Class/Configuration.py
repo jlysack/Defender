@@ -5,7 +5,7 @@ import numpy as np
 
 class SigProConfig:
 
-    def __init__(self, Brd, min_range, max_range, noise_floor=-35, dds_enabled=False):
+    def __init__(self, Brd, min_range, max_range, noise_floor=-35, zone=3, dds_enabled=False):
         # Constant speed of light
         c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7) 
 
@@ -70,6 +70,7 @@ class SigProConfig:
         self.logger           = None
         self.tactical_mode    = True # True = Azimuth data filtered between +/- 22.5 deg
         self.detection_thresh = -15 # dB TODO: finalize value or make configurable
+        self.zone_number      = 3
 
         if dds_enabled is True:
             self.dds_enabled = True

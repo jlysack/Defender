@@ -375,13 +375,14 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
         if range_val is not None:
             engagement_zone_flag = check_engagement_zone(range_val, angle_val, sigpro_cfg)
 
+            # TODO: ADD IN COORDINATE TRANSFORMATION BASED ON ZONE
+
             #logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
             logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Engagement Zone: {engagement_zone_flag}")
 
-            zone_number = 0
             # Send radar_report via DDS
             if sigpro_cfg.dds_enabled is True:
-                sigpro_cfg.radar_report_writer.send(range_val, angle_val, zone_number, engagement_zone_flag)
+                sigpro_cfg.radar_report_writer.send(range_val, angle_val, sigpro_cfg.zone_number, engagement_zone_flag)
         else:
             logger.debug(f"No detections found. Average Amplitude: {np.average(normalized_amp):.4f}")
 

@@ -169,6 +169,7 @@ DDS.Scanning = DDS_Scanning
 class DDS_Scanning_ScanInstruction:
     radarSetting: DDS.SILKTypes.radarMode = DDS.SILKTypes.radarMode.AI
     manualScanSetting: DDS.SILKTypes.scanState = DDS.SILKTypes.scanState.Sweep
+    RadEnable: bool = False
 
 DDS.Scanning.ScanInstruction = DDS_Scanning_ScanInstruction
 

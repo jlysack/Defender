@@ -20,14 +20,17 @@
 import constants as const
 import sys
 import os
-#import radar_control.Class as Class
 import Class
 from Class.Configuration import SigProConfig, PlotConfig, BoardConfig
 import radar_control
 import rti.connextdds as dds
-import rti.asyncio as asyncio
+import rti.asyncio
+import asyncio
 from interfaces import DDS
 from dds_listeners import ScanInstructionListener
+import multiprocessing
+from multiprocessing import Process
+import time
  
 def print_zone_info(zone):
     for field in const.ZONES[zone]:
@@ -96,28 +99,78 @@ def feet_to_m(feet):
 def m_to_feet(meters):
     return meters / 0.3048
 
-if __name__ == "__main__":
+async def get_scan_instruction(dds_listener):
+    return await dds_listener.get_data()
 
+async def main_execution_loop():
     dds_enabled = True
 
     # Initialize scan instruction listener
     dds_listener = ScanInstructionListener()
 
-    while True:
-        try:
-            data = asyncio.run(dds_listener.print_data())
-            print(data)
-        except KeyboardInterrupt:
-            sys.exit(0)
-    
     # Setup Radar Control Configs
     radar_control_logger    = radar_control.init_rad_control_logger(True)
     plot_cfg                = radar_control.PlotConfig()
-    Brd                     = radar_control.configure_tinyrad()
-
-    zone = 1
+    #Brd                     = radar_control.configure_tinyrad()
+    radar_process           = None
+    zone                    = 3
+    previous_zone           = -1
 
     while True:
+        # Wait for zone scan instruction
+        scan_instruction = await get_scan_instruction(dds_listener)
+
+        # Kill previous radar processes
+        if radar_process is not None:
+            radar_process.terminate()
+
+
+        # Pull zone number from message, ignore if invalid
+        try:
+            zone = int(scan_instruction.manualScanSetting)
+        except (ValueError, TypeError) as error:
+            print(error)
+            sys.exit(1)
+
+        if zone < 1 or zone > 3:
+            print("Invalid zone number received, ignoring.")
+        elif zone != previous_zone:
+            print("Activating Stepper")
+            time.sleep(1)
+            print("Stepper moved")
+
+            # TODO: INSERT STEPPER CODE HERE
+
+            previous_zone = zone
+        else:
+            print("Commanded zone is same as current zone. Bypassing stepper activation.")
+
+        # Check radiation enabled field
+        if bool(scan_instruction.RadEnable) is False:
+            print("Rad Enabled = False, radar disabled.")
+            continue
+
+        min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
+        max_range = feet_to_m(const.ZONES[zone]['ADA_MAX_RANGE'])
+
+        print(f"Zone {zone} - Minimum range: {min_range} m, Maximum range: {max_range} m")
+        
+        Brd = radar_control.configure_tinyrad()
+        sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, zone, dds_enabled) # ddsEnabled = False
+        sigpro_cfg.logger = radar_control_logger
+
+        radar_process = Process(target=radar_control.radar_search, args=(Brd, sigpro_cfg, plot_cfg))
+        radar_process.start()
+
+
+    
+
+if __name__ == "__main__":
+    asyncio.run(main_execution_loop())
+    
+    while True:
+        #scan_instruction = asyncio.run(
+
         min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
         max_range = feet_to_m(const.ZONES[zone]['ADA_MAX_RANGE'])
 
@@ -125,11 +178,8 @@ if __name__ == "__main__":
         sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, dds_enabled) # ddsEnabled = False
         sigpro_cfg.logger = radar_control_logger
 
-        try:
-            radar_control.radar_search(Brd, sigpro_cfg, plot_cfg)
-        except KeyboardInterrupt:
-            print(f"DONE!!!")
-            break
+        radar_process = Process(target=radar_control.radar_search, args=(Brd, sigpro_cfg, plot_cfg))
+        radar_process.start()
 
     #   async check for messages
 
