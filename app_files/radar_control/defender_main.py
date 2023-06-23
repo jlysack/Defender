@@ -23,11 +23,11 @@ import os
 #import radar_control.Class as Class
 import Class
 from Class.Configuration import SigProConfig, PlotConfig, BoardConfig
-import radar_control.radar_control as radar_control
-#from radar_control import radar_control
-#import rti.connextdds as dds
-#import rti.asyncio
-#from interfaces import DDS
+import radar_control
+import rti.connextdds as dds
+import rti.asyncio as asyncio
+from interfaces import DDS
+from dds_listeners import ScanInstructionListener
  
 def print_zone_info(zone):
     for field in const.ZONES[zone]:
@@ -93,24 +93,36 @@ def compute_detection_flags(detection, zone):
 def feet_to_m(feet):
     return feet * 0.3048
 
+def m_to_feet(meters):
+    return meters / 0.3048
+
 if __name__ == "__main__":
 
-    # Initialize listener
-    # dds_listener = dds_listener()
+    dds_enabled = True
+
+    # Initialize scan instruction listener
+    dds_listener = ScanInstructionListener()
+
+    while True:
+        try:
+            data = asyncio.run(dds_listener.print_data())
+            print(data)
+        except KeyboardInterrupt:
+            sys.exit(0)
     
     # Setup Radar Control Configs
     radar_control_logger    = radar_control.init_rad_control_logger(True)
     plot_cfg                = radar_control.PlotConfig()
     Brd                     = radar_control.configure_tinyrad()
 
-    zone = 3
+    zone = 1
 
     while True:
         min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
         max_range = feet_to_m(const.ZONES[zone]['ADA_MAX_RANGE'])
 
         print(f"Zone {zone} - Minimum range: {min_range} m, Maximum range: {max_range} m")
-        sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, False) # ddsEnabled = False
+        sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, dds_enabled) # ddsEnabled = False
         sigpro_cfg.logger = radar_control_logger
 
         try:
