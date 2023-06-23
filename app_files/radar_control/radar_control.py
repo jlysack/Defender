@@ -319,7 +319,7 @@ def check_engagement_zone(range_m, angle_deg, sigpro_cfg):
 def feet_to_m(feet):
     return feet*0.3048
 
-def radar_search(Brd, sigpro_cfg, plot_cfg):
+def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
     # Store SigPro Config object variables locally
     num_samples         = sigpro_cfg.num_samples
     num_channels        = sigpro_cfg.num_channels
@@ -335,6 +335,10 @@ def radar_search(Brd, sigpro_cfg, plot_cfg):
     # Radiate and Perform Signal Processing
     #--------------------------------------------------------------------------
     while True:
+        if not process_queue.empty():
+            if process_queue.get() is False:
+                break
+
         # Record data for Tx1 and Tx2
         Data = Brd.BrdGetData() # NOTE: RF SAFETY IMPLICATIONS
 

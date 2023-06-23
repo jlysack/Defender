@@ -112,9 +112,12 @@ async def main_execution_loop():
     radar_control_logger    = radar_control.init_rad_control_logger(True)
     plot_cfg                = radar_control.PlotConfig()
     #Brd                     = radar_control.configure_tinyrad()
-    radar_process           = None
     zone                    = 3
     previous_zone           = -1
+
+    # Setup process queue
+    radar_process = None
+    process_queue = None 
 
     while True:
         # Wait for zone scan instruction
@@ -122,7 +125,8 @@ async def main_execution_loop():
 
         # Kill previous radar processes
         if radar_process is not None:
-            radar_process.terminate()
+            process_queue.put(False)
+            radar_process.join()
 
 
         # Pull zone number from message, ignore if invalid
@@ -159,41 +163,10 @@ async def main_execution_loop():
         sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, zone, dds_enabled) # ddsEnabled = False
         sigpro_cfg.logger = radar_control_logger
 
-        radar_process = Process(target=radar_control.radar_search, args=(Brd, sigpro_cfg, plot_cfg))
+        process_queue = multiprocessing.Queue()
+        radar_process = Process(target=radar_control.radar_search, args=(Brd, sigpro_cfg, plot_cfg, process_queue))
         radar_process.start()
-
-
     
 
 if __name__ == "__main__":
     asyncio.run(main_execution_loop())
-    
-    while True:
-        #scan_instruction = asyncio.run(
-
-        min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
-        max_range = feet_to_m(const.ZONES[zone]['ADA_MAX_RANGE'])
-
-        print(f"Zone {zone} - Minimum range: {min_range} m, Maximum range: {max_range} m")
-        sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, dds_enabled) # ddsEnabled = False
-        sigpro_cfg.logger = radar_control_logger
-
-        radar_process = Process(target=radar_control.radar_search, args=(Brd, sigpro_cfg, plot_cfg))
-        radar_process.start()
-
-    #   async check for messages
-
-    #       message received logic: check type of message
-
-    #       if radar_start:
-    #           Brd = radar_control.configure_tinyrad()
-
-    #           if zone 1:
-    #               sigpro_cfg.min_range = x
-    #               sigpro_cfg.max_range = y
-    #           elif zone 2: 
-    #               sigpro_cfg.min_range = ...
-    #               ...
-    #
-    #           Start separate process?
-    #           radar_control.radar_search(Brd, sigpro_cfg, plot_cfg)
