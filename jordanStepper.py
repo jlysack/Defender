@@ -144,6 +144,23 @@ async def update_motorLogic():
             #print(type(EZ3))
 
             #Could either have all motorlogic in 1 function like this or make routines for every "setting" - discuss with wider team
+            if scanInstruction_ReceivedData.manualScanSetting == 0:
+                if (allowRadarMovement):
+                    
+
+                    if (currentStepPos != EZ1): #If we are not looking at zone 1 already then we need to move left
+                        allowRadarMovement = False
+                        await move_stepperLeft((abs(EZ1) + currentStepPos))
+                        print("moving left")
+
+                    if (currentStepPos==EZ2): #If we were looking at zone, 2 then move left
+                        allowRadarMovement = False
+                        await move_stepperLeft(EZ2)
+                        print("moving left")
+
+                    
+
+                    
             if scanInstruction_ReceivedData.manualScanSetting == 1:
                 #print("Instructed to scan zone 1")   
                 if (allowRadarMovement):
