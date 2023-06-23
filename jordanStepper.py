@@ -58,7 +58,7 @@ EZ1 = -99 #steps - left
 EZ3 = 0 #steps - center
 EZ2 = 98 #steps - right
 allowRadarMovement = True #Flag to allow movement, once movement is complete we can change to false
-flipFlop = True 
+flipFlop = False 
 
 #Functions that you just put the amount of steps required to move left/right
 async def move_stepperLeft(stepsRequired):
@@ -154,14 +154,14 @@ async def update_motorLogic():
                         print("moving left")
                         print(flipFlop)
 
-                    if (currentStepPos == EZ3 & flipFlop == True):
+                    if (currentStepPos == EZ3 and flipFlop == True):
                         allowRadarMovement = False
                         flipFlop = False
                         await move_stepperLeft(abs(EZ1))
                         print("moving left")
                         print(flipFlop)
 
-                    if (currentStepPos == EZ3 & flipFlop == False):
+                    if (currentStepPos == EZ3 and flipFlop == False):
                         allowRadarMovement = False
                         flipFlop = True
                         await move_stepperRight(EZ2)
