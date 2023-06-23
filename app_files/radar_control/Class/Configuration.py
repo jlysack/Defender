@@ -13,19 +13,31 @@ class SigProConfig:
         brd_cfg = BoardConfig()
 
         # Send RF Settings to TinyRad
-        Brd.RfMeas(brd_cfg.dictify())
+        if Brd != "SIM": # SIM UPDATE
+            Brd.RfMeas(brd_cfg.dictify())
 
-        # Read back board configuration
-        num_channels = int(Brd.Get('NrChn')) # Number of receive channels (4)
-        num_samples  = int(Brd.Get('N'))     # Number of samples measured
-        samp_freq    = Brd.Get('fs')         # Sampling Frequency (1 MHz)
-
+        # Read back board configuration - SIM UPDATE
+        if Brd != "SIM":
+            num_channels = int(Brd.Get('NrChn')) # Number of receive channels (4)
+            num_samples  = int(Brd.Get('N'))     # Number of samples measured
+            samp_freq    = Brd.Get('fs')         # Sampling Frequency (1 MHz)
+        else:
+            num_channels = None
+            num_samples  = None
+            samp_freq    = None
+            
         # Processing of Range Profile
         NFFT = 2**12 # TODO: What to rename?
 
-        hann_window_2d  = Brd.hanning(num_samples-1, 2*num_channels-1)
-        sca_hann_window = np.sum(hann_window_2d[:,0])
-        kf              = Brd.Get('kf') # TODO: What is this???
+        if Brd != "SIM": # SIM UPDATE
+            hann_window_2d  = Brd.hanning(num_samples-1, 2*num_channels-1)
+            kf              = Brd.Get('kf') # TODO: What is this???
+            sca_hann_window = np.sum(hann_window_2d[:,0])
+        else:
+            hann_window_2d  = None
+            kf              = None
+            sca_hann_window = None
+
         range_vector    = np.arange(NFFT)/NFFT*samp_freq*c0/(2*kf)
 
         # Configure range interval to be displayed
@@ -38,10 +50,15 @@ class SigProConfig:
         data_rate = 16 * num_channels * num_samples * brd_cfg.FrmMeasSiz \
                      / (brd_cfg.FrmSiz * brd_cfg.Perd)
 
-        # Window function for receive channels
+        # Window function for receive channels - SIM UPDATE
         NFFTAnt          = 256 # TODO: What to rename?
-        ant_window_2d    = Brd.hanning(2*num_channels-1, len(range_extent_vector))
-        sca_ant_window   = np.sum(ant_window_2d[:,0])
+        if Brd != "SIM":
+            ant_window_2d    = Brd.hanning(2*num_channels-1, len(range_extent_vector))
+            sca_ant_window   = np.sum(ant_window_2d[:,0])
+        else:
+            ant_window_2d    = None
+            sca_ant_window   = None
+
         ant_window_2d    = ant_window_2d.transpose()
         angle_extent_vec = np.arcsin(2*np.arange(-NFFTAnt//2, NFFTAnt//2)/NFFTAnt)/np.pi*180
 

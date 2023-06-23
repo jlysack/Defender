@@ -24,10 +24,10 @@ import os
 import Class
 from Class.Configuration import SigProConfig, PlotConfig, BoardConfig
 import radar_control.radar_control as radar_control
-#from radar_control import radar_control
-#import rti.connextdds as dds
-#import rti.asyncio
-#from interfaces import DDS
+from radar_control import radar_control
+import rti.connextdds as dds
+import rti.asyncio
+from radar_control.interfaces import DDS
  
 def print_zone_info(zone):
     for field in const.ZONES[zone]:
@@ -93,6 +93,21 @@ def compute_detection_flags(detection, zone):
 def feet_to_m(feet):
     return feet * 0.3048
 
+
+async def process_messages(dds_listener):
+
+    async for message in dds_listener.take_data_async():
+        if type(message) == DDS.SILKTypes.DetectionStruct:
+
+            print("True")
+            return True
+        return 1
+    return 2
+        #print(type(message))
+        #print(f"Received: {message}")
+
+
+
 if __name__ == "__main__":
 
     # Initialize listener
@@ -101,17 +116,26 @@ if __name__ == "__main__":
     # Setup Radar Control Configs
     radar_control_logger    = radar_control.init_rad_control_logger(True)
     plot_cfg                = radar_control.PlotConfig()
-    Brd                     = radar_control.configure_tinyrad()
+    Brd                     = "SIM" # SIM UPDATE \\ radar_control.configure_tinyrad()
 
     zone = 3
 
+    # SIM UPDATE - DDS 
+    participant = dds.DomainParticipant(domain_id=1)
+    topic = dds.Topic(participant, "RadarReport", DDS.SILKTypes.DetectionStruct)
+    dds_listener = dds.DataReader(participant.implicit_subscriber, topic)
+
     while True:
+
+        rti.asyncio.run(process_messages(dds_listener))
+        continue
+
         min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
         max_range = feet_to_m(const.ZONES[zone]['ADA_MAX_RANGE'])
 
         print(f"Zone {zone} - Minimum range: {min_range} m, Maximum range: {max_range} m")
-        sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, False) # ddsEnabled = False
-        sigpro_cfg.logger = radar_control_logger
+        sigpro_cfg = None # SIM UPDATE - SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, False) # ddsEnabled = False
+        # sigpro_cfg.logger = radar_control_logger - SIM_UPDATE
 
         try:
             radar_control.radar_search(Brd, sigpro_cfg, plot_cfg)
