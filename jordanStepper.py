@@ -131,18 +131,9 @@ async def update_scanInstruction():
 async def update_motorLogic():
     while True:
         print("Hello, updating motor logic....")
-        #print(EZ2)
-        #print(EZ3)
         try:
-            #global scanInstruction_ReceivedData 
-            #global currentStepPos
             global allowRadarMovement
             global flipFlop
-            #print(type(currentStepPos))
-            #print(type(allowRadarMovement))
-            #print(type(EZ1))
-            #print(type(EZ2))
-            #print(type(EZ3))
 
             #Could either have all motorlogic in 1 function like this or make routines for every "setting" - discuss with wider team
             if scanInstruction_ReceivedData.manualScanSetting == 0:
@@ -153,23 +144,27 @@ async def update_motorLogic():
                         allowRadarMovement = False
                         await move_stepperRight(abs(EZ1))
                         print("moving right")
+                        print(flipFlop)
 
                     if (currentStepPos == EZ2): #If we were looking at zone 2, then move left
                         allowRadarMovement = False
                         await move_stepperLeft(EZ2)
                         print("moving left")
+                        print(flipFlop)
 
                     if (currentStepPos == EZ3 & flipFlop == True):
                         allowRadarMovement = False
                         await move_stepperLeft(abs(EZ1))
                         print("moving left")
                         flipFlop = False
+                        print(flipFlop)
 
                     if (currentStepPos == EZ3 & flipFlop == False):
                         allowRadarMovement = False
                         await move_stepperRight(EZ2)
                         print("moving Right")
-                        flipFlop = True 
+                        flipFlop = True
+                        print(flipFlop)
 
                     
 
