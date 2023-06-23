@@ -169,7 +169,6 @@ DDS.Scanning = DDS_Scanning
 class DDS_Scanning_ScanInstruction:
     radarSetting: DDS.SILKTypes.radarMode = DDS.SILKTypes.radarMode.AI
     manualScanSetting: DDS.SILKTypes.scanState = DDS.SILKTypes.scanState.Sweep
-    RadEnable: bool = False
 
 DDS.Scanning.ScanInstruction = DDS_Scanning_ScanInstruction
 
@@ -194,15 +193,6 @@ class DDS_Tracking_TrackData:
     CartesianCoordinate: Optional[DDS.SILKTypes.CartesianCoordinates] = None
 
 DDS.Tracking.TrackData = DDS_Tracking_TrackData
-
-@idl.struct
-class DDS_Tracking_RadarReport:
-    Range: idl.int32 = 0
-    Azimuth: idl.int32 = 0
-    ZoneNumber: idl.int32 = 0
-    EngagementZoneFlag: bool = False
-
-DDS.Tracking.RadarReport = DDS_Tracking_RadarReport
 
 DDS_IFF = idl.get_module("DDS_IFF")
 
