@@ -80,11 +80,9 @@ async def UpdateIFF_Code():
 
 # Define the main loop routine
 async def main_loop():
-    global IFF_CODE
-
     while True:
         print("Main loop")
-        await asyncio.sleep(2)  # Simulating some work and slow thread so we can read it
+        await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 
 
 async def run_event_loop():
@@ -92,9 +90,7 @@ async def run_event_loop():
     tasks = [
         asyncio.ensure_future(main_loop()),
         asyncio.ensure_future(UpdateIFF_Code()),
-        #asyncio.ensure_future(ReadIFF_Value()),
-        asyncio.ensure_future(WaitforIFF_Response()),
-        #asyncio.ensure_future(monitor_file())
+        asyncio.ensure_future(WaitforIFF_Response())
     ]
     await asyncio.gather(*tasks)
 

@@ -108,7 +108,7 @@ async def WaitforIFF_DashboardRequest():
 async def main_loop():
     while True:
         print("Main loop")
-        await asyncio.sleep(2)  # Simulating some work and slow thread so we can read it
+        await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 
 
 async def run_event_loop():
