@@ -33,60 +33,6 @@ responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
 requestIFF_data = DDS.IFF.IFFRequest
 IFFCode_ReceivedData = DDS.IFF.SetCode
 
-
-async def find_variable_value(contents, search_string):
-    lines = contents.split('\n')
-    for line in lines:
-        if search_string in line:
-            variable_value = line.split(search_string)[1].strip()
-            return variable_value
-    return None
-
-async def ReadIFF_Value():
-    global IFF_CODE
-    
-    async with aiofiles.open(r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\UAV_IFFCode.txt", mode='r') as file:
-        contents = await file.read()
-        IFF_CODE = await find_variable_value(contents, "UAV_IFF_CODE=")
-        file.close()
-        return IFF_CODE
-
-    await asyncio.sleep(1)
-
-
-async def monitor_file():
-    global reported_value
-
-    # Get the initial file size
-    file_size = 0
-
-    while True:
-        # Open the file in read mode
-        with open(r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\UAV_IFFCode.txt", 'r') as file:
-            # Move the file pointer to the end
-            file.seek(file_size)
-            
-            # Read the new contents from the file
-            new_contents = file.read()
-
-            # Check if there are any updates
-            if new_contents:     
-                async with aiofiles.open(r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\UAV_IFFCode.txt", mode='r') as file:
-                    contents = await file.read()
-
-                    IFF_CODE = await find_variable_value(contents, "UAV_IFF_CODE=")
-                    print(IFF_CODE)
-                    return IFF_CODE
-
-            # Update the file size
-            file_size = file.tell()
-
-            file.close()
-
-        # Sleep for a specified duration before checking the file again
-        await asyncio.sleep(1)
-
-
 async def WaitforIFF_Response():
     global IFF_CODE
     
@@ -111,7 +57,7 @@ async def WaitforIFF_Response():
 
     await asyncio.sleep(1)
 
-async def UpdateIFF_Code(filename, variable_name):
+async def UpdateIFF_Code():
     global IFF_CODE
   
     while True:
@@ -145,8 +91,8 @@ async def run_event_loop():
     loop = asyncio.get_event_loop()
     tasks = [
         asyncio.ensure_future(main_loop()),
-        asyncio.ensure_future(UpdateIFF_Code(r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\UAV_IFFCode.txt", "UAV_IFF_CODE")),
-        asyncio.ensure_future(ReadIFF_Value()),
+        asyncio.ensure_future(UpdateIFF_Code()),
+        #asyncio.ensure_future(ReadIFF_Value()),
         asyncio.ensure_future(WaitforIFF_Response()),
         #asyncio.ensure_future(monitor_file())
     ]

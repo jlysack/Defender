@@ -3,6 +3,7 @@ import sys
 import rti.connextdds as dds
 import rti.asyncio
 import asyncio #Need both
+import aiofiles
 from interfaces import DDS
 
 #Participant
@@ -35,10 +36,12 @@ responseIFF_ReceivedData = DDS.IFF.IFFResponse
 responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
 
 currentIFFState = "Unknown"
+IFF_CODE = 0
 
 # Main Body of Code #
 async def update_IFFCode():
     global currentIFFState
+    global IFF_CODE
     
     while True:
         #print("Updating IFF Code based on recieved input.....")
@@ -54,12 +57,15 @@ async def update_IFFCode():
 
             if (responseUAVIFF_ReceivedData.ObjectIdentity == 0):
                 currentIFFState = "Unknown"
+                IFF_CODE = 0
             if (responseUAVIFF_ReceivedData.ObjectIdentity == 2):
                 currentIFFState = "Foe"
+                IFF_CODE = 2
             if (responseUAVIFF_ReceivedData.ObjectIdentity == 1):
                 currentIFFState = "Friend"
-                print("1")
+                IFF_CODE = 1
 
+            print(IFF_CODE)
             print(currentIFFState)
 
             if (currentIFFState == "Foe"):
@@ -71,6 +77,20 @@ async def update_IFFCode():
             
             responseIFF_writer.write(responseIFF_ReceivedData)
             print("Dashboard IFF Response sent!")
+
+
+            print(IFF_CODE)
+        
+            path = r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\UAV_IFFCode.txt"
+            variable = IFF_CODE
+
+            IFFCode = "UAV_IFF_CODE=" + str(variable)
+
+            print(IFFCode)
+            async with aiofiles.open(path,'w') as file:
+                print("Now we gonna do it brah")
+                await file.write(str(IFFCode))
+                file.close()
             
         await asyncio.sleep(1)
 
@@ -96,8 +116,7 @@ async def run_event_loop():
     tasks = [
         asyncio.ensure_future(main_loop()),
         asyncio.ensure_future(WaitforIFF_DashboardRequest()),
-        asyncio.ensure_future(update_IFFCode()),
-        #asyncio.ensure_future(WritetoDashboard_IFF())
+        asyncio.ensure_future(update_IFFCode())
     ]
     await asyncio.gather(*tasks)
 
