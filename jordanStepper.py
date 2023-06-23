@@ -163,13 +163,13 @@ async def update_motorLogic():
                         allowRadarMovement = False
                         await move_stepperLeft(abs(EZ1))
                         print("moving left")
-                        flipFlop = false
+                        flipFlop = False
 
                     if (currentStepPos==EZ3 & flipFlop == False):
                         allowRadarMovement = False
                         await move_stepperRight(EZ2)
                         print("moving left")
-                        flipFlop = true 
+                        flipFlop = True 
 
                     
 
