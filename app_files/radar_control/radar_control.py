@@ -309,9 +309,9 @@ def get_detections(normalized_amp, sigpro_cfg):
     return True
 
 def check_engagement_zone(range_m, angle_deg, sigpro_cfg):
-    if range_m > (sigpro_cfg.min_range + feet_to_m(5)) and \
-       range_m < (sigpro_cfg.max_range - feet_to_m(5)) and \
-       angle_deg > -12.5 and angle_deg < 12.5:
+    if range_m > (sigpro_cfg.min_range + feet_to_m(const.ENGAGE_ZONE_RANGE_OFFSET)) and \
+       range_m < (sigpro_cfg.max_range - feet_to_m(const.ENGAGE_ZONE_RANGE_OFFSET)) and \
+       np.abs(angle_deg) < const.ENGAGE_ZONE_ANGLE_LIMIT:
         return True
 
     return False
