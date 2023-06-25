@@ -11,7 +11,6 @@ import matplotlib.pyplot as plt
 import signal
 import argparse
 
-# NOTE: This function will need to be called in the defender_main.py function
 def init_rad_control_logger(debug_enabled = False):
     # Get current Python filename
     app_name = str(os.path.basename(__file__)).strip('.py')
@@ -55,8 +54,6 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 def configure_tinyrad():
-    # TODO: Clean-up, add more functionality?
-
     # Setup Connection
     Brd = TinyRad.TinyRad('Usb')
     
@@ -77,17 +74,10 @@ def configure_tinyrad():
     return Brd
 
 def plot_time_signals(DataV, num_channels, N):
-    # TODO: Clean-up -- do I need to keep this?
-
+    # NOTE: DEPRECATED
     N = np.arange(int(N))
 
     fig, ax = plt.subplots(4, sharex='col', sharey='row', num=99, clear=True)
-
-    #plt.figure('Time Signals')
-
-    #for chan_index in np.arange(2*num_channels - 1):
-    #    plt.plot(N[1:], DataV[:, chan_index], label = str('Channel ' + \
-    #                                                  str(chan_index)))
 
     ax[0].plot(N[1:], DataV[:, 0])
     ax[0].set(xlabel='Sample', ylabel='ADC Counts', title='Channel 1')
@@ -99,7 +89,6 @@ def plot_time_signals(DataV, num_channels, N):
     ax[3].set(xlabel='Sample', ylabel='ADC Counts', title='Channel 4')
 
     plt.draw()
-    #plt.legend()
     plt.pause(0.0001)
     plt.clf()
 
@@ -170,40 +159,6 @@ def plot_sum_data(rp_iq_data, sigpro_cfg):
     plt.clf()
 
     return
-
-# TODO: Either delete this or figure out what is useful from it
-    #amplitudes = []
-    #angles = []
-
-    #for chan_index in np.arange(2*num_channels - 1):
-    #    chan_amp_iq = np.abs(rp_iq_data[:, chan_index]) 
-    #    chan_phase = np.angle(rp_iq_data[:, chan_index])
-    #    amplitudes.append(chan_amp_iq)
-    #    angles.append(chan_phase)
-
-
-    #for chan_index in np.arange(2*num_channels - 1):
-    #    iq_sum += amplitudes[chan_index]*np.exp(-1j*angles[chan_index])
-
-
-    ## RM DEBUG END
-
-    ##noise_floor = -106.809205223974
-    ##sum_amp = 20*np.log10(np.abs(iq_sum))-noise_floor
-    #sum_amp = 20*np.log10(np.abs(iq_sum))
-    ##sum_angle = np.angle(iq_sum)
-
-    #plt.plot(range_extent_vec, sum_amp)
-    ##plt.plot(range_extent_vec, sum_angle)
-    #plt.xlim([min(range_extent_vec), max(range_extent_vec)])
-    ##plt.ylim(-20, 50)
-    #plt.draw()
-    #plt.pause(0.0001)
-    #plt.clf()
-
-    ##print(np.average(sum_amp))
-
-    #return iq_sum, sum_amp
 
 def compute_sum_data(rp_iq_data, sigpro_cfg):
     # Create 2D "Heat Map" of I/Q data
@@ -287,12 +242,11 @@ def compute_range_and_angle(normalized_amp, sigpro_cfg):
     return range_val, angle_val, max_val_tmp
 
 def samples_to_meters(samples, sigpro_cfg):
-    # TODO: Figure out where this is useful
     assert isinstance(samples, np.ndarray)
     return sigpro_cfg.range_extent_vec[samples]
 
 def get_detections(normalized_amp, sigpro_cfg):
-    # TODO: Work on this or delete
+    # NOTE: DEPRECATED AND NOT USED
     dets = []
 
     thresh_db = -10
@@ -335,6 +289,8 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
     # Radiate and Perform Signal Processing
     #--------------------------------------------------------------------------
     while True:
+        # Check process queue -- if process_queue.get() returns "False", break
+        # from while True loop to terminate radar_search function
         if not process_queue.empty():
             if process_queue.get() is False:
                 break
@@ -342,6 +298,7 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
         # Record data for Tx1 and Tx2
         Data = Brd.BrdGetData() # NOTE: RF SAFETY IMPLICATIONS
 
+        # NOTE: DEPRECATED / UNTESTED
         if plot_cfg.frame_numbers is True:
             # Framenumber is used to check measurement sequence.
             # Odd Framenumbers are for TX1 and even frame numbers for TX2
@@ -363,8 +320,6 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
         # Get normalized amplitude matrix, indexed by angle increment and then range sample 
         normalized_amp = compute_sum_data(rp_iq_data, sigpro_cfg) 
 
-        #detection_list = get_detections(normalized_amp, sigpro_cfg)
-        
         # Pull out range and angle values of maximum amplitude detection after
         # filtering out azimuth data outside 22.5 degrees and checking the max 
         # amplitude against a detection threshold across all range/azimuth 
@@ -381,7 +336,6 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
 
             # TODO: ADD IN COORDINATE TRANSFORMATION BASED ON ZONE
 
-            #logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Amplitude: {amplitude:.4f} dB")
             logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Engagement Zone: {engagement_zone_flag}")
 
             # Send radar_report via DDS
