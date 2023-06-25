@@ -33,6 +33,8 @@ responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
 requestIFF_data = DDS.IFF.IFFRequest
 IFFCode_ReceivedData = DDS.IFF.SetCode
 
+IFF_CODE = 0
+
 async def WaitforIFF_Response():
     global IFF_CODE
     
