@@ -40,7 +40,7 @@ async def WaitforIFF_Response():
             async for sample in requestUAVIFF_reader.take_data_async():
                 
                 print("Right before IFF response....")
-                print(IFF_CODE)
+                #print(IFF_CODE)
 
                 if (IFF_CODE == 0):
                     responseUAVIFF_ReceivedData.ObjectIdentity = 0
