@@ -18,7 +18,8 @@ fireWeapon_topic = dds.Topic(participant, "FireWeapon", DDS.Weapon.FireWeapon)
 
 #Readers
 IRSafety_reader = dds.DataReader(participant.implicit_subscriber, IRSafety_topic)
-fireWeapon_reader = dds.Topic(participant, "FireWeapon", DDS.Weapon.FireWeapon)
+fireWeapon_reader = dds.DataReader(participant.implicit_subscriber, fireWeapon_topic)
+responseUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, responseUAVIFF_topic)
 
 #Creating global data holders
 componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
@@ -47,8 +48,6 @@ async def update_IFFCode():
             print("recieved an IFF response")
             print(responseUAVIFF_ReceivedData.ObjectIdentity)
 
-            responseIFF_ReceivedData.ObjectIdentity = responseUAVIFF_ReceivedData.ObjectIdentity
-
             if (responseUAVIFF_ReceivedData.ObjectIdentity == 0):
                 currentIFFState = "Unknown"
                 IFF_CODE = 0
@@ -62,10 +61,21 @@ async def update_IFFCode():
         await asyncio.sleep(1)
 
 # Update recieved IR safety message
-async def update_IFFCode():
+async def update_IRSafeLock():
     global IR_Safety
     while True:
-        
+        async for data in IRSafety_reader.take_data_async():
+            IRSafety_data = data
+
+            IR_Safety_condition = IRSafety_data.enabled
+            print(IR_Safety_condition)
+
+            if (IR_Safety_condition == 0):
+                IR_Safety = True
+            if (IR_Safety_condition == 1):
+                IR_Safety = False
+
+            print(IR_Safety)
 
     await asyncio.sleep(1)
 
@@ -76,12 +86,14 @@ async def fire_IRWeapon():
     
     while True:
         async for data in fireWeapon_reader.take_data_async():
-        print("Preparing to Fire Weapon...")
+            print("Preparing to Fire Weapon...")
 
-        if (IFF_CODE == 2) and (IR_Safety == False):
-            subprocess.call(["irsend","SEND_START","ac","KEY_POWER"])
-        if (IFF_CODE == 1):
-            print("Target Friend... Standing down")
+            if (IFF_CODE == 2) and (IR_Safety == False):
+                subprocess.call(["irsend","SEND_START","ac","KEY_POWER"])
+            if (IFF_CODE == 1) and (IR_Safety == False):
+                print("Target Friend... Standing down")
+            if (IFF_CODE == 1) and (IR_Safety == True):
+                print("Target Friend... Standing down")
 
     await asyncio.sleep(1)
 
@@ -97,7 +109,7 @@ async def run_event_loop():
     tasks = [
         asyncio.ensure_future(main_loop()),
         asyncio.ensure_future(update_IFFCode()),
-        asyncio.ensure_future(update_SafetyCode()),
+        asyncio.ensure_future(update_IRSafeLock()),
         asyncio.ensure_future(fire_IRWeapon())
     ]
     await asyncio.gather(*tasks)
