@@ -72,10 +72,10 @@ class SigProConfig:
         self.detection_thresh = -15 # dB TODO: finalize value or make configurable
         self.zone_number      = 3
 
-        if dds_enabled is True:
+        #if dds_enabled is True:
             
-        else:
-            self.dds_enabled = False
+        #else:
+            #self.dds_enabled = False
 
         self.dds_enabled = True
         self.radar_report_writer = RadarReport.RadarReportWriter()
