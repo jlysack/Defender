@@ -135,4 +135,3 @@ async def main_execution_loop():
 
 if __name__ == "__main__":
     asyncio.run(main_execution_loop())
-    asyncio.run(safetyBool())

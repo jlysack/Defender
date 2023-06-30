@@ -28,3 +28,5 @@ class RadarReportWriter:
 
         # Publish data
         self.radar_report_writer.write(self.radar_report_data)
+
+        print("Sending RadarReport DDS message")
