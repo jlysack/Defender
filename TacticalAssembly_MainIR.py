@@ -95,6 +95,9 @@ async def fire_IRWeapon():
     
             print("Preparing to Fire Weapon...")
 
+            print(IFF_CODE)
+            print(IR_Safety)
+
             if (IFF_CODE == 2) and (IR_Safety == False):
                 GPIO.setmode(GPIO.BCM)
                 GPIO.setwarnings(False) 
