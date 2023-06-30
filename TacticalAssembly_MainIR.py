@@ -6,6 +6,9 @@ import asyncio
 import aiofiles
 from interfaces import DDS
 import subprocess
+import RPi.GPIO as GPIO 
+import time 
+import os 
 
 #Participant
 participant = dds.DomainParticipant(domain_id=1)
@@ -89,7 +92,26 @@ async def fire_IRWeapon():
             print("Preparing to Fire Weapon...")
 
             if (IFF_CODE == 2) and (IR_Safety == False):
-                subprocess.call(["irsend","SEND_START","ac","KEY_POWER"])
+                GPIO.setmode(GPIO.BCM)
+                GPIO.setwarnings(False) 
+
+                GPIO.setup(22,GPIO.OUT) #EN 
+                GPIO.setup(27,GPIO.OUT) #A0 
+                GPIO.setup(17,GPIO.OUT) #A1
+
+                GPIO.output(22,GPIO.HIGH) #turn on enable 
+                GPIO.output(27,GPIO.HIGH) 
+                GPIO.output(17,GPIO.HIGH) 
+                
+                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+
+                # Turn off GPIOs 
+                GPIO.output(22,GPIO.LOW) 
+                GPIO.output(27,GPIO.LOW) 
+                GPIO.output(17,GPIO.LOW)
+
+                print('Complete')
+                
             if (IFF_CODE == 1) and (IR_Safety == False):
                 print("Target Friend... Standing down")
             if (IFF_CODE == 1) and (IR_Safety == True):
