@@ -32,6 +32,8 @@ from dds_listeners import RFSafetyListener
 import multiprocessing
 from multiprocessing import Process
 import time
+
+RFSafety = False
  
 def print_zone_info(zone):
     for field in const.ZONES[zone]:
