@@ -342,6 +342,7 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
             # Send radar_report via DDS
             if sigpro_cfg.dds_enabled is True:
                 sigpro_cfg.radar_report_writer.send(range_val, angle_val, sigpro_cfg.zone_number, engagement_zone_flag)
+                Print("DDS Sent yay")
         else:
             logger.debug(f"No detections found. Average Amplitude: {np.average(normalized_amp):.4f}")
 
