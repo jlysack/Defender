@@ -33,7 +33,7 @@ import multiprocessing
 from multiprocessing import Process
 import time
 
-RFSafety = False
+#RFSafety = False
  
 def print_zone_info(zone):
     for field in const.ZONES[zone]:
@@ -112,9 +112,9 @@ async def main_execution_loop():
             #print("Rad Enabled = False, radar disabled.")
             #continue
 
-        if bool(RFSafety.RadEnable) is False:
-            print("Rad Enabled = False, radar disabled.")
-            continue
+        #if bool(RFSafety.RadEnable) is False:
+            #print("Rad Enabled = False, radar disabled.")
+            #continue
 
         # Set min and max range according to zone parameters
         min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
