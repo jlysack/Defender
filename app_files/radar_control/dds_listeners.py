@@ -15,3 +15,16 @@ class ScanInstructionListener:
     async def get_data(self):
         async for data in self.reader.take_data_async():
             return data
+
+
+class RFSafetyListener:
+    def __init__(self):
+        self.participant = dds.DomainParticipant(domain_id=1)
+
+        self.topic = dds.Topic(self.participant, "RadarSafety", DDS.safety.enabled)
+
+        self.reader = dds.DataReader(self.participant.implicit_subscriber, self.topic)
+
+    async def get_data(self):
+        async for data in self.reader.take_data_async():
+            return data
