@@ -48,13 +48,6 @@ def m_to_feet(meters):
 async def get_scan_instruction(dds_listener):
     return await dds_listener.get_data()
 
-async def SafetyUpdate(dds_listener):
-    return await dds_listener.get_data()
-
-async def SafetyBool():
-    RFSafety = await SafetyUpdate(RFSafetyListener())
-    print(RFSafety)
-
 async def main_execution_loop():
     dds_enabled = True
 
