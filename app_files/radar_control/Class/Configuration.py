@@ -5,7 +5,7 @@ import numpy as np
 
 class SigProConfig:
 
-    def __init__(self, Brd, min_range, max_range, noise_floor=-35, zone=3, dds_enabled):
+    def __init__(self, Brd, min_range, max_range, noise_floor=-35, zone=3, dds_enabled=True):
         # Constant speed of light
         c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7) 
 
