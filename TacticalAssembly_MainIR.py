@@ -38,6 +38,7 @@ fireWeapon_data.mode = 1
 # initalize variables at beginning of script
 currentIFFState = "Unknown"
 IRSafety = True
+IFF_CODE=0
 
 async def update_IFFCode():
     global currentIFFState
@@ -60,6 +61,9 @@ async def update_IFFCode():
             if (responseUAVIFF_ReceivedData.ObjectIdentity == 1):
                 currentIFFState = "Friend"
                 IFF_CODE = 1
+
+        print("IFF Code Set!")
+        print(IFF_CODE)
             
         await asyncio.sleep(1)
 
