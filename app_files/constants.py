@@ -2,8 +2,8 @@
 
 ZONES = {
     1: {
-        'ADA_MIN_RANGE'     :  55.0, # feet
-        'ADA_MAX_RANGE'     :  75.0, # feet
+        'ADA_MIN_RANGE'     :  5.0, # feet
+        'ADA_MAX_RANGE'     :  15.0, # feet
         'ADA_MIN_AZ'        : -45.0, # degrees
         'ADA_MAX_AZ'        :   0.0, # degrees
         'ADA_MIN_EL'        :   0.0, # degrees
