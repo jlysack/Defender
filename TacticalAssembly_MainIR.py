@@ -84,11 +84,11 @@ async def update_IRSafeLock():
 
 # Calling a IR blast
 async def fire_IRWeapon():
-    global IFF_CODE
-    global IR_Safety
-    
     while True:
         async for data in fireWeapon_reader.take_data_async():
+            global IFF_CODE
+            global IR_Safety
+    
             print("Preparing to Fire Weapon...")
 
             if (IFF_CODE == 2) and (IR_Safety == False):
