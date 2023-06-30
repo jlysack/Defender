@@ -30,3 +30,4 @@ class RadarReportWriter:
         self.radar_report_writer.write(self.radar_report_data)
 
         print("Sending RadarReport DDS message")
+        print(self.radar_report_data)
