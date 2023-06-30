@@ -49,12 +49,15 @@ async def get_scan_instruction(dds_listener):
 async def SafetyUpdate(dds_listener):
     return await dds_listener.get_data()
 
+async def SafetyBool():
+    RFSafety = await SafetyUpdate(RFSafetyListener())
+    print(RFSafety)
+
 async def main_execution_loop():
     dds_enabled = True
 
     # Initialize scan instruction listener
     dds_listener = ScanInstructionListener()
-    dds_listener1 = RFSafetyListener()
 
     # Setup Radar Control Configs
     radar_control_logger    = radar_control.init_rad_control_logger(True)
@@ -70,11 +73,6 @@ async def main_execution_loop():
         # Wait for zone scan instruction
         # NOTE: execution pauses here until a message is received
         scan_instruction = await get_scan_instruction(dds_listener)
-
-        RFSafety = await SafetyUpdate(dds_listener)
-
-        print(RFSafety)
-        scan_instruction.RadEnable = RFSafety
 
         # Kill previous radar processes using process_queue
         if radar_process is not None:
@@ -107,7 +105,12 @@ async def main_execution_loop():
         # Check radiation enabled field - if set to False, continue to next loop
         # iteration without starting the radar_search process. Stepper motor will
         # move, but radiation will not be enabled
-        if bool(scan_instruction.RadEnable) is False:
+        
+        #if bool(scan_instruction.RadEnable) is False:
+            #print("Rad Enabled = False, radar disabled.")
+            #continue
+
+        if bool(RFSafety.RadEnable) is False:
             print("Rad Enabled = False, radar disabled.")
             continue
 
@@ -130,3 +133,4 @@ async def main_execution_loop():
 
 if __name__ == "__main__":
     asyncio.run(main_execution_loop())
+    asyncio.run(safetyBool())
