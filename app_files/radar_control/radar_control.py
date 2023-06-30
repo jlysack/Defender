@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import signal
 import argparse
+import constants as const
 
 def init_rad_control_logger(debug_enabled = False):
     # Get current Python filename
