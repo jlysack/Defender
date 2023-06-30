@@ -71,7 +71,7 @@ async def main_execution_loop():
         # NOTE: execution pauses here until a message is received
         scan_instruction = await get_scan_instruction(dds_listener)
 
-        RFSafety = SafetyUpdate(dds_listener)
+        RFSafety = await SafetyUpdate(dds_listener)
         scan_instruction.RadEnable = RFSafety
 
         # Kill previous radar processes using process_queue
