@@ -5,7 +5,7 @@ import numpy as np
 
 class SigProConfig:
 
-    def __init__(self, Brd, min_range, max_range, noise_floor=-35, zone=3, dds_enabled=True):
+    def __init__(self, Brd, min_range, max_range, noise_floor=-35, zone=3, dds_enabled=False):
         # Constant speed of light
         c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7) 
 
@@ -73,11 +73,13 @@ class SigProConfig:
         self.zone_number      = 3
 
         if dds_enabled is True:
-            self.dds_enabled = True
-            self.radar_report_writer = RadarReport.RadarReportWriter()
-            print("Config Radar DDS yay")
+            
         else:
             self.dds_enabled = False
+
+        self.dds_enabled = True
+        self.radar_report_writer = RadarReport.RadarReportWriter()
+        print("Config Radar DDS yay")
 
     def filter_azimuth_cfg(self):
         # Find indices for where angle_extent_vec is equal to +/- 22.5 deg
