@@ -37,7 +37,7 @@ fireWeapon_data.mode = 1
 
 # initalize variables at beginning of script
 currentIFFState = "Unknown"
-IRSafety = True
+IR_Safety = True
 IFF_CODE=0
 
 async def update_IFFCode():
@@ -62,8 +62,8 @@ async def update_IFFCode():
                 currentIFFState = "Friend"
                 IFF_CODE = 1
 
-        print("IFF Code Set!")
-        print(IFF_CODE)
+            print("IFF Code Set!")
+            print(IFF_CODE)
             
         await asyncio.sleep(1)
 
