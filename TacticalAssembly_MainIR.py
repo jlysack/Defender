@@ -15,9 +15,13 @@ participant = dds.DomainParticipant(domain_id=1)
 
 #Topics
 componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
+requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.RequestIFF_UAV)
 responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.ResponseIFF_UAV)
 IRSafety_topic = dds.Topic(participant, "IRSafety", DDS.safety.IRSafety)
 fireWeapon_topic = dds.Topic(participant, "FireWeapon", DDS.Weapon.FireWeapon)
+
+# Writers
+requestUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, requestUAVIFF_topic)
 
 #Readers
 IRSafety_reader = dds.DataReader(participant.implicit_subscriber, IRSafety_topic)
@@ -26,6 +30,7 @@ responseUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, response
 
 #Creating global data holders
 componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
+requestIFF_ReceivedData = DDS.IFF.IFFRequest
 responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
 
 IRSafety_data = DDS.safety.IRSafety
@@ -121,8 +126,20 @@ async def fire_IRWeapon():
                 
             if (IFF_CODE == 1) and (IR_Safety == False):
                 print("Target Friend... Standing down")
-            if (IFF_CODE == 1) and (IR_Safety == True):
-                print("Target Friend... Standing down")
+
+            if (IFF_CODE == 0) and (IR_Safety == False):
+                print("Target Unknown... initiating IFF Request")
+
+                async for sample in requestIFF_reader.take_data_async():
+                    requestUAVIFF_writer.write(requestIFF_ReceivedData)
+                    print("Request")
+                    
+            if (IFF_CODE == 0) and (IR_Safety == True):
+                print("Target Unknown... initiating IFF Request")
+
+                async for sample in requestIFF_reader.take_data_async():
+                    requestUAVIFF_writer.write(requestIFF_ReceivedData)
+                    print("Request")
 
     await asyncio.sleep(1)
 
