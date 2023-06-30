@@ -75,6 +75,7 @@ class SigProConfig:
         if dds_enabled is True:
             self.dds_enabled = True
             self.radar_report_writer = RadarReport.RadarReportWriter()
+            print("DDS Config print...yay")
         else:
             self.dds_enabled = False
 
