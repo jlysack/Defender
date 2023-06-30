@@ -21,7 +21,7 @@ class RFSafetyListener:
     def __init__(self):
         self.participant = dds.DomainParticipant(domain_id=1)
 
-        self.topic = dds.Topic(self.participant, "RadarSafety", DDS.safety.enabled)
+        self.topic = dds.Topic(self.participant, "RadarSafety", DDS.safety.RadarSafety)
 
         self.reader = dds.DataReader(self.participant.implicit_subscriber, self.topic)
 

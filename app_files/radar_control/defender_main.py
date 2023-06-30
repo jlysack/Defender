@@ -71,10 +71,10 @@ async def main_execution_loop():
         # NOTE: execution pauses here until a message is received
         scan_instruction = await get_scan_instruction(dds_listener)
 
-        #RFSafety = await SafetyUpdate(dds_listener)
+        RFSafety = await SafetyUpdate(dds_listener)
 
-        #print(RFSafety)
-        #scan_instruction.RadEnable = RFSafety
+        print(RFSafety)
+        scan_instruction.RadEnable = RFSafety
 
         # Kill previous radar processes using process_queue
         if radar_process is not None:
@@ -107,11 +107,9 @@ async def main_execution_loop():
         # Check radiation enabled field - if set to False, continue to next loop
         # iteration without starting the radar_search process. Stepper motor will
         # move, but radiation will not be enabled
-
-        
-        #if bool(scan_instruction.RadEnable) is False:
-            #print("Rad Enabled = False, radar disabled.")
-            #continue
+        if bool(scan_instruction.RadEnable) is False:
+            print("Rad Enabled = False, radar disabled.")
+            continue
 
         # Set min and max range according to zone parameters
         min_range = feet_to_m(const.ZONES[zone]['ADA_MIN_RANGE'])
