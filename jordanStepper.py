@@ -151,7 +151,7 @@ async def check_ValidDetections(timeout):
             while not RadarReportReceived and (time.time() - start_time) < timeout:
                 print("WTF")
 
-            if RadarReportreceived:
+            if RadarReportReceived:
                 allowRadarMovementAI = False
                 print("Setting Radar MovmentAI...")
                 print(allowRadarMovementAI)
