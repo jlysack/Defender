@@ -168,7 +168,7 @@ async def check_ValidDetections(timeout):
 ##            allowRadarMovementAI = True
 
                   
-            print(f"AllowRadarMovementAI, line168 expecting True: {allowRadarMovementAI}")
+##            print(f"AllowRadarMovementAI, line168 expecting True: {allowRadarMovementAI}")
                 
         RadarReportReceived = False
 
