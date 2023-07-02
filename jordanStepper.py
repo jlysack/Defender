@@ -149,10 +149,11 @@ async def check_ValidDetections(timeout):
     while True:
 
         RadarReportReceived = False
-        print(f"RadarReportReceied, Expecting False: {RadarReportReceived}")
+        print(f"RadarReportRecevied, line152 Expecting False: {RadarReportReceived}")
         
         async for data in RadarReport_reader.take_data_async():
             RadarReportReceived = True
+            print(f"RadarReportReceived, line 156 expecting True: {RadarReportReceived}")
             #start_time = time.time()
             
             #while not RadarReportReceived and (time.time() - start_time) < timeout:
@@ -160,11 +161,11 @@ async def check_ValidDetections(timeout):
 
         if RadarReportReceived:
             allowRadarMovementAI = False
-            print(f"AllowRadarMovementAI, expecting False: {allowRadarMovementAI}")
+            print(f"AllowRadarMovementAI, line164 expecting False: {allowRadarMovementAI}")
             print(allowRadarMovementAI)
         else:
             allowRadarMovementAI = True
-            print(f"AllowRadarMovementAI, expecting True: {allowRadarMovementAI}")
+            print(f"AllowRadarMovementAI, line168 expecting True: {allowRadarMovementAI}")
                 
         RadarReportReceived = False
 
