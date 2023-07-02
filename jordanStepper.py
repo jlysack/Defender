@@ -223,7 +223,6 @@ async def update_motorLogic():
                             await asyncio.sleep(2)
                             print("moving Right")
                             print(flipFlop)
-                    break
 
 
             # Radar/Stepper Manual mode Code
