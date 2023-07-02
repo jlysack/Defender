@@ -134,30 +134,29 @@ async def update_scanInstruction():
 
 # Checks for detections
 async def check_ValidDetections(timeout):
+    global allowRadarMovementAI
+    global RadarReportReceived
+    
     while True:
         async for data in RadarReport_reader.take_data_async():
-            global allowRadarMovementAI
-            global RadarReportReceived
-
             RadarReportReceived = True
-
             print("Recieved Radar Report")
-            
-            allowRadarMovementAI = False
-
-            print("Setting Radar MovmentAI...")
-            print(allowRadarMovementAI)
-
 
             start_time = time.time()
             
             while not RadarReportReceived and (time.time() - start_time) < timeout:
                 print("WTF")
 
-            if message_received:
-                print("Stopmovement")
+            if RadarReportreceived:
+                allowRadarMovementAI = False
+                print("Setting Radar MovmentAI...")
+                print(allowRadarMovementAI)
             else:
+                allowRadarMovementAI = True
                 print("No message yo")
+                print(allowRadarMovementAI)
+
+            RadarReportReceived = False
 
         await asyncio.sleep(0.5)
 
@@ -176,8 +175,9 @@ async def update_motorLogic():
                 if scanInstruction_ReceivedData.manualScanSetting == 0:
                     
                     # Block1 #
-                    print(flipFlop)
+                    #print(flipFlop)
                     if (allowRadarMovementAI):
+                        print("Flipflop inside radarmovementAI")
                         print(flipFlop)
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
                             allowRadarMovementAI = False
