@@ -265,8 +265,8 @@ async def update_motorLogic():
                             print("moving left")
                     
                 await asyncio.sleep(0.5)
-            except Exception as e:
-                print(f"Error in update_motorLogic(): {e}")
+        except Exception as e:
+            print(f"Error in update_motorLogic(): {e}")
 
 
 # Define the ma	in loop coroutine
