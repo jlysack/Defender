@@ -158,11 +158,11 @@ async def check_ValidDetections(timeout):
 
             if RadarReportReceived:
                 allowRadarMovementAI = False
-                print(f"AllowRadarMovementAI, expecting False: {allowRadarMovementAI})
+                print(f"AllowRadarMovementAI, expecting False: {allowRadarMovementAI}")
                 print(allowRadarMovementAI)
             else:
                 allowRadarMovementAI = True
-                print(f"AllowRadarMovementAI, expecting True: {allowRadarMovementAI})
+                print(f"AllowRadarMovementAI, expecting True: {allowRadarMovementAI}")
             RadarReportReceived = False
 
         await asyncio.sleep(1)
