@@ -64,7 +64,7 @@ allowRadarMovementAI = True # Flag to allow movement when in AI mode
 allowNextStep = True
 RadarReportReceived = False
 flipFlop = False
-timeout = 5;
+
 
 #Functions that you just put the amount of steps required to move left/right
 async def move_stepperLeft(stepsRequired):
@@ -142,16 +142,16 @@ async def update_scanInstruction():
         await asyncio.sleep(0.5)
 
 # Checks for detections
-async def check_ValidDetections(timeout):
+async def check_ValidDetections():
     global allowRadarMovementAI
     global RadarReportReceived
-       
+
+    allowRadarMovementAI = True
+    
     while True:
 
         RadarReportReceived = False
         print(f"RadarReportRecevied, line152 Expecting False: {RadarReportReceived}")
-        allowRadarMovementAI = True
-
         
         async for data in RadarReport_reader.take_data_async():
             RadarReportReceived = True
@@ -348,7 +348,7 @@ async def run_event_loop():
         asyncio.ensure_future(update_componentHealth()),
         asyncio.ensure_future(update_scanInstruction()),
         asyncio.ensure_future(update_motorLogic()),
-        asyncio.ensure_future(check_ValidDetections(timeout))
+        asyncio.ensure_future(check_ValidDetections())
     ]
     await asyncio.gather(*tasks)
 
