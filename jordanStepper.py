@@ -61,6 +61,7 @@ EZ3 = 0 #steps - center
 EZ2 = 98 #steps - right
 allowRadarMovement = True #Flag to allow movement, once movement is complete we can change to false
 allowRadarMovementAI = True # Flag to allow movement when in AI mode
+RadarReportReceived = False
 flipFlop = False 
 
 #Functions that you just put the amount of steps required to move left/right
@@ -131,10 +132,13 @@ async def update_scanInstruction():
         await asyncio.sleep(0.5)
 
 # Checks for detections
-async def check_ValidDetections():
+async def check_ValidDetections(timeout):
     while True:
         async for data in RadarReport_reader.take_data_async():
             global allowRadarMovementAI
+            global RadarReportReceived
+
+            RadarReportReceived = True
 
             print("Recieved Radar Report")
             
@@ -142,6 +146,17 @@ async def check_ValidDetections():
 
             print("Setting Radar MovmentAI...")
             print(allowRadarMovementAI)
+
+
+            start_time = time.time()
+            
+            while not RadarReportReceived and (time.time() - start_time) < timeout:
+                print("WTF")
+
+            if message_received:
+                print("Stopmovement")
+            else:
+                print("No message yo")
 
         await asyncio.sleep(0.5)
 
