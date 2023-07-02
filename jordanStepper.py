@@ -62,7 +62,8 @@ EZ2 = 98 #steps - right
 allowRadarMovement = True #Flag to allow movement, once movement is complete we can change to false
 allowRadarMovementAI = True # Flag to allow movement when in AI mode
 RadarReportReceived = False
-flipFlop = False 
+flipFlop = False
+timeout = 5;
 
 #Functions that you just put the amount of steps required to move left/right
 async def move_stepperLeft(stepsRequired):
@@ -332,7 +333,7 @@ async def run_event_loop():
         asyncio.ensure_future(update_componentHealth()),
         asyncio.ensure_future(update_scanInstruction()),
         asyncio.ensure_future(update_motorLogic()),
-        asyncio.ensure_future(check_ValidDetections())
+        asyncio.ensure_future(check_ValidDetections(timeout))
     ]
     await asyncio.gather(*tasks)
 
