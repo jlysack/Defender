@@ -160,7 +160,7 @@ async def update_motorLogic():
                     
                     # Block1 #
                     print(flipFlop)
-                    if (allowRadarMovement):
+                    if (allowRadarMovementAI):
                         print(flipFlop)
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
                             allowRadarMovementAI = False
