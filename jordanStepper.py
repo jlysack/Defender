@@ -69,6 +69,7 @@ timeout = 5;
 async def move_stepperLeft(stepsRequired):
     global currentStepPos
     global allowRadarMovement
+    global allowRadarMovementAI
     #global mymotortest
     #print("Move motor left", flush = True)
     #currentStepPos = currentStepPos - stepsRequired
@@ -80,12 +81,14 @@ async def move_stepperLeft(stepsRequired):
     print("motor scan response sent")
     time.sleep(1)
     allowRadarMovement = True
+    allowRadarMovementAI = True
     print(allowRadarMovement)
     print(currentStepPos)
 
 async def move_stepperRight(stepsRequired):
     global currentStepPos
     global allowRadarMovement
+    global allowRadarMovementAI
     #global mymotortest
     print("Move motor right", flush = True)
     #currentStepPos = currentStepPos + stepsRequired
@@ -97,6 +100,7 @@ async def move_stepperRight(stepsRequired):
     print("motor scan response set")
     time.sleep(1)
     allowRadarMovement = True
+    allowRadarMovementAI = True
     print(allowRadarMovement)
     print(currentStepPos)
 
