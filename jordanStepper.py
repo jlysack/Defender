@@ -155,9 +155,9 @@ async def check_ValidDetections(timeout):
         
         async for data in RadarReport_reader.take_data_async():
             RadarReportReceived = True
-            print(f"RadarReportReceived, line 156 expecting True: {RadarReportReceived}")
+            print(f"RadarReportReceived, line 157 expecting True: {RadarReportReceived}")
             allowRadarMovementAI = False
-            print(f"Setting allowRadarMovementAI, line 158 expecting False: {allowRadarMovementAI}")
+            print(f"Setting allowRadarMovementAI, line 159 expecting False: {allowRadarMovementAI}")
 
 ##        if RadarReportReceived:
 ##            allowRadarMovementAI = False
@@ -170,9 +170,9 @@ async def check_ValidDetections(timeout):
                   
 ##            print(f"AllowRadarMovementAI, line168 expecting True: {allowRadarMovementAI}")
                 
-        RadarReportReceived = False
+##        RadarReportReceived = False
 
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
 
 
 #Custom async coroutines           
@@ -190,6 +190,8 @@ async def update_motorLogic():
                 if scanInstruction_ReceivedData.manualScanSetting == 0:
                     
                     # Block1 #
+                    print(f"allowRadarMovementAI & allowNextstep, line 193: {allowRadarMovementAI} {allowNextStep}")
+                          
                     if (allowRadarMovementAI and allowNextStep):
                         print(f"flipFlop inside radarmovementAI: {flipFlop}")
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
