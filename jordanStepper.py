@@ -145,25 +145,28 @@ async def update_scanInstruction():
 async def check_ValidDetections(timeout):
     global allowRadarMovementAI
     global RadarReportReceived
-    
+       
     while True:
+
+        RadarReportReceived = False
+        print(f"RadarReportReceied, Expecting False: {RadarReportReceived}")
+        
         async for data in RadarReport_reader.take_data_async():
             RadarReportReceived = True
-            print("Recieved Radar Report")
-
-            start_time = time.time()
+            #start_time = time.time()
             
-            while not RadarReportReceived and (time.time() - start_time) < timeout:
-                print("WTF")
+            #while not RadarReportReceived and (time.time() - start_time) < timeout:
+                #print("WTF")
 
-            if RadarReportReceived:
-                allowRadarMovementAI = False
-                print(f"AllowRadarMovementAI, expecting False: {allowRadarMovementAI}")
-                print(allowRadarMovementAI)
-            else:
-                allowRadarMovementAI = True
-                print(f"AllowRadarMovementAI, expecting True: {allowRadarMovementAI}")
-            RadarReportReceived = False
+        if RadarReportReceived:
+            allowRadarMovementAI = False
+            print(f"AllowRadarMovementAI, expecting False: {allowRadarMovementAI}")
+            print(allowRadarMovementAI)
+        else:
+            allowRadarMovementAI = True
+            print(f"AllowRadarMovementAI, expecting True: {allowRadarMovementAI}")
+                
+        RadarReportReceived = False
 
         await asyncio.sleep(1)
 
