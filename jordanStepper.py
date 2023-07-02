@@ -185,7 +185,7 @@ async def update_motorLogic():
                 if scanInstruction_ReceivedData.manualScanSetting == 0:
                     
                     # Block1 #
-                    if (allowRadarMovementAI):
+                    if (allowRadarMovementAI and allowNextStep):
                         print("Flipflop inside radarmovementAI")
                         print(flipFlop)
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
