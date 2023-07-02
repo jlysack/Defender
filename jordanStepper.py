@@ -165,7 +165,7 @@ async def check_ValidDetections(timeout):
 #Custom async coroutines           
 async def update_motorLogic():
     while True:
-        print("Hello, updating motor logic....")
+        #print("Hello, updating motor logic....")
         try:
             global allowRadarMovement
             global allowRadarMovementAI
@@ -176,7 +176,7 @@ async def update_motorLogic():
                 if scanInstruction_ReceivedData.manualScanSetting == 0:
                     
                     # Block1 #
-                    print(flipFlop)
+                    #print(flipFlop)
                     if (allowRadarMovementAI):
                         print(flipFlop)
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
