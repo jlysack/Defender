@@ -61,6 +61,7 @@ EZ3 = 0 #steps - center
 EZ2 = 98 #steps - right
 allowRadarMovement = True #Flag to allow movement, once movement is complete we can change to false
 allowRadarMovementAI = True # Flag to allow movement when in AI mode
+allowNextStep = True
 RadarReportReceived = False
 flipFlop = False
 timeout = 5;
@@ -70,6 +71,7 @@ async def move_stepperLeft(stepsRequired):
     global currentStepPos
     global allowRadarMovement
     global allowRadarMovementAI
+    global allowNextStep
     #global mymotortest
     #print("Move motor left", flush = True)
     #currentStepPos = currentStepPos - stepsRequired
@@ -82,6 +84,7 @@ async def move_stepperLeft(stepsRequired):
     time.sleep(1)
     allowRadarMovement = True
     allowRadarMovementAI = True
+    allowNextStep = True
     print(allowRadarMovement)
     print(currentStepPos)
 
@@ -89,6 +92,7 @@ async def move_stepperRight(stepsRequired):
     global currentStepPos
     global allowRadarMovement
     global allowRadarMovementAI
+    global allowNextStep
     #global mymotortest
     print("Move motor right", flush = True)
     #currentStepPos = currentStepPos + stepsRequired
@@ -101,6 +105,7 @@ async def move_stepperRight(stepsRequired):
     time.sleep(1)
     allowRadarMovement = True
     allowRadarMovementAI = True
+    allowNextStep = True
     print(allowRadarMovement)
     print(currentStepPos)
 
@@ -162,7 +167,7 @@ async def check_ValidDetections(timeout):
 
             RadarReportReceived = False
 
-        await asyncio.sleep(0.5)
+        await asyncio.sleep(1)
 
 
 #Custom async coroutines           
@@ -172,6 +177,7 @@ async def update_motorLogic():
         try:
             global allowRadarMovement
             global allowRadarMovementAI
+            global allowNextStep
             global flipFlop
 
             # Radar/Stepper AI Mode Code
@@ -179,26 +185,25 @@ async def update_motorLogic():
                 if scanInstruction_ReceivedData.manualScanSetting == 0:
                     
                     # Block1 #
-                    #print(flipFlop)
                     if (allowRadarMovementAI):
                         print("Flipflop inside radarmovementAI")
                         print(flipFlop)
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
-                            allowRadarMovementAI = False
+                            allowNextStep = False
                             await move_stepperRight(abs(EZ1))
                             await asyncio.sleep(2)
                             print("moving right")
                             print(flipFlop)
 
                         if (currentStepPos == EZ2): #If we were looking at zone 2, then move left
-                            allowRadarMovementAI = False
+                            allowNextStep = False
                             await move_stepperLeft(EZ2)
                             await asyncio.sleep(2)
                             print("moving left")
                             print(flipFlop)
 
                         if (currentStepPos == EZ3 and flipFlop == True):
-                            allowRadarMovementAI = False
+                            allowNextStep = False
                             flipFlop = False
                             await move_stepperLeft(abs(EZ1))
                             await asyncio.sleep(2)
@@ -206,7 +211,7 @@ async def update_motorLogic():
                             print(flipFlop)
 
                         if (currentStepPos == EZ3 and flipFlop == False):
-                            allowRadarMovementAI = False
+                            allowNextStep = False
                             flipFlop = True
                             await move_stepperRight(EZ2)
                             await asyncio.sleep(2)
