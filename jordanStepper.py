@@ -134,8 +134,13 @@ async def check_ValidDetections():
     while True:
         async for data in RadarReport_reader.take_data_async():
             global allowRadarMovementAI
+
+            print("Recieved Radar Report")
             
             allowRadarMovementAI = False
+
+            print("Setting Radar MovmentAI...")
+            print(allowRadarMovementAI)
 
         await asyncio.sleep(0.5)
 
@@ -160,14 +165,14 @@ async def update_motorLogic():
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
                             allowRadarMovementAI = False
                             await move_stepperRight(abs(EZ1))
-                            await asyncio.sleep(10)
+                            await asyncio.sleep(2)
                             print("moving right")
                             print(flipFlop)
 
                         if (currentStepPos == EZ2): #If we were looking at zone 2, then move left
                             allowRadarMovementAI = False
                             await move_stepperLeft(EZ2)
-                            await asyncio.sleep(10)
+                            await asyncio.sleep(2)
                             print("moving left")
                             print(flipFlop)
 
@@ -175,7 +180,7 @@ async def update_motorLogic():
                             allowRadarMovementAI = False
                             flipFlop = False
                             await move_stepperLeft(abs(EZ1))
-                            await asyncio.sleep(10)
+                            await asyncio.sleep(2)
                             print("moving left")
                             print(flipFlop)
 
@@ -183,7 +188,7 @@ async def update_motorLogic():
                             allowRadarMovementAI = False
                             flipFlop = True
                             await move_stepperRight(EZ2)
-                            await asyncio.sleep(10)
+                            await asyncio.sleep(2)
                             print("moving Right")
                             print(flipFlop)
 
