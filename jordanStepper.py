@@ -184,7 +184,7 @@ async def update_motorLogic():
                     
                     # Block1 #
                     if (allowRadarMovementAI and allowNextStep):
-                        print(f"Flipflop inside radarmovementAI: {flipflop}")
+                        print(f"flipFlop inside radarmovementAI: {flipFlop}")
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
                             allowNextStep = False
                             await move_stepperRight(abs(EZ1))
