@@ -15,6 +15,7 @@ participant = dds.DomainParticipant(domain_id=1)
 componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
 scanInstruction_topic = dds.Topic(participant, "ScanInstruction", DDS.Scanning.ScanInstruction)
 scanResponse_topic = dds.Topic(participant, "ScanResponse", DDS.Scanning.ScanResponse)
+RadarReport_topic = dds.Topic(participant, "RadarReport", DDS.Tracking.RadarReport)
 
 #Define Writers
 scanResponse_writer = dds.DataWriter(participant.implicit_publisher, scanResponse_topic)
@@ -23,6 +24,7 @@ scanResponse_writer = dds.DataWriter(participant.implicit_publisher, scanRespons
 componentHealth_reader = dds.DataReader(participant.implicit_subscriber, componentHealth_topic)
 scanInstruction_reader = dds.DataReader(participant.implicit_subscriber, scanInstruction_topic)
 scanResponse_reader = dds.DataReader(participant.implicit_subscriber, scanResponse_topic)
+RadarReport_reader = dds.DataReader(participant.implicit_subscriber, RadarReport_topic)
 
 #Creating global data holders, these act as data pointers essentially, I wrote this code coming from a C++ background so excuse any weird-ness
 componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
@@ -127,6 +129,17 @@ async def update_scanInstruction():
         
         await asyncio.sleep(0.5)
 
+# Checks for detections
+async def check_ValidDetections():
+    while True:
+        async for data in RadarReport_reader.take_data_async():
+            global allowRadarMovement
+            
+            allowRadarMovement = False
+
+        await asyncio.sleep(0.5)
+
+
 #Custom async coroutines           
 async def update_motorLogic():
     while True:
@@ -135,82 +148,125 @@ async def update_motorLogic():
             global allowRadarMovement
             global flipFlop
 
-            #Could either have all motorlogic in 1 function like this or make routines for every "setting" - discuss with wider team
-            if scanInstruction_ReceivedData.manualScanSetting == 0:
-                # Block1 #
-
-                print(flipFlop)
-                if (allowRadarMovement):
+            # Radar/Stepper AI Mode Code
+            if scanInstruction_ReceivedData.radarMode == 0:
+                if scanInstruction_ReceivedData.manualScanSetting == 0:
+                    
+                    # Block1 #
                     print(flipFlop)
-                    if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
-                        allowRadarMovement = False
-                        await move_stepperRight(abs(EZ1))
-                        print("moving right")
+                    if (allowRadarMovement):
                         print(flipFlop)
+                        if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
+                            allowRadarMovement = False
+                            await move_stepperRight(abs(EZ1))
+                            await asyncio.sleep(10)
+                            print("moving right")
+                            print(flipFlop)
 
-                    if (currentStepPos == EZ2): #If we were looking at zone 2, then move left
-                        allowRadarMovement = False
-                        await move_stepperLeft(EZ2)
-                        print("moving left")
+                        if (currentStepPos == EZ2): #If we were looking at zone 2, then move left
+                            allowRadarMovement = False
+                            await move_stepperLeft(EZ2)
+                            await asyncio.sleep(10)
+                            print("moving left")
+                            print(flipFlop)
+
+                        if (currentStepPos == EZ3 and flipFlop == True):
+                            allowRadarMovement = False
+                            flipFlop = False
+                            await move_stepperLeft(abs(EZ1))
+                            await asyncio.sleep(10)
+                            print("moving left")
+                            print(flipFlop)
+
+                        if (currentStepPos == EZ3 and flipFlop == False):
+                            allowRadarMovement = False
+                            flipFlop = True
+                            await move_stepperRight(EZ2)
+                            await asyncio.sleep(10)
+                            print("moving Right")
+                            print(flipFlop)
+
+
+            # Radar/Stepper Manual mode Code
+            if scanInstruction_ReceivedData.radarMode == 1: 
+                #Could either have all motorlogic in 1 function like this or make routines for every "setting" - discuss with wider team
+                if scanInstruction_ReceivedData.manualScanSetting == 0:
+                    # Block1 #
+
+                    print(flipFlop)
+                    if (allowRadarMovement):
                         print(flipFlop)
+                        if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
+                            allowRadarMovement = False
+                            await move_stepperRight(abs(EZ1))
+                            await asyncio.sleep(1)
+                            print("moving right")
+                            print(flipFlop)
 
-                    if (currentStepPos == EZ3 and flipFlop == True):
-                        allowRadarMovement = False
-                        flipFlop = False
-                        await move_stepperLeft(abs(EZ1))
-                        print("moving left")
-                        print(flipFlop)
+                        if (currentStepPos == EZ2): #If we were looking at zone 2, then move left
+                            allowRadarMovement = False
+                            await move_stepperLeft(EZ2)
+                            await asyncio.sleep(1)
+                            print("moving left")
+                            print(flipFlop)
 
-                    if (currentStepPos == EZ3 and flipFlop == False):
-                        allowRadarMovement = False
-                        flipFlop = True
-                        await move_stepperRight(EZ2)
-                        print("moving Right")
-                        print(flipFlop)
+                        if (currentStepPos == EZ3 and flipFlop == True):
+                            allowRadarMovement = False
+                            flipFlop = False
+                            await move_stepperLeft(abs(EZ1))
+                            await asyncio.sleep(1)
+                            print("moving left")
+                            print(flipFlop)
 
-                    
+                        if (currentStepPos == EZ3 and flipFlop == False):
+                            allowRadarMovement = False
+                            flipFlop = True
+                            await move_stepperRight(EZ2)
+                            await asyncio.sleep(1)
+                            print("moving Right")
+                            print(flipFlop)
 
-                    
-            if scanInstruction_ReceivedData.manualScanSetting == 1:
-                #print("Instructed to scan zone 1")   
-                if (allowRadarMovement):
-                    #print("Radar movement allowed, attempting movement")
-                    #allowRadarMovement = False #Locking radar movement
-                    #print(allowRadarMovement)
-                    if (currentStepPos != EZ1): #If we are not looking at zone 1 already then we need to move left
-                        allowRadarMovement = False
-                        await move_stepperLeft((abs(EZ1) + currentStepPos))
-                        print("moving left")
+                        
+                if scanInstruction_ReceivedData.manualScanSetting == 1:
+                    #print("Instructed to scan zone 1")   
+                    if (allowRadarMovement):
+                        #print("Radar movement allowed, attempting movement")
+                        #allowRadarMovement = False #Locking radar movement
+                        #print(allowRadarMovement)
+                        if (currentStepPos != EZ1): #If we are not looking at zone 1 already then we need to move left
+                            allowRadarMovement = False
+                            await move_stepperLeft((abs(EZ1) + currentStepPos))
+                            print("moving left")
 
-            if scanInstruction_ReceivedData.manualScanSetting == 2:
-                #print("Instructed to scan zone 2")
-                if (allowRadarMovement):
-                    #print("Radar movement allowed, attempting movement")
-                    #allowRadarMovement = False #Locking radar movement
-                    #print(allowRadarMovement)
-                    if (currentStepPos!=EZ2): #If we are not lookling at zone 2 already then we need to move right
-                        allowRadarMovement = False
-                        await move_stepperRight((abs(currentStepPos) + EZ2))
-                        print("moving right")
-            
-            if scanInstruction_ReceivedData.manualScanSetting == 3:
-                #print("Instructed to scan zone 3")
-                if (allowRadarMovement):
-                    #print("Radar movement allowed, attempting movement")
-                    #allowRadarMovement = False #Locking radar movement
-                    #print(allowRadarMovement)
-                    if (currentStepPos==EZ1): #If we were looking at zone, 1 then move right
-                        allowRadarMovement = False
-                        await move_stepperRight(abs(EZ1))
-                        print("moving right")
-                    if (currentStepPos==EZ2): #If we were looking at zone, 2 then move left
-                        allowRadarMovement = False
-                        await move_stepperLeft(EZ2)
-                        print("moving left")
+                if scanInstruction_ReceivedData.manualScanSetting == 2:
+                    #print("Instructed to scan zone 2")
+                    if (allowRadarMovement):
+                        #print("Radar movement allowed, attempting movement")
+                        #allowRadarMovement = False #Locking radar movement
+                        #print(allowRadarMovement)
+                        if (currentStepPos!=EZ2): #If we are not lookling at zone 2 already then we need to move right
+                            allowRadarMovement = False
+                            await move_stepperRight((abs(currentStepPos) + EZ2))
+                            print("moving right")
                 
-            await asyncio.sleep(0.5)
-        except Exception as e:
-            print(f"Error in update_motorLogic(): {e}")
+                if scanInstruction_ReceivedData.manualScanSetting == 3:
+                    #print("Instructed to scan zone 3")
+                    if (allowRadarMovement):
+                        #print("Radar movement allowed, attempting movement")
+                        #allowRadarMovement = False #Locking radar movement
+                        #print(allowRadarMovement)
+                        if (currentStepPos==EZ1): #If we were looking at zone, 1 then move right
+                            allowRadarMovement = False
+                            await move_stepperRight(abs(EZ1))
+                            print("moving right")
+                        if (currentStepPos==EZ2): #If we were looking at zone, 2 then move left
+                            allowRadarMovement = False
+                            await move_stepperLeft(EZ2)
+                            print("moving left")
+                    
+                await asyncio.sleep(0.5)
+            except Exception as e:
+                print(f"Error in update_motorLogic(): {e}")
 
 
 # Define the ma	in loop coroutine
