@@ -60,6 +60,7 @@ EZ1 = -99 #steps - left
 EZ3 = 0 #steps - center
 EZ2 = 98 #steps - right
 allowRadarMovement = True #Flag to allow movement, once movement is complete we can change to false
+allowRadarMovementAI = True # Flag to allow movement when in AI mode
 flipFlop = False 
 
 #Functions that you just put the amount of steps required to move left/right
