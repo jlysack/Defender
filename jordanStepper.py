@@ -85,7 +85,7 @@ async def move_stepperLeft(stepsRequired):
     allowRadarMovement = True
     allowRadarMovementAI = True
     allowNextStep = True
-    print(allowRadarMovement)
+    print(f"AllowRadarMovement, expecting True: {allowRadarMovement}")
     print(currentStepPos)
 
 async def move_stepperRight(stepsRequired):
@@ -106,7 +106,7 @@ async def move_stepperRight(stepsRequired):
     allowRadarMovement = True
     allowRadarMovementAI = True
     allowNextStep = True
-    print(allowRadarMovement)
+    print(f"AllowRadarMovement, expecting True: {allowRadarMovement}")
     print(currentStepPos)
 
 def sendScanResponse():
@@ -158,13 +158,11 @@ async def check_ValidDetections(timeout):
 
             if RadarReportReceived:
                 allowRadarMovementAI = False
-                print("Setting Radar MovmentAI...")
+                print(f"AllowRadarMovementAI, expecting False: {allowRadarMovementAI})
                 print(allowRadarMovementAI)
             else:
                 allowRadarMovementAI = True
-                print("No message yo")
-                print(allowRadarMovementAI)
-
+                print(f"AllowRadarMovementAI, expecting True: {allowRadarMovementAI})
             RadarReportReceived = False
 
         await asyncio.sleep(1)
@@ -186,8 +184,7 @@ async def update_motorLogic():
                     
                     # Block1 #
                     if (allowRadarMovementAI and allowNextStep):
-                        print("Flipflop inside radarmovementAI")
-                        print(flipFlop)
+                        print(f"Flipflop inside radarmovementAI: {flipflop}")
                         if (currentStepPos == EZ1): #If we are looking at zone 1 already then we need to move right
                             allowNextStep = False
                             await move_stepperRight(abs(EZ1))
