@@ -40,7 +40,7 @@ try:
 
 
         
-        HitDetection_Data.HitBoolean = False
+        HitDetection_data.HitBoolean = False
 
 except KeyboardInterrupt:
     pass
