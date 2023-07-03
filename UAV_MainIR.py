@@ -28,17 +28,19 @@ process = subprocess.Popen(["irw"], stdout=subprocess.PIPE)
 try:
     while True:
         # Read incoming IR signals
-        #signals = pylirc.nextcode()
         #output = subprocess.check_output(["irw"]).decode("utf-8")
         output = process.stdout.readline().decode("utf-8")
-
-        #if signals:
-            #for signal in singals:
-                #print("Received Signal:", signal)
 
         if output.strip():
             print("Received signal:", output.strip())
 
+            HitDetection_Data.HitBoolean = True
+
+            HitDetection_writer.write(HitDetection_data)
+
+
+        
+        HitDetection_Data.HitBoolean = False
 
 except KeyboardInterrupt:
     pass
