@@ -34,7 +34,7 @@ try:
         if output.strip():
             print("Received signal:", output.strip())
 
-            HitDetection_Data.HitBoolean = True
+            HitDetection_data.HitBoolean = True
 
             HitDetection_writer.write(HitDetection_data)
 
