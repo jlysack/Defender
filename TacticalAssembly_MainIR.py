@@ -130,16 +130,16 @@ async def fire_IRWeapon():
             if (IFF_CODE == 0) and (IR_Safety == False):
                 print("Target Unknown... initiating IFF Request")
 
-                async for sample in requestIFF_reader.take_data_async():
-                    requestUAVIFF_writer.write(requestIFF_ReceivedData)
-                    print("Request")
+                #async for sample in requestIFF_reader.take_data_async():
+                requestUAVIFF_writer.write(requestIFF_ReceivedData)
+                print("Request")
                     
             if (IFF_CODE == 0) and (IR_Safety == True):
                 print("Target Unknown... initiating IFF Request")
 
-                async for sample in requestIFF_reader.take_data_async():
-                    requestUAVIFF_writer.write(requestIFF_ReceivedData)
-                    print("Request")
+                #async for sample in requestIFF_reader.take_data_async():
+                requestUAVIFF_writer.write(requestIFF_ReceivedData)
+                print("Request")
 
     await asyncio.sleep(1)
 
