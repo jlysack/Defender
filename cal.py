@@ -11,7 +11,7 @@ mymotortest = A4988Nema(direction, step, GPIO_pins, "A4988")
 
 def move_left():
     print("Moving left one step")
-    mymotortest.motor_go(False,"1/8", 1,.005,False,.05)
+    mymotortest.motor_go(False,"1/8", 50,.005,False,.05)
 
 def move_right():
     print("Moving right one step")
