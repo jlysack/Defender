@@ -20,11 +20,11 @@ def move_right():
 
 def move_far_left():
     print("Moving left three steps")
-    mymotortest.motor_go(False,"1/8", 3,.005,False,.05)
+    mymotortest.motor_go(False,"1/8", 150,.005,False,.05)
 
 def move_far_right():
     print("Moving right three steps")
-    mymotortest.motor_go(True,"1/8", 3,.005,False,.05)
+    mymotortest.motor_go(True,"1/8", 150,.005,False,.05)
 
 def main():
     while True:
