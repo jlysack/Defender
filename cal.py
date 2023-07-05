@@ -1,3 +1,6 @@
+import time
+import RPi.GPIO as GPIO
+import sys
 from RpiMotorLib import A4988Nema
 
 # Microstep Resolution MS1-MS3 -> GPIO Pin , can be set to (-1,-1,-1) to turn off
