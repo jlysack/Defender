@@ -15,7 +15,7 @@ def move_left():
 
 def move_right():
     print("Moving right one step")
-    mymotortest.motor_go(True,"1/8", 1,.005,False,.05)
+    mymotortest.motor_go(True,"1/8", 50,.005,False,.05)
 
 
 def move_far_left():
