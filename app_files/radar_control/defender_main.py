@@ -1,22 +1,5 @@
 #!/usr/bin/env python3
 
-# Radar Search Mode
-#   Align Boresight
-#       Check Motor Preconditions (time elapsed)
-#       Actuate Stepper Motor
-#   Obtain Sensor Data
-#       Call TinyRad Functions to Obtain Sensor Data
-#       Reformat Data (organize variable structure)
-#   Process Telemetry Data
-#       Filter Detections (not in any zone)
-#       Set Flags
-#   Report Detections
-#       Populate Message
-#       Send Message
- 
-# Getters/Setters versus Properties
-# Case usage (camelcase or underscores?)
-#
 import constants as const
 import sys
 import os
