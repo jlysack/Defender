@@ -6,7 +6,7 @@ from interfaces import DDS
 
 participant = dds.DomainParticipant(domain_id=1)
 
-topic = dds.Topic(participant, "RadarReport", DDS.SILKTypes.DetectionStruct)
+topic = dds.Topic(participant, "RadarReport", DDS.Tracking.RadarReport)
 
 reader = dds.DataReader(participant.implicit_subscriber, topic)
 
