@@ -5,7 +5,7 @@ import numpy as np
 
 class SigProConfig:
 
-    def __init__(self, Brd, min_range, max_range, noise_floor=-35, dds_enabled=False):
+    def __init__(self, Brd, min_range, max_range, noise_floor=-35, zone=3, dds_enabled=False):
         # Constant speed of light
         c0 = 1/np.sqrt(8.85e-12*4*np.pi*1e-7) 
 
@@ -68,8 +68,9 @@ class SigProConfig:
         self.angle_extent_vec = angle_extent_vec
         self.filt_angle_vec   = self.filter_azimuth_cfg()
         self.logger           = None
-        self.tactical_mode    = True # True = Azimuth data filtered between +/- 22.5 deg
+        self.tactical_mode    = True # True = Azimuth data filtered between +/- 22.5 deg, NOTE: do not change to False
         self.detection_thresh = -15 # dB TODO: finalize value or make configurable
+        self.zone_number      = 3
 
         if dds_enabled is True:
             self.dds_enabled = True
@@ -100,7 +101,7 @@ class PlotConfig:
 class BoardConfig:
 
     def __init__(self):
-        # NOTE: These values coems from the TinyRad datasheet and CANNOT be
+        # NOTE: These values come from the TinyRad datasheet and CANNOT be
         #       modified, since they are used internally within the TinyRad via
         #       the Brd.RfMeas() function
         self.fStrt          = 24.00e9   # Chirp Frequency Start (GHz)

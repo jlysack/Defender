@@ -169,6 +169,7 @@ DDS.Scanning = DDS_Scanning
 class DDS_Scanning_ScanInstruction:
     radarSetting: DDS.SILKTypes.radarMode = DDS.SILKTypes.radarMode.AI
     manualScanSetting: DDS.SILKTypes.scanState = DDS.SILKTypes.scanState.Sweep
+    RadEnable: bool = False
 
 DDS.Scanning.ScanInstruction = DDS_Scanning_ScanInstruction
 
@@ -194,6 +195,15 @@ class DDS_Tracking_TrackData:
 
 DDS.Tracking.TrackData = DDS_Tracking_TrackData
 
+@idl.struct
+class DDS_Tracking_RadarReport:
+    Range: idl.float32 = 0
+    Azimuth: idl.float32 = 0
+    ZoneNumber: idl.int32 = 0
+    EngagementZoneFlag: bool = False
+
+DDS.Tracking.RadarReport = DDS_Tracking_RadarReport
+
 DDS_IFF = idl.get_module("DDS_IFF")
 
 DDS.IFF = DDS_IFF
@@ -214,6 +224,24 @@ class DDS_IFF_IFFResponse:
     ObjectIdentity: DDS.SILKTypes.ObjectIdentity = DDS.SILKTypes.ObjectIdentity.Unknown
 
 DDS.IFF.IFFResponse = DDS_IFF_IFFResponse
+
+@idl.struct
+class DDS_IFF_SetCode:
+    IFFCode: DDS.SILKTypes.ObjectIdentity = DDS.SILKTypes.ObjectIdentity.Unknown
+
+DDS.IFF.SetCode = DDS_IFF_SetCode
+
+@idl.struct
+class DDS_IFF_RequestIFF_UAV:
+    RequestID: idl.int32 = 0
+
+DDS.IFF.RequestIFF_UAV = DDS_IFF_RequestIFF_UAV
+
+@idl.struct
+class DDS_IFF_ResponseIFF_UAV:
+    ObjectIdentity: DDS.SILKTypes.ObjectIdentity = DDS.SILKTypes.ObjectIdentity.Unknown
+
+DDS.IFF.ResponseIFF_UAV = DDS_IFF_ResponseIFF_UAV
 
 DDS_misc = idl.get_module("DDS_misc")
 
