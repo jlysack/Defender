@@ -6,7 +6,7 @@ from interfaces import DDS
 
 participant = dds.DomainParticipant(domain_id=1)
 
-topic = dds.Topic(participant, "RadarSafety", DDS.Safety.RadarSafety)
+topic = dds.Topic(participant, "RadarSafety", DDS.safety.RadarSafety)
 
 reader = dds.DataReader(participant.implicit_subscriber, topic)
 
