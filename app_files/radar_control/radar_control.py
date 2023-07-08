@@ -274,6 +274,10 @@ def check_engagement_zone(range_m, angle_deg, sigpro_cfg):
 def feet_to_m(feet):
     return feet*0.3048
 
+def check_radar_safety_file():
+    with open ('/tmp/.radar_safety.txt', 'r') as f:
+        return bool(int(f.readline()))
+
 def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
     # Store SigPro Config object variables locally
     num_samples         = sigpro_cfg.num_samples
@@ -295,6 +299,10 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
         if not process_queue.empty():
             if process_queue.get() is False:
                 break
+
+        # Check radar_safety file
+        if check_radar_safety_file() is False:
+            break
 
         # Record data for Tx1 and Tx2
         Data = Brd.BrdGetData() # NOTE: RF SAFETY IMPLICATIONS

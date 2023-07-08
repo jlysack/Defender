@@ -6,6 +6,7 @@ import os
 import Class
 from Class.Configuration import SigProConfig, PlotConfig, BoardConfig
 import radar_control
+import safety_message_handler
 import rti.connextdds as dds
 import rti.asyncio
 import asyncio
@@ -40,9 +41,16 @@ async def main_execution_loop():
     zone                    = 3
     previous_zone           = -1
 
-    # Setup process queue
+    # Initialize radar_process to None
     radar_process = None
-    process_queue = None 
+
+    # Create process queue to be able to cancel/terminate execution of radar_search safely
+    process_queue = multiprocessing.Queue()
+
+    # RM DEBUG START
+    #safety_process = Process(target=safety_message_handler.handle_messages, args=(process_queue, True)) 
+
+    # RM DEBUG STOP
 
     while True:
         # Wait for zone scan instruction
@@ -53,6 +61,8 @@ async def main_execution_loop():
         if radar_process is not None:
             process_queue.put(False)
             radar_process.join()
+        else:
+            print("poop?")
 
         # Pull zone number from message
         try:
@@ -80,6 +90,10 @@ async def main_execution_loop():
         # Check radiation enabled field - if set to False, continue to next loop
         # iteration without starting the radar_search process. Stepper motor will
         # move, but radiation will not be enabled
+        if radar_control.check_radar_safety_file() is False:
+            print("Rad Enabled = False via Safety Toggle, radar disabled.")
+            continue
+        # TODO: Remove  when we get final scan instruction structure
         if bool(scan_instruction.RadEnable) is False:
             print("Rad Enabled = False, radar disabled.")
             continue
@@ -94,8 +108,6 @@ async def main_execution_loop():
         sigpro_cfg = SigProConfig(Brd, min_range, max_range, const.DEFAULT_NOISE_FLOOR, zone, dds_enabled)
         sigpro_cfg.logger = radar_control_logger
 
-        # Create process queue to be able to cancel/terminate execution of radar_search safely
-        process_queue = multiprocessing.Queue()
 
         # Create and start process for radar_search
         radar_process = Process(target=radar_control.radar_search, args=(Brd, sigpro_cfg, plot_cfg, process_queue))
