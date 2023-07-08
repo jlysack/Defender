@@ -21,7 +21,7 @@ async def handle_messages(process_queue, debug=True):
         process_queue.put(data.enabled)
         print(data.enabled)
 
-async def listen_for_messages(f):
+async def listen_for_messages():
     async for data in reader.take_data_async():
         with open('/tmp/.radar_safety.txt', 'w') as f:
             f.write(str(int(data.enabled)))
@@ -31,6 +31,6 @@ if __name__ == "__main__":
     with open('/tmp/.radar_safety.txt', 'w') as f:
         f.write(str(1)) # Initialize radar_safety to enabled
     try:
-        rti.asyncio.run(listen_for_messages(f))
+        rti.asyncio.run(listen_for_messages())
     except Exception as e:
         print(e)

@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import signal
 import argparse
 import constants as const
+import time
 
 def init_rad_control_logger(debug_enabled = False):
     # Get current Python filename
@@ -276,7 +277,7 @@ def feet_to_m(feet):
 
 def check_radar_safety_file():
     with open ('/tmp/.radar_safety.txt', 'r') as f:
-        return bool(int(f.readline()))
+        return f.read()
 
 def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
     # Store SigPro Config object variables locally
@@ -301,7 +302,8 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
                 break
 
         # Check radar_safety file
-        if check_radar_safety_file() is False:
+        if check_radar_safety_file() == "0":
+            logger.warn(f"Function radar_control.check_radar_safety_file() returned 0. Radiation disabled, exiting radar_search loop.")
             break
 
         # Record data for Tx1 and Tx2
