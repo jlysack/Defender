@@ -53,7 +53,8 @@ async def main_execution_loop():
         # NOTE: execution pauses here until a message is received
         scan_instruction = await get_scan_instruction(dds_listener)
 
-        # Kill previous radar processes using process_queue
+        # Once we receive scan instruction, 
+        # Kill previous radar processes using process_queue (killed in radar_control.radar_search)
         if radar_process is not None:
             process_queue.put(False)
             radar_process.join()
@@ -80,12 +81,10 @@ async def main_execution_loop():
         # Check radiation enabled field - if set to False, continue to next loop
         # iteration without starting the radar_search process. Stepper motor will
         # move, but radiation will not be enabled
+        # NOTE: radar_control.check_radar_safety_file() checks the /tmp/.radar_safety.txt file
+        #       if running into issues here, check the file and/or permissions on the directory
         if radar_control.check_radar_safety_file() == "0":
             logger.info("Radiation Disabled via Safety Toggle. Resend Scan Instruction after enabling radiation safety toggle.")
-            continue
-        # TODO: Remove  when we get final scan instruction structure
-        if bool(scan_instruction.RadEnable) is False:
-            print("Rad Enabled = False, radar disabled.")
             continue
 
         # Set min and max range according to zone parameters
@@ -101,7 +100,7 @@ async def main_execution_loop():
         # Create process queue to be able to cancel/terminate execution of radar_search safely
         process_queue = multiprocessing.Queue()
 
-        # Create and start process for radar_search
+        # Create and start process for radar_search, then return to the top to listen for the next scan instruction
         radar_process = Process(target=radar_control.radar_search, args=(Brd, sigpro_cfg, plot_cfg, process_queue))
         radar_process.start()
 
