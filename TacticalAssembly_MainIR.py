@@ -137,17 +137,25 @@ async def fire_IRWeapon():
                 GPIO.output(17,GPIO.HIGH)
                 subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
 
+                time.sleep(0.5)
+
                 GPIO.output(27,GPIO.LOW) 
                 GPIO.output(17,GPIO.HIGH)
                 subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+
+                time.sleep(0.5)
 
                 GPIO.output(27,GPIO.HIGH) 
                 GPIO.output(17,GPIO.LOW)
                 subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
 
-                #GPIO.output(27,GPIO.LOW) 
-                #GPIO.output(17,GPIO.LOW)
-                #subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+                time.sleep(0.5)
+
+                GPIO.output(27,GPIO.LOW) 
+                GPIO.output(17,GPIO.LOW)
+                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+
+                time.sleep(0.5)
                 
 
                 # Turn off GPIOs 
