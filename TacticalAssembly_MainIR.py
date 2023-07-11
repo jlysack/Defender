@@ -127,7 +127,7 @@ async def fire_IRWeapon():
                     subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
 
                     X = "LOW" if i == 0 or i == 2 else "HIGH"
-                    Y = "LOW" if i == 1 or i == 2 else "HIGH
+                    Y = "LOW" if i == 1 or i == 2 else "HIGH"
 
                     if i == 2:
                         X = "HIGH"
