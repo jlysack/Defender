@@ -113,25 +113,42 @@ async def fire_IRWeapon():
 
                 GPIO.output(22,GPIO.HIGH) #turn on enable
 
-                #Establish start of sweep#
-                X = "GPIO.HIGH"
-                Y = "GPIO.HIGH"
+##                #Establish start of sweep#
+##                X = "GPIO.HIGH"
+##                Y = "GPIO.HIGH"
+##
+##                for i in range(4):                
+##                    #GPIO.output(27,GPIO.HIGH) 
+##                    #GPIO.output(17,GPIO.HIGH)
+##
+##                    GPIO.output(27,X) 
+##                    GPIO.output(17,Y)
+##                
+##                    subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+##
+##                    X = "GPIO.LOW" if i == 0 or i == 2 else "GPIO.HIGH"
+##                    Y = "GPIO.LOW" if i == 1 or i == 2 else "GPIO.HIGH"
+##
+##                    if i == 2:
+##                        X = "GPIO.HIGH"
+##                        Y = "GPIO.HIGH"
 
-                for i in range(4):                
-                    #GPIO.output(27,GPIO.HIGH) 
-                    #GPIO.output(17,GPIO.HIGH)
+                GPIO.output(27,GPIO.HIGH) 
+                GPIO.output(17,GPIO.HIGH)
+                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
 
-                    GPIO.output(27,X) 
-                    GPIO.output(17,Y)
+                GPIO.output(27,GPIO.HIGH) 
+                GPIO.output(17,GPIO.LOW)
+                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+
+                GPIO.output(27,GPIO.HIGH) 
+                GPIO.output(17,GPIO.LOW)
+                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+
+                GPIO.output(27,GPIO.LOW) 
+                GPIO.output(17,GPIO.LOW)
+                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
                 
-                    subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
-
-                    X = "GPIO.LOW" if i == 0 or i == 2 else "GPIO.HIGH"
-                    Y = "GPIO.LOW" if i == 1 or i == 2 else "GPIO.HIGH"
-
-                    if i == 2:
-                        X = "GPIO.HIGH"
-                        Y = "GPIO.HIGH"
 
                 # Turn off GPIOs 
                 GPIO.output(22,GPIO.LOW) 
