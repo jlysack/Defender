@@ -111,11 +111,27 @@ async def fire_IRWeapon():
                 GPIO.setup(27,GPIO.OUT) #A0 
                 GPIO.setup(17,GPIO.OUT) #A1
 
-                GPIO.output(22,GPIO.HIGH) #turn on enable 
-                GPIO.output(27,GPIO.HIGH) 
-                GPIO.output(17,GPIO.HIGH) 
+                GPIO.output(22,GPIO.HIGH) #turn on enable
+
+                #Establish start of sweep#
+                X = "HIGH"
+                Y = "HIGH"
+
+                for i in range(4):                
+                    #GPIO.output(27,GPIO.HIGH) 
+                    #GPIO.output(17,GPIO.HIGH)
+
+                    GPIO.output(27,GPIO.X) 
+                    GPIO.output(17,GPIO.Y)
                 
-                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+                    subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+
+                    X = "LOW" if i == 0 or i == 2 else "HIGH"
+                    Y = "LOW" if i == 1 or i == 2 else "HIGH
+
+                    if i == 2:
+                        X = "HIGH"
+                        Y = "HIGH"
 
                 # Turn off GPIOs 
                 GPIO.output(22,GPIO.LOW) 
