@@ -97,13 +97,14 @@ async def fire_IRWeapon():
         async for data in fireWeapon_reader.take_data_async():
             global IFF_CODE
             global IR_Safety
-    
+            global fireWeapon_data  
+            fireWeapon_data = data;
             print("Preparing to Fire Weapon...")
 
             print(IFF_CODE)
             print(IR_Safety)
 
-            if (IFF_CODE == 2) and (IR_Safety == False) and (data.FireWeapon==True):
+            if (IFF_CODE == 2) and (IR_Safety == False) and (fireWeapon_data.FireWeapon==True):
                 GPIO.setmode(GPIO.BCM)
                 GPIO.setwarnings(False) 
 
