@@ -177,7 +177,7 @@ async def fire_IRWeapon():
                 requestUAVIFF_writer.write(requestIFF_ReceivedData)
                 print("Request")
 
-                await update_IFFCode()
+                x = await update_IFFCode()
                 print("IFF Code Set!")
                 print(IFF_CODE)
                 if (IFF_CODE == 2):
