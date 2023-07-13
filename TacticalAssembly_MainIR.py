@@ -169,6 +169,8 @@ async def fire_IRWeapon():
                 print("Target Friend... Standing down")
 
             if (IFF_CODE == 0) and (IR_Safety == False):
+                global IFF_CODE
+                
                 print("Target Unknown... initiating IFF Request")
 
                 #async for sample in requestIFF_reader.take_data_async():
@@ -213,14 +215,14 @@ async def fire_IRWeapon():
                     time.sleep(0.5)
                 
 
-                # Turn off GPIOs 
+                    # Turn off GPIOs 
                     GPIO.output(22,GPIO.LOW) 
                     GPIO.output(27,GPIO.LOW) 
                     GPIO.output(17,GPIO.LOW)
 
                     print('Complete')
-                    if (IFF_CODE == 1):
-                        print("ID'd friend standing down")
+                if (IFF_CODE == 1):
+                    print("ID'd friend standing down")
                 
 
                     
