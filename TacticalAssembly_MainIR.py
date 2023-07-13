@@ -180,47 +180,47 @@ async def fire_IRWeapon():
                 print(IFF_CODE)
                 if (IFF_CODE == 2):
                     GPIO.setmode(GPIO.BCM)
-                GPIO.setwarnings(False) 
+                    GPIO.setwarnings(False) 
 
-                GPIO.setup(22,GPIO.OUT) #EN 
-                GPIO.setup(27,GPIO.OUT) #A0 
-                GPIO.setup(17,GPIO.OUT) #A1
+                    GPIO.setup(22,GPIO.OUT) #EN 
+                    GPIO.setup(27,GPIO.OUT) #A0 
+                    GPIO.setup(17,GPIO.OUT) #A1
 
-                GPIO.output(22,GPIO.HIGH) #turn on enable
+                    GPIO.output(22,GPIO.HIGH) #turn on enable
 
-                GPIO.output(27,GPIO.HIGH) 
-                GPIO.output(17,GPIO.HIGH)
-                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+                    GPIO.output(27,GPIO.HIGH) 
+                    GPIO.output(17,GPIO.HIGH)
+                    subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
 
-                time.sleep(0.5)
+                    time.sleep(0.5)
 
-                GPIO.output(27,GPIO.LOW) 
-                GPIO.output(17,GPIO.HIGH)
-                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+                    GPIO.output(27,GPIO.LOW) 
+                    GPIO.output(17,GPIO.HIGH)
+                    subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
 
-                time.sleep(0.5)
+                    time.sleep(0.5)
 
-                GPIO.output(27,GPIO.HIGH) 
-                GPIO.output(17,GPIO.LOW)
-                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+                    GPIO.output(27,GPIO.HIGH) 
+                    GPIO.output(17,GPIO.LOW)
+                    subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
 
-                time.sleep(0.5)
+                    time.sleep(0.5)
 
-                GPIO.output(27,GPIO.LOW) 
-                GPIO.output(17,GPIO.LOW)
-                subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
+                    GPIO.output(27,GPIO.LOW) 
+                    GPIO.output(17,GPIO.LOW)
+                    subprocess.call(["irsend","SEND_ONCE","Technics_EUR646497","KEY_POWER"])
 
-                time.sleep(0.5)
+                    time.sleep(0.5)
                 
 
                 # Turn off GPIOs 
-                GPIO.output(22,GPIO.LOW) 
-                GPIO.output(27,GPIO.LOW) 
-                GPIO.output(17,GPIO.LOW)
+                    GPIO.output(22,GPIO.LOW) 
+                    GPIO.output(27,GPIO.LOW) 
+                    GPIO.output(17,GPIO.LOW)
 
-                print('Complete')
-                if (IFF_CODE == 1):
-                    print("ID'd friend standing down")
+                    print('Complete')
+                    if (IFF_CODE == 1):
+                        print("ID'd friend standing down")
                 
 
                     
