@@ -223,7 +223,7 @@ async def fire_IRWeapon():
                     print('Complete')
                 if (IFF_CODE == 1):
                     print("ID'd friend standing down")
-                
+                print('debug')
 
                     
             if (IFF_CODE == 0) and (IR_Safety == True):
