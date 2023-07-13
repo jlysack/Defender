@@ -177,9 +177,26 @@ async def fire_IRWeapon():
                 requestUAVIFF_writer.write(requestIFF_ReceivedData)
                 print("Request")
 
-                update_IFFCode()
-                print("IFF Code Set!")
-                print(IFF_CODE)
+                while True:
+                    async for data in responseUAVIFF_reader.take_data_async():
+                        global responseUAVIFF_ReceivedData
+                        responseUAVIFF_ReceivedData = data
+
+                        print("recieved an IFF response")
+                        print(responseUAVIFF_ReceivedData.ObjectIdentity)
+
+                        if (responseUAVIFF_ReceivedData.ObjectIdentity == 0):
+                            currentIFFState = "Unknown"
+                            IFF_CODE = 0
+                        if (responseUAVIFF_ReceivedData.ObjectIdentity == 2):
+                            currentIFFState = "Foe"
+                            IFF_CODE = 2
+                        if (responseUAVIFF_ReceivedData.ObjectIdentity == 1):
+                            currentIFFState = "Friend"
+                            IFF_CODE = 1
+                        print("IFF Code Set!")
+                        print(IFF_CODE)
+
                 if (IFF_CODE == 2):
                     GPIO.setmode(GPIO.BCM)
                     GPIO.setwarnings(False) 
