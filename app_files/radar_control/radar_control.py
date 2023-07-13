@@ -337,21 +337,25 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
         # points, since we do not want the radar to report a detection if the
         # max is just noise.
         #
-        #   range_val units: meters
-        #   angle_val units: degrees
-        #   amplitude units: dB (relative)
-        range_val, angle_val, amplitude = compute_range_and_angle(normalized_amp, sigpro_cfg)
+        #   local_range_m   units: meters
+        #   local_angle_deg units: degrees
+        #   range_m         units: meters
+        #   angle_deg       units: degrees
+        #   amplitude       units: dB (relative)
+        local_range_m, local_angle_deg, amplitude = compute_range_and_angle(normalized_amp, sigpro_cfg)
 
-        if range_val is not None:
-            engagement_zone_flag = check_engagement_zone(range_val, angle_val, sigpro_cfg)
+        if local_range_m is not None:
+            engagement_zone_flag = check_engagement_zone(local_range_m, local_angle_deg, sigpro_cfg)
 
-            # TODO: ADD IN COORDINATE TRANSFORMATION BASED ON ZONE
-
-            logger.info(f"Range: {range_val:.4f} m, Azimuth: {angle_val:.4f} deg, Engagement Zone: {engagement_zone_flag}")
+            # Perform coordinate transformation based on zone
+            range_m, angle_deg = coord_transform(local_range_m, local_angle_deg, sigpro_cfg)
+            logger.info(f"Range: {range_m:.4f} m, Azimuth: {angle_val:.4f} deg, Engagement Zone: {engagement_zone_flag}")
+            logger.debug(f"Amplitude: {amplitude:.4f} dB, Zone Number: {sigpro_cfg.zone_number}, "  
+                         "Local Range: {local_range_m:.4f} m, Local Angle: {local_angle_deg:.4f} deg")
 
             # Send radar_report via DDS
             if sigpro_cfg.dds_enabled is True:
-                sigpro_cfg.radar_report_writer.send(range_val, angle_val, sigpro_cfg.zone_number, engagement_zone_flag)
+                sigpro_cfg.radar_report_writer.send(range_m, angle_deg, sigpro_cfg.zone_number, engagement_zone_flag)
         else:
             logger.debug(f"No detections found. Average Amplitude: {np.average(normalized_amp):.4f}")
 
@@ -371,6 +375,17 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
 
         if plot_cfg.heat_map is True:
             plot_heat_map(normalized_amp, sigpro_cfg)
+
+def coord_transform(local_range_m, local_angle_deg, sigpro_cfg):
+    range_m = local_range_m
+    angle_deg = -1 * local_angle_deg # TinyRad maps azimuth angles backwards
+
+    if sigpro_cfg.zone_number == 1:
+        angle_deg += const.ZONE_1_ANGLE_OFFSET 
+    elif sigpro_cfg.zone_number == 2:
+        angle_deg += const.ZONE_2_ANGLE_OFFSET
+
+    return range_m, angle_deg
 
 
 if __name__ == "__main__":

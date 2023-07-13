@@ -70,7 +70,7 @@ class SigProConfig:
         self.logger           = None
         self.tactical_mode    = True # True = Azimuth data filtered between +/- 22.5 deg, NOTE: do not change to False
         self.detection_thresh = -15 # dB TODO: finalize value or make configurable
-        self.zone_number      = 3
+        self.zone_number      = zone
 
         if dds_enabled is True:
             self.dds_enabled = True

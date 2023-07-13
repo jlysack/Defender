@@ -66,3 +66,6 @@ DEFAULT_NOISE_FLOOR = -35 # dB (?)
 
 ENGAGE_ZONE_RANGE_OFFSET = 5.0  # feet
 ENGAGE_ZONE_ANGLE_LIMIT  = 12.5 # degrees
+
+ZONE_1_ANGLE_OFFSET = -22.5 # 22.5 degrees to the left of center
+ZONE_2_ANGLE_OFFSET =  22.5 # 22.5 degrees to the right of center
