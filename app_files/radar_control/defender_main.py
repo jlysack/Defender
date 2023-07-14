@@ -71,8 +71,9 @@ async def main_execution_loop():
             logger.warn("Invalid zone number received, ignoring.")
         # If commanded zone differs from current/previous, activate stepper 
         elif zone != previous_zone:
-            logger.info("Delaying 1 second for stepper movement.")
-            time.sleep(2)
+            DELAY = 2 # seconds
+            logger.info(f"Delaying {DELAY} seconds for stepper movement.")
+            time.sleep(DELAY)
             previous_zone = zone
         # If commanded zone is same as current/previous, do nothing
         else:
