@@ -72,7 +72,7 @@ async def main_execution_loop():
         # If commanded zone differs from current/previous, activate stepper 
         elif zone != previous_zone:
             logger.info("Delaying 1 second for stepper movement.")
-            time.sleep(1)
+            time.sleep(2)
             previous_zone = zone
         # If commanded zone is same as current/previous, do nothing
         else:
