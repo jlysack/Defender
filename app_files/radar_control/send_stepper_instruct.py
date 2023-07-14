@@ -33,15 +33,6 @@ class ddsWriter:
             user_input = int(userinput)
             scanInstruction_data.manualScanSetting = user_input #Change this to 1 2 or 3 and restart the code!
 
-            userinput = input("Rad Enabled? (True/False): ")
-            if userinput == "True":
-                user_input = True
-            elif userinput == "False":
-                user_input = False
-            else:
-                user_input = True
-            scanInstruction_data.RadEnable = user_input
-
             #ScanInstruction
             scanInstruction_writer.write(scanInstruction_data)
 
