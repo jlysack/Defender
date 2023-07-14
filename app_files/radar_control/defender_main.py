@@ -32,12 +32,13 @@ async def get_scan_instruction(dds_listener):
 
 async def main_execution_loop():
     dds_enabled = True
+    debug_enabled = False
 
     # Initialize scan instruction listener
     dds_listener = ScanInstructionListener()
 
     # Setup Radar Control Configs
-    logger          = radar_control.init_rad_control_logger(True)
+    logger          = radar_control.init_rad_control_logger(debug_enabled)
     plot_cfg        = radar_control.PlotConfig()
     zone            = 3
     previous_zone   = -1

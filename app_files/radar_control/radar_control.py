@@ -350,14 +350,14 @@ def radar_search(Brd, sigpro_cfg, plot_cfg, process_queue):
             # Perform coordinate transformation based on zone
             range_m, angle_deg = coord_transform(local_range_m, local_angle_deg, sigpro_cfg)
             logger.info(f"Range: {range_m:.4f} m, Azimuth: {angle_deg:.4f} deg, Engagement Zone: {engagement_zone_flag}")
-            logger.debug(f"Amplitude: {amplitude:.4f} dB, Zone Number: {sigpro_cfg.zone_number}, "  
-                         "Local Range: {local_range_m:.4f} m, Local Angle: {local_angle_deg:.4f} deg")
+            logger.debug(f"Normalized Amplitude: {amplitude:.4f} dB, Zone Number: {sigpro_cfg.zone_number}, "  
+                         f"Local Range: {local_range_m:.4f} m, Local Angle: {local_angle_deg:.4f} deg")
 
             # Send radar_report via DDS
             if sigpro_cfg.dds_enabled is True:
                 sigpro_cfg.radar_report_writer.send(range_m, angle_deg, sigpro_cfg.zone_number, engagement_zone_flag)
         else:
-            logger.debug(f"No detections found. Average Amplitude: {np.average(normalized_amp):.4f}")
+            logger.info(f"No detections found. Average Normalized Amplitude: {np.average(normalized_amp):.4f}")
 
 
         # Plots
