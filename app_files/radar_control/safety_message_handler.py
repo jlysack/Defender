@@ -29,7 +29,7 @@ async def listen_for_messages():
 
 if __name__ == "__main__":
     with open('/tmp/.radar_safety.txt', 'w') as f:
-        f.write(str(1)) # Initialize radar_safety to enabled
+        f.write(str(0)) # Initialize radar_safety to disabled
     try:
         rti.asyncio.run(listen_for_messages())
     except Exception as e:
