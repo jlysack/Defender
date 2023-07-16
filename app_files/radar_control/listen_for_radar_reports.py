@@ -10,9 +10,10 @@ topic = dds.Topic(participant, "RadarReport", DDS.Tracking.RadarReport)
 
 reader = dds.DataReader(participant.implicit_subscriber, topic)
 
-async def print_data():
 
+async def print_data():
     async for data in reader.take_data_async():
         print(f"Received: {data}")
+
 
 rti.asyncio.run(print_data())

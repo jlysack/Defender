@@ -7,35 +7,40 @@ from interfaces import DDS
 
 
 class ddsWriter:
-
-    #Participant
+    # Participant
     participant = dds.DomainParticipant(domain_id=1)
 
-    #Topics
-    scanInstruction_topic = dds.Topic(participant, "ScanInstruction", DDS.Scanning.ScanInstruction)
+    # Topics
+    scanInstruction_topic = dds.Topic(
+        participant, "ScanInstruction", DDS.Scanning.ScanInstruction
+    )
 
-    #Writers
-    scanInstruction_writer = dds.DataWriter(participant.implicit_publisher, scanInstruction_topic)  
+    # Writers
+    scanInstruction_writer = dds.DataWriter(
+        participant.implicit_publisher, scanInstruction_topic
+    )
 
-    #Creating data objects and filling
-    #userinput = input("zone?: ")
+    # Creating data objects and filling
+    # userinput = input("zone?: ")
 
-    #ScanInstruction - Can write it as a 1 liner or assign things after, or mix.
-    #scanInstruction_data = DDS.Scanning.ScanInstruction(radarSetting = 1, manualScanSetting = 2)
+    # ScanInstruction - Can write it as a 1 liner or assign things after, or mix.
+    # scanInstruction_data = DDS.Scanning.ScanInstruction(radarSetting = 1, manualScanSetting = 2)
     scanInstruction_data = DDS.Scanning.ScanInstruction
     scanInstruction_data.radarSetting = 1
 
-    #Loop data sending
+    # Loop data sending
     while True:
         # Catch control-C interrupt
         try:
             userinput = input("Zone?: ")
             user_input = int(userinput)
-            scanInstruction_data.manualScanSetting = user_input #Change this to 1 2 or 3 and restart the code!
+            scanInstruction_data.manualScanSetting = (
+                user_input  # Change this to 1 2 or 3 and restart the code!
+            )
 
-            #ScanInstruction
+            # ScanInstruction
             scanInstruction_writer.write(scanInstruction_data)
 
-        #Catch control-C interrupt
+        # Catch control-C interrupt
         except KeyboardInterrupt:
             break
