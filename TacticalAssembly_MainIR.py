@@ -170,7 +170,6 @@ async def fire_IRWeapon():
                 print("Target Friend... Standing down")
 
             if (IFF_CODE == 0) and (IR_Safety == False):
-                global IFF_CODE
                 
                 print("Target Unknown... initiating IFF Request")
 
