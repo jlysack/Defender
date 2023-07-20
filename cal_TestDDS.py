@@ -20,7 +20,7 @@ step = 1  # Step -> GPIO Pin
 participant = dds.DomainParticipant(domain_id=1)
 
 # Topics
-Command_topic = dds.Topic(participant, "DDS_misc", DDS.misc.Command)
+Command_topic = dds.Topic(participant, "Command", DDS.misc.Command)
 
 # Reader
 Command_Reader = dds.DataReader(participant.implicit_subscriber, Command_topic)
@@ -95,7 +95,7 @@ async def receive_dds_messages():
         async for message in Command_Reader.take_data_async():
             message_data = message
 
-            #print(message_data)
+            print(message_data)
 
             if message_data.Destination == 'Calibration':
                 process_message(message_data.Command)
