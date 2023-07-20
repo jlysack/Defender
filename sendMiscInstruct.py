@@ -16,7 +16,8 @@ class ddsWriter:
 
     #Command
     Command_data = DDS.misc.Command
-    Command_data.Command = "None"
+    Command_data.Destination = "Calibration"
+    Command_data.Command = "A"
 
     #Loop data sending
     for count in range(1):
