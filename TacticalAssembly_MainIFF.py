@@ -20,6 +20,7 @@ responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.Response
 responseIFF_writer = dds.DataWriter(participant.implicit_publisher, responseIFF_topic) # Send IFF Back to SADT
 requestUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, requestUAVIFF_topic) # Send IFF Request to UAV
 
+componentHealth_writer = dds.DataWriter(participant.implicit_publisher, componentHealth_topic)
 componentHealth_reader = dds.DataReader(participant.implicit_subscriber, componentHealth_topic)
 
 #Readers (Between SADT to Tactical Assembly)
@@ -34,6 +35,10 @@ componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
 requestIFF_ReceivedData = DDS.IFF.IFFRequest
 responseIFF_ReceivedData = DDS.IFF.IFFResponse
 responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
+
+componentHealth_data = DDS.Metrics.ComponentHealth
+componentHealth_data.Name = "TA_IFF"
+componentHealth_data.State = 1
 
 currentIFFState = "Unknown"
 IFF_CODE = 0
@@ -108,6 +113,10 @@ async def WaitforIFF_DashboardRequest():
 async def main_loop():
     while True:
         print("Main loop")
+
+        # Write Component status
+        componentHealth_writer.write(componentHealth_data)
+        
         await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 
 

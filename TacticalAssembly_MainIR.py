@@ -21,6 +21,7 @@ IRSafety_topic = dds.Topic(participant, "IRSafety", DDS.safety.IRSafety)
 fireWeapon_topic = dds.Topic(participant, "FireWeapon", DDS.Weapon.FireWeapon)
 
 # Writers
+componentHealth_writer = dds.DataWriter(participant.implicit_publisher, componentHealth_topic)
 requestUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, requestUAVIFF_topic)
 
 #Readers
@@ -39,6 +40,10 @@ IRSafety_data.enabled = 1
 fireWeapon_data = DDS.Weapon.FireWeapon
 fireWeapon_data.fire = 1
 fireWeapon_data.mode = 1
+
+componentHealth_data = DDS.Metrics.ComponentHealth
+componentHealth_data.Name = "TA_IR"
+componentHealth_data.State = 1
 
 # initalize variables at beginning of script
 currentIFFState = "Unknown"
@@ -257,6 +262,10 @@ async def fire_IRWeapon():
 async def main_loop():
     while True:
         print("Main loop")
+
+        # Write Component status
+        componentHealth_writer.write(componentHealth_data)
+        
         await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 
 async def run_event_loop():

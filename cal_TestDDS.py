@@ -21,12 +21,20 @@ participant = dds.DomainParticipant(domain_id=1)
 
 # Topics
 Command_topic = dds.Topic(participant, "Command", DDS.misc.Command)
+componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
 
 # Reader
 Command_Reader = dds.DataReader(participant.implicit_subscriber, Command_topic)
 
+# Writer
+componentHealth_writer = dds.DataWriter(participant.implicit_publisher, componentHealth_topic)
+
 # Message Data
 Command_data = DDS.misc.Command
+
+componentHealth_data = DDS.Metrics.ComponentHealth
+componentHealth_data.Name = "TA_MC"
+componentHealth_data.State = 1
 
 ### DDS Mapping
 ##message_script_mapping = {
@@ -106,6 +114,10 @@ async def receive_dds_messages():
 async def main_loop():
     while True:
         print("main loop")
+
+        # Write Component status
+        componentHealth_writer.write(componentHealth_data)
+        
         await asyncio.sleep(1)
 
 async def run_event_loop():

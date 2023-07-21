@@ -10,7 +10,7 @@ from interfaces import DDS
 participant = dds.DomainParticipant(domain_id=1)
 
 #Topics
-componentUAVIFFHealth_topic = dds.Topic(participant, "UAVIFFComponentHealth", DDS.Metrics.ComponentHealth)
+componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
 requestIFF_topic = dds.Topic(participant, "IFFRequest", DDS.IFF.IFFRequest)
 responseIFF_topic = dds.Topic(participant, "IFFResponse", DDS.IFF.IFFResponse)
 requestUAVIFF_topic = dds.Topic(participant, "UAVIFFRequest", DDS.IFF.RequestIFF_UAV)
@@ -19,19 +19,23 @@ IFFCode_topic = dds.Topic(participant, "IFFCode", DDS.IFF.SetCode)
 
 #Define Writers
 responseUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, responseUAVIFF_topic)
+componentHealth_writer = dds.DataWriter(participant.implicit_publisher, componentHealth_topic)
 
 #Readers
-componentUAVIFFHealth_reader = dds.DataReader(participant.implicit_subscriber, componentUAVIFFHealth_topic)
 requestUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, requestUAVIFF_topic)
 requestIFF_reader = dds.DataReader(participant.implicit_subscriber, requestIFF_topic)
 IFFCode_reader = dds.DataReader(participant.implicit_subscriber, IFFCode_topic)
 
 #Recieved Data
-componentUAVIFFHealth_ReceivedData = DDS.Metrics.ComponentHealth
 requestUAVIFF_ReceivedData = DDS.IFF.RequestIFF_UAV
 responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
+
 requestIFF_data = DDS.IFF.IFFRequest
 IFFCode_ReceivedData = DDS.IFF.SetCode
+
+componentHealth_data = DDS.Metrics.ComponentHealth
+componentHealth_data.Name = "UAV_IFF"
+componentHealth_data.State = 1
 
 IFF_CODE = 0
 
@@ -84,6 +88,10 @@ async def UpdateIFF_Code():
 async def main_loop():
     while True:
         print("Main loop")
+
+        # Write Component status
+        componentHealth_writer.write(componentHealth_data)
+        
         await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 
 

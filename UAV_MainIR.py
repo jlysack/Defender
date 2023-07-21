@@ -12,9 +12,11 @@ import subprocess
 participant = dds.DomainParticipant(domain_id=1)
 
 #Topics
+componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
 HitDetection_topic = dds.Topic(participant, "HitDetection", DDS.Weapon.HitDetection)
 
 #Writers
+componentHealth_writer = dds.DataWriter(participant.implicit_publisher, componentHealth_topic)
 HitDetection_writer = dds.DataWriter(participant.implicit_publisher, HitDetection_topic)
 
 #Creating Global Data Holders
@@ -22,13 +24,16 @@ HitDetection_data = DDS.Weapon.HitDetection
 HitDetection_data.HitBoolean = False
 HitDetection_data.HitNumber = 0
 
-#sockid = pylirc.init("IRReceiver.py", blocking=False)
+componentHealth_data = DDS.Metrics.ComponentHealth
+componentHealth_data.Name = "UAV_IR"
+componentHealth_data.State = 1
+
 process = subprocess.Popen(["irw"], stdout=subprocess.PIPE)
 
 try:
     while True:
-        # Read incoming IR signals
-        #output = subprocess.check_output(["irw"]).decode("utf-8")
+        componentHealth_writer.write(componentHealth_data)
+        
         output = process.stdout.readline().decode("utf-8")
 
         if output.strip():
@@ -43,9 +48,9 @@ try:
         HitDetection_data.HitBoolean = False
 
 except KeyboardInterrupt:
+    componentHealth_data.State = 0
+    componentHealth_writer.write(componentHealth_data)
     pass
 
-
 # Clean up the LIRC Connection
-#pylirc.deinit()
 process.terminate()

@@ -19,6 +19,7 @@ RadarReport_topic = dds.Topic(participant, "RadarReport", DDS.Tracking.RadarRepo
 
 #Define Writers
 scanResponse_writer = dds.DataWriter(participant.implicit_publisher, scanResponse_topic)
+componentHealth_writer = dds.DataWriter(participant.implicit_publisher, componentHealth_topic)
 
 #Readers
 componentHealth_reader = dds.DataReader(participant.implicit_subscriber, componentHealth_topic)
@@ -35,6 +36,10 @@ scanInstruction_ReceivedData = DDS.Scanning.ScanInstruction
 #Define message/data containers for sending
 scanResponse_SendingData = DDS.Scanning.ScanResponse
 scanResponse_SendingData.ZoneNumber = 2
+
+componentHealth_data = DDS.Metrics.ComponentHealth
+componentHealth_data.Name = "TA_S"
+componentHealth_data.State = 1
 
 # ====== Tests for motor ======
 
@@ -315,31 +320,12 @@ async def main_loop():
     global allowRadarMovement
 
     while True:
-        #print("Main loop")
-        #print(currentStepPos)
-        #print(allowRadarMovement)
-        #print(componentHealth_ReceivedData)     
-        #print(scanInstruction_ReceivedData)
+        print("Main loop")
 
-        #await update_motorLogic() #Not sure the impact of this await keyword
-        #await update_componentHealth()
-        #await update_scanInstruction()
+        # Write Component status
+        componentHealth_writer.write(componentHealth_data)
+
         await asyncio.sleep(0.5)  # Simulating some work and slow thread so we can read it
-     
-        #print("Test, after Main loop sleep")
-
-
-# Create and run the event loop
-#loop = asyncio.get_event_loop()
-#Add the async tasks to the task list
-#tasks = asyncio.gather(main_loop(),
-#update_componentHealth(),
-#update_scanInstruction(),
-#update_motorLogic()
-#)
-#Now loop the task list
-#loop.run_until_complete(tasks)
-
 
 async def run_event_loop():
     loop = asyncio.get_event_loop()
