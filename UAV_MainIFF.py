@@ -93,7 +93,7 @@ async def main_loop():
         try:
             componentHealth_writer.write(componentHealth_data)
         except Exception as e:
-            print(f"Error in update_motorLogic(): {e}")
+            print(f"Error in componentHealth_writer(): {e}")
         
         await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 

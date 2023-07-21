@@ -115,7 +115,10 @@ async def main_loop():
         print("Main loop")
 
         # Write Component status
-        componentHealth_writer.write(componentHealth_data)
+        try:
+            componentHealth_writer.write(componentHealth_data)
+        except Exception as e:
+            print(f"Error in main_loop(): {e}")
         
         await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 

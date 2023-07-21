@@ -28,24 +28,28 @@ componentHealth_data = DDS.Metrics.ComponentHealth
 componentHealth_data.Name = "UAV_IR"
 componentHealth_data.State = 1
 
-##process = subprocess.Popen(["irw"], stdout=subprocess.PIPE)
+process = subprocess.Popen(["irw"], stdout=subprocess.PIPE)
 
 try:
     while True:
-        componentHealth_writer.write(componentHealth_data)
+
+        try:
+            componentHealth_writer.write(componentHealth_data)
+        except Exception as e:
+            print(f"Error in componentHealth_writer(): {e}")
         
-##        output = process.stdout.readline().decode("utf-8")
-##
-##        if output.strip():
-##            print("Received signal:", output.strip())
-##
-##            HitDetection_data.HitBoolean = True
-##
-##            HitDetection_writer.write(HitDetection_data)
-##
-##
-##        
-##        HitDetection_data.HitBoolean = False
+        output = process.stdout.readline().decode("utf-8")
+
+        if output.strip():
+            print("Received signal:", output.strip())
+
+            HitDetection_data.HitBoolean = True
+
+            HitDetection_writer.write(HitDetection_data)
+
+
+        
+        HitDetection_data.HitBoolean = False
 
 except KeyboardInterrupt:
     componentHealth_data.State = 0

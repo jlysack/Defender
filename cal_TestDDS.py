@@ -36,19 +36,10 @@ componentHealth_data = DDS.Metrics.ComponentHealth
 componentHealth_data.Name = "TA_MC"
 componentHealth_data.State = 1
 
-### DDS Mapping
-##message_script_mapping = {
-##    "a": move_left(),
-##    "A": move_far_left(),
-##    "d": move_right(),
-##    "D": move_far_right(),
-##    "stop_processes": None  # Special message to stop subprocesses
-##}
-
 def process_message(data):
 
     command = data
-    #print(command)
+    print(command)
 
     if command == 'a':
         move_left()
@@ -64,19 +55,19 @@ def process_message(data):
 
 def move_left():
     print("Moving left one step")
-    #mymotortest.motor_go(False,"1/8", 50,.005,False,.05)
+    mymotortest.motor_go(False,"1/8", 50,.005,False,.05)
 
 def move_right():
     print("Moving right one step")
-    #mymotortest.motor_go(True,"1/8", 50,.005,False,.05)
+    mymotortest.motor_go(True,"1/8", 50,.005,False,.05)
 
 def move_far_left():
     print("Moving left three steps")
-    #mymotortest.motor_go(False,"1/8", 150,.005,False,.05)
+    mymotortest.motor_go(False,"1/8", 150,.005,False,.05)
 
 def move_far_right():
     print("Moving right three steps")
-    #mymotortest.motor_go(True,"1/8", 150,.005,False,.05)
+    mymotortest.motor_go(True,"1/8", 150,.005,False,.05)
 
 ##def main():
 ##    while True:
@@ -116,7 +107,10 @@ async def main_loop():
         print("main loop")
 
         # Write Component status
-        componentHealth_writer.write(componentHealth_data)
+        try:
+            componentHealth_writer.write(componentHealth_data)
+        except Exception as e:
+            print(f"Error in main_loop(): {e}")
         
         await asyncio.sleep(1)
 
