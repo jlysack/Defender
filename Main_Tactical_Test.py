@@ -19,16 +19,23 @@ Command_topic = dds.Topic(participant, "Command", DDS.misc.Command)
 # Reader
 Command_Reader = dds.DataReader(participant.implicit_subscriber, Command_topic)
 
+# Old Test Structure
+##message_script_mapping = {
+##    "message1": [r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\patIFF.py"],
+##    "message2": [r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\patIFF_UAV.py"],
+##    "message3": ["script3.py"],
+##    "All": [r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\patIFF.py", r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\patIFF_UAV.py"],
+##    "stop_processes": None  # Special message to stop subprocesses
+##}
 
-
-message_script_mapping = {
-    "message1": [r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\patIFF.py"],
-    "message2": [r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\patIFF_UAV.py"],
-    "message3": ["script3.py"],
-    "All": [r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\patIFF.py", r"C:\Users\Pat Zazzaro\Documents\GitHub\Defender\patIFF_UAV.py"],
-    "stop_processes": None  # Special message to stop subprocesses
+messaage_script_mapping = {
+    "message1": [r""],
+    "message2": [r""],
+    "message3": [r""],
+    "message4": [r""],
+    "All": [r""],
+    "stop_processes": None
 }
-
 
 # List to store active subprocesses
 active_subprocesses = []
