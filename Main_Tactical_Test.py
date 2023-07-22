@@ -29,11 +29,12 @@ Command_Reader = dds.DataReader(participant.implicit_subscriber, Command_topic)
 ##}
 
 messaage_script_mapping = {
-    "message1": [r""],
-    "message2": [r""],
-    "message3": [r""],
-    "message4": [r""],
-    "All": [r""],
+    "message1": [r"/home/jlysack/code/Defender/TacticalAssembly_MainIFF.py"],
+    "message2": [r"/home/jlysack/code/Defender/TacticalAssembly_MainIR.py"],
+    "message3": [r"/home/jlysack/code/Defender/jordanStepper.py"],
+    "message4": [r"/home/jlysack/code/Defender/cal_TestDDS.py"],
+    "message7": [r"/home/reidm/Defender/app_files/radar_control/defender_main.py"],
+    "All": [r"/home/jlysack/code/Defender/TacticalAssembly_MainIFF.py", r"/home/jlysack/code/Defender/TacticalAssembly_MainIR.py", r"/home/jlysack/code/Defender/jordanStepper.py", r"/home/jlysack/code/Defender/cal_TestDDS.py", r"/home/reidm/Defender/app_files/radar_control/defender_main.py"],
     "stop_processes": None
 }
 
