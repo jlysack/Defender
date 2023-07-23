@@ -28,7 +28,7 @@ Command_Reader = dds.DataReader(participant.implicit_subscriber, Command_topic)
 ##    "stop_processes": None  # Special message to stop subprocesses
 ##}
 
-messaage_script_mapping = {
+message_script_mapping = {
     "message1": [r"/home/jlysack/code/Defender/TacticalAssembly_MainIFF.py"],
     "message2": [r"/home/jlysack/code/Defender/TacticalAssembly_MainIR.py"],
     "message3": [r"/home/jlysack/code/Defender/jordanStepper.py"],
