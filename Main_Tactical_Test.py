@@ -98,10 +98,7 @@ async def run_event_loop():
     loop = asyncio.get_event_loop()
     tasks = [
         asyncio.ensure_future(main_loop()),
-        asyncio.ensure_future(update_componentHealth()),
-        asyncio.ensure_future(update_scanInstruction()),
-        asyncio.ensure_future(update_motorLogic()),
-        asyncio.ensure_future(check_ValidDetections())
+        asyncio.ensure_future(receive_dds_messages())
     ]
     await asyncio.gather(*tasks)
 
