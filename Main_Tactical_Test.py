@@ -78,12 +78,32 @@ def stop_all_subprocesses():
         print("killing processes...")
         os.kill(process.pid, signal.SIGTERM)
 
-# Main function to start the script
-def main():
-    # Start the DDS message receiver asynchronously
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(receive_dds_messages())
+### Main function to start the script
+##def main():
+##    # Start the DDS message receiver asynchronously
+##    loop = asyncio.get_event_loop()
+##    loop.run_until_complete(receive_dds_messages())
+##
+### Entry point of the script
+##if __name__ == "__main__":
+##    main()
 
-# Entry point of the script
-if __name__ == "__main__":
-    main()
+# Define the ma	in loop coroutine
+async def main_loop():
+    while True:
+        print("Main loop")
+        await asyncio.sleep(0.5)
+
+async def run_event_loop():
+    loop = asyncio.get_event_loop()
+    tasks = [
+        asyncio.ensure_future(main_loop()),
+        asyncio.ensure_future(update_componentHealth()),
+        asyncio.ensure_future(update_scanInstruction()),
+        asyncio.ensure_future(update_motorLogic()),
+        asyncio.ensure_future(check_ValidDetections())
+    ]
+    await asyncio.gather(*tasks)
+
+
+asyncio.run(run_event_loop())
