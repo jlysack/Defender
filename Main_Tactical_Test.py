@@ -69,7 +69,7 @@ async def receive_dds_messages():
 
 # Execute a Python script
 def execute_python_script(script_path):
-    process = subprocess.Popen(["python", script_path])
+    process = subprocess.Popen(["python3", script_path])
     active_subprocesses.append(process)
 
 # Stop all active subprocesses
