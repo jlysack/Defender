@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import os
+import sys
 import rti.connextdds as dds
 import rti.asyncio
 from interfaces import DDS
@@ -32,5 +33,6 @@ if __name__ == "__main__":
         f.write(str(0)) # Initialize radar_safety to disabled
     try:
         rti.asyncio.run(listen_for_messages())
-    except Exception as e:
-        print(e)
+    except KeyboardInterrupt:
+        print("Ctrl+C Detected in safety_message_handler.py __main__(). Exiting.")
+        sys.exit(0)
