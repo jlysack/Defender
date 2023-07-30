@@ -6,12 +6,16 @@ import asyncio #Need both
 import aiofiles
 from interfaces import DDS
 
+from rti.connextdds import Duration, Property
+
 #Participant
 participant = dds.DomainParticipant(domain_id=1)
 
 #QOS Settings
 publisher_qos = dds.QosProvider.default.publisher_qos
 datawriter_qos = dds.QosProvider.default.datawriter_qos
+
+#datawriter_qos.service.write.timeout.period = Duration.from_milliseconds(100)
 
 #Topics
 componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
@@ -35,12 +39,15 @@ responseUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, response
 requestUAVIFF_reader = dds.DataReader(participant.implicit_subscriber, requestUAVIFF_topic)
 
 #Creating global data holders, these act as data pointers essentially, I wrote this code coming from a C++ background so excuse any weird-ness
-componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
 requestIFF_ReceivedData = DDS.IFF.IFFRequest
 responseIFF_ReceivedData = DDS.IFF.IFFResponse
 responseUAVIFF_ReceivedData = DDS.IFF.ResponseIFF_UAV
 
-componentHealth_data = DDS.Metrics.ComponentHealth
+componentHealth_ReceivedData = DDS.Metrics.ComponentHealth
+componentHealth_ReceivedData.Name = "TA_IFF"
+componentHealth_ReceivedData.State = 1
+
+componentHealth_data = DDS.Metrics.ComponentHealth()
 componentHealth_data.Name = "TA_IFF"
 componentHealth_data.State = 1
 
@@ -115,14 +122,44 @@ async def WaitforIFF_DashboardRequest():
 
 # Define the main loop routine
 async def main_loop():
+    global componentHealth_data
+    
     while True:
         print("Main loop")
+
+        # Debugging portion of script
+        
+        # Checks if DDS Entities are Active
+        if not participant.enabled:
+            print("Participant is not enabled.")
+            return
+
+        if not componentHealth_writer.enabled:
+            print("ComponentHealth DataWriter is not enabled.")
+            return
+
+        if not responseIFF_writer.enabled:
+            print("ResponseIFF DataWriter is not enabled.")
+            return
+
+        if not requestUAVIFF_writer.enabled:
+            print("RequestIFF_UAV DataWriter is not enabled.")
+            return
+
+        if not responseUAVIFF_reader.enabled:
+            print("ResponseIFF_UAV DataReader is not enabled.")
+            return
+
+        if not requestIFF_reader.enabled:
+            print("RequestIFF DataReader is not enabled.")
+            return
 
         # Write Component status
         try:
             componentHealth_writer.write(componentHealth_data)
+            print(componentHealth_data)
         except Exception as e:
-            print(f"Error in main_loop(): {e}")
+            print(f"Error in writing componentHealth_data: {e}")
         
         await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 
