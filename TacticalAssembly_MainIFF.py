@@ -120,7 +120,7 @@ async def main_loop():
         except Exception as e:
             print(f"Error in main_loop(): {e}")
         
-        await asyncio.sleep(4)  # Simulating some work and slow thread so we can read it
+        await asyncio.sleep(1)  # Simulating some work and slow thread so we can read it
 
 
 async def run_event_loop():
