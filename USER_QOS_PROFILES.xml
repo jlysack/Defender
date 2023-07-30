@@ -67,6 +67,11 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
                 <publication_name>
                     <name>interfacesDataWriter</name>
                 </publication_name>
+			</datawriter_qos>
+			<datawriter_qos topic_filter="ComponentHealth_topic">
+				<reliability>
+					<kind>BEST_EFFORT_RELIABILITY_QOS</kind>
+				</reliability>
             </datawriter_qos>
 
             <!-- QoS used to configure the data reader created in the example code -->                
