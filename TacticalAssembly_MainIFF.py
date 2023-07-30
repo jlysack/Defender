@@ -9,6 +9,10 @@ from interfaces import DDS
 #Participant
 participant = dds.DomainParticipant(domain_id=1)
 
+#QOS Settings
+publisher_qos = dds.QosProvider.default.publisher_qos
+datawriter_qos = dds.QosProvider.default.datawriter_qos
+
 #Topics
 componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
 requestIFF_topic = dds.Topic(participant, "IFFRequest", DDS.IFF.IFFRequest)
@@ -20,7 +24,7 @@ responseUAVIFF_topic = dds.Topic(participant, "UAVIFFResponse", DDS.IFF.Response
 responseIFF_writer = dds.DataWriter(participant.implicit_publisher, responseIFF_topic) # Send IFF Back to SADT
 requestUAVIFF_writer = dds.DataWriter(participant.implicit_publisher, requestUAVIFF_topic) # Send IFF Request to UAV
 
-componentHealth_writer = dds.DataWriter(participant.implicit_publisher, componentHealth_topic)
+componentHealth_writer = dds.DataWriter(participant.implicit_publisher, componentHealth_topic, datawriter_qos)
 componentHealth_reader = dds.DataReader(participant.implicit_subscriber, componentHealth_topic)
 
 #Readers (Between SADT to Tactical Assembly)
