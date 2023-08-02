@@ -1,7 +1,7 @@
 import time
-#import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import sys
-#from RpiMotorLib import A4988Nema
+from RpiMotorLib import A4988Nema
 import rti.connextdds as dds
 import rti.asyncio
 import asyncio #Need both
@@ -14,7 +14,7 @@ import signal
 GPIO_pins = (25, 8, 7)
 direction = 12  # Direction -> GPIO Pin
 step = 1  # Step -> GPIO Pin
-#mymotortest = A4988Nema(direction, step, GPIO_pins, "A4988")
+mymotortest = A4988Nema(direction, step, GPIO_pins, "A4988")
 
 #Participant
 participant = dds.DomainParticipant(domain_id=1)
