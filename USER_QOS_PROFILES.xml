@@ -67,8 +67,6 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
                 <publication_name>
                     <name>interfacesDataWriter</name>
                 </publication_name>
-			</datawriter_qos>
-			<datawriter_qos>
 				<reliability>
 					<kind>BEST_EFFORT_RELIABILITY_QOS</kind>
 				</reliability>
@@ -79,6 +77,9 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
                 <subscription_name>
                     <name>interfacesDataReader</name>
                 </subscription_name>
+				<reliability>
+					<kind>BEST_EFFORT_RELIABILITY_QOS</kind>
+				</reliability>
             </datareader_qos>
             <domain_participant_qos>
                 <!--
