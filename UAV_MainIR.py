@@ -24,7 +24,7 @@ HitDetection_data = DDS.Weapon.HitDetection
 HitDetection_data.HitBoolean = False
 HitDetection_data.HitNumber = 0
 
-componentHealth_data = DDS.Metrics.ComponentHealth
+componentHealth_data = DDS.Metrics.ComponentHealth()
 componentHealth_data.Name = "UAV_IR"
 componentHealth_data.State = 1
 
