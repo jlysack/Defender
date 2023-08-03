@@ -33,8 +33,11 @@ process = subprocess.Popen(["irw"], stdout=subprocess.PIPE)
 try:
     while True:
 
+        print("Main loop")
+
         try:
             componentHealth_writer.write(componentHealth_data)
+            print(componentHealth_data)
         except Exception as e:
             print(f"Error in componentHealth_writer(): {e}")
         

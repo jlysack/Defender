@@ -15,8 +15,6 @@ participant = dds.DomainParticipant(domain_id=1)
 publisher_qos = dds.QosProvider.default.publisher_qos
 datawriter_qos = dds.QosProvider.default.datawriter_qos
 
-#datawriter_qos.service.write.timeout.period = Duration.from_milliseconds(100)
-
 #Topics
 componentHealth_topic = dds.Topic(participant, "ComponentHealth", DDS.Metrics.ComponentHealth)
 requestIFF_topic = dds.Topic(participant, "IFFRequest", DDS.IFF.IFFRequest)
