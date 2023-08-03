@@ -30,34 +30,75 @@ componentHealth_data.State = 1
 
 process = subprocess.Popen(["irw"], stdout=subprocess.PIPE)
 
-try:
-    while True:
+async def main_execution_loop():
+    try:
+        while True:
+            output = process.stdout.readline().decode("utf-8")
 
+            if output.strip():
+                print("Received signal:", output.strip())
+
+                HitDetection_data.HitBoolean = True
+
+                HitDetection_writer.write(HitDetection_data)
+
+            HitDetection_data.HitBoolean = False
+
+    except KeyboardInterrupt:
+        componentHealth_data.State = 0
+        componentHealth_writer.write(componentHealth_data)
+        #pass
+
+async def main_loop():
+    global componentHealth_data
+    
+    while True:
         print("Main loop")
 
+        # Debugging portion of script
+        # Checks if DDS Entities are Active
+        if not participant.enabled:
+            print("Participant is not enabled.")
+            return
+
+        if not componentHealth_writer.enabled:
+            print("ComponentHealth DataWriter is not enabled.")
+            return
+
+        if not responseIFF_writer.enabled:
+            print("ResponseIFF DataWriter is not enabled.")
+            return
+
+        if not requestUAVIFF_writer.enabled:
+            print("RequestIFF_UAV DataWriter is not enabled.")
+            return
+
+        if not responseUAVIFF_reader.enabled:
+            print("ResponseIFF_UAV DataReader is not enabled.")
+            return
+
+        if not requestIFF_reader.enabled:
+            print("RequestIFF DataReader is not enabled.")
+            return
+
+        # Write Component status
         try:
             componentHealth_writer.write(componentHealth_data)
             print(componentHealth_data)
         except Exception as e:
-            print(f"Error in componentHealth_writer(): {e}")
+            print(f"Error in writing componentHealth_data: {e}")
         
-        output = process.stdout.readline().decode("utf-8")
+        await asyncio.sleep(1)
 
-        if output.strip():
-            print("Received signal:", output.strip())
+async def run_event_loop():
+    loop = asyncio.get_event_loop()
+    tasks = [
+        asyncio.ensure_future(main_loop()),
+        asyncio.ensure_future(WaitforIFF_DashboardRequest())
+    ]
+    await asyncio.gather(*tasks)
 
-            HitDetection_data.HitBoolean = True
-
-            HitDetection_writer.write(HitDetection_data)
-
-
-        
-        HitDetection_data.HitBoolean = False
-
-except KeyboardInterrupt:
-    componentHealth_data.State = 0
-    componentHealth_writer.write(componentHealth_data)
-    pass
+asyncio.run(run_event_loop())
 
 # Clean up the LIRC Connection
 process.terminate()
