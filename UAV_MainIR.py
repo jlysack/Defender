@@ -87,9 +87,22 @@ async def read_irw_output():
 
 async def main_execution_loop():
     try:
-        await read_irw_output()
+        # Run read_irw_output in a task to avoid blocking issues
+        irw_task = asyncio.ensure_future(read_irw_output())
+
+        # This loop will run indefinitely and perform other tasks if needed
+        while True:
+            await asyncio.sleep(1)
+            # Add any other tasks or logic you want to run concurrently here
+
     except asyncio.CancelledError:
-        pass
+        # Cancel the irw_task when the main_execution_loop is canceled
+        irw_task.cancel()
+        try:
+            await irw_task
+        except asyncio.CancelledError:
+            pass
+
     finally:
         componentHealth_data.State = 0
         componentHealth_writer.write(componentHealth_data)
