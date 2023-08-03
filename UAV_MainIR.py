@@ -94,7 +94,7 @@ async def run_event_loop():
     loop = asyncio.get_event_loop()
     tasks = [
         asyncio.ensure_future(main_loop()),
-        asyncio.ensure_future(WaitforIFF_DashboardRequest())
+        asyncio.ensure_future(main_execution_loop())
     ]
     await asyncio.gather(*tasks)
 
