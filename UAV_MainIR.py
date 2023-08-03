@@ -62,7 +62,8 @@ async def read_irw_output():
 
     try:
         while True:
-            output = await process.stdout.readlines()
+            #output = await process.stdout.readlines()
+            output = await asyncio.wait_for(process.stdout.read(100), timeout=1.0)
             if not output:
                 break
 
