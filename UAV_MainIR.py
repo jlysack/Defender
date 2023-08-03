@@ -44,10 +44,10 @@ async def main_execution_loop():
 
             HitDetection_data.HitBoolean = False
 
-    except KeyboardInterrupt:
-        componentHealth_data.State = 0
-        componentHealth_writer.write(componentHealth_data)
-        #pass
+##    except KeyboardInterrupt:
+##        componentHealth_data.State = 0
+##        componentHealth_writer.write(componentHealth_data)
+##        #pass
 
 async def main_loop():
     global componentHealth_data
