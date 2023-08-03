@@ -44,6 +44,9 @@ async def main_execution_loop():
 
             HitDetection_data.HitBoolean = False
 
+    except Exception as e:
+            print(f"Error in writing componentHealth_data: {e}")
+
 ##    except KeyboardInterrupt:
 ##        componentHealth_data.State = 0
 ##        componentHealth_writer.write(componentHealth_data)
