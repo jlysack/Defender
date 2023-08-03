@@ -65,20 +65,8 @@ async def main_loop():
             print("ComponentHealth DataWriter is not enabled.")
             return
 
-        if not responseIFF_writer.enabled:
-            print("ResponseIFF DataWriter is not enabled.")
-            return
-
-        if not requestUAVIFF_writer.enabled:
-            print("RequestIFF_UAV DataWriter is not enabled.")
-            return
-
-        if not responseUAVIFF_reader.enabled:
-            print("ResponseIFF_UAV DataReader is not enabled.")
-            return
-
-        if not requestIFF_reader.enabled:
-            print("RequestIFF DataReader is not enabled.")
+        if not HitDetection_writer.enabled:
+            print("ComponentHealth DataWriter is not enabled.")
             return
 
         # Write Component status
