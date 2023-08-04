@@ -41,6 +41,8 @@ componentHealth_data = DDS.Metrics.ComponentHealth
 componentHealth_data.Name = "TA_S"
 componentHealth_data.State = 1
 
+RadarReport_ReceivedData = DDS.Tracking.RadarReport
+
 # ====== Tests for motor ======
 
 # Microstep Resolution MS1-MS3 -> GPIO Pin , can be set to (-1,-1,-1) to turn off
@@ -161,8 +163,12 @@ async def check_ValidDetections():
         async for data in RadarReport_reader.take_data_async():
             RadarReportReceived = True
             print(f"RadarReportReceived, line 157 expecting True: {RadarReportReceived}")
-            allowRadarMovementAI = False
-            print(f"Setting allowRadarMovementAI, line 159 expecting False: {allowRadarMovementAI}")
+
+            RadarReport_ReceivedData = data
+
+            print(RadarReport_ReceivedData)
+            #allowRadarMovementAI = False
+            #print(f"Setting allowRadarMovementAI, line 159 expecting False: {allowRadarMovementAI}")
 
 ##        if RadarReportReceived:
 ##            allowRadarMovementAI = False
