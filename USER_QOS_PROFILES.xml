@@ -61,7 +61,7 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
 
              A QoS profile groups a set of related QoS.
         -->
-        <qos_profile name="interfaces_Profile" base_name="BuiltinQosLib::Generic.StrictReliable" is_default_qos="true">
+        <qos_profile name="interfaces_Profile" base_name="BuiltinQosLib::Generic.BestEffort" is_default_qos="true">
             <!-- QoS used to configure the data writer created in the example code -->                
             <datawriter_qos>
                 <publication_name>
