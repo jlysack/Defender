@@ -28,37 +28,36 @@ componentHealth_data = DDS.Metrics.ComponentHealth()
 componentHealth_data.Name = "UAV_IR"
 componentHealth_data.State = 1
 
-process = subprocess.Popen(["irw"], stdout=subprocess.PIPE)
-
-async def main_execution_loop():
-    try:
-        while True:
-            output = process.stdout.readline().decode("utf-8")
-
-            if output.strip():
-                print("Received signal:", output.strip())
-
-                HitDetection_data.HitBoolean = True
-
-                HitDetection_writer.write(HitDetection_data)
-
-            HitDetection_data.HitBoolean = False
-
-    except KeyboardInterrupt:
-        componentHealth_data.State = 0
-        componentHealth_writer.write(componentHealth_data)
-
-        # Clean up the LIRC Connection
-        process.terminate()
-        
-        #pass
-
-async def main_loop():
-    global componentHealth_data
-    
-    while True:
-        print("Main loop")
-
+##process = subprocess.Popen(["irw"], stdout=subprocess.PIPE)
+##async def main_execution_loop():
+##    try:
+##        while True:
+##            output = process.stdout.readline().decode("utf-8")
+##
+##            if output.strip():
+##                print("Received signal:", output.strip())
+##
+##                HitDetection_data.HitBoolean = True
+##
+##                HitDetection_writer.write(HitDetection_data)
+##
+##            HitDetection_data.HitBoolean = False
+##
+##    except KeyboardInterrupt:
+##        componentHealth_data.State = 0
+##        componentHealth_writer.write(componentHealth_data)
+##
+##        # Clean up the LIRC Connection
+##        process.terminate()
+##        
+##        #pass
+##
+##
+##async def main_loop():
+##    global componentHealth_data
+##    
+##    while True:
+##        print("Main loop")
 ##        # Debugging portion of script
 ##        # Checks if DDS Entities are Active
 ##        if not participant.enabled:
@@ -79,16 +78,26 @@ async def main_loop():
 ##            print(componentHealth_data)
 ##        except Exception as e:
 ##            print(f"Error in writing componentHealth_data: {e}")
-        
-        await asyncio.sleep(1)
+##        await asyncio.sleep(1)
 
+##async def run_event_loop():
+##    loop = asyncio.get_event_loop()
+##    tasks = [
+##        asyncio.ensure_future(main_loop()),
+##        asyncio.ensure_future(main_execution_loop())
+##    ]
+##    await asyncio.gather(*tasks)
+##
+##asyncio.run(run_event_loop())
 
-async def run_event_loop():
-    loop = asyncio.get_event_loop()
-    tasks = [
-        asyncio.ensure_future(main_loop()),
-        asyncio.ensure_future(main_execution_loop())
-    ]
-    await asyncio.gather(*tasks)
+def capture_raw_ir():
+    process = subprocess.Popen(['sudo', 'mode2', '-d', '/dev/lirc0'], stdout=subprocess.PIPE)
+    while True:
+        line = process.stdout.readline()
+        if not line:
+            break
+        yield line.decode('utf-8')
 
-asyncio.run(run_event_loop())
+if __name__ == "__main__":
+    for signal in capture_raw_ir():
+        print("Captured signal:", signal.strip())
