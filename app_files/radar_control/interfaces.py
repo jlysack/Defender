@@ -161,6 +161,13 @@ class DDS_Weapon_FireWeapon:
 
 DDS.Weapon.FireWeapon = DDS_Weapon_FireWeapon
 
+@idl.struct
+class DDS_Weapon_HitDetection:
+    HitBoolean: bool = False
+    HitNumber: idl.int32 = 0
+
+DDS.Weapon.HitDetection = DDS_Weapon_HitDetection
+
 DDS_Scanning = idl.get_module("DDS_Scanning")
 
 DDS.Scanning = DDS_Scanning
@@ -169,6 +176,7 @@ DDS.Scanning = DDS_Scanning
 class DDS_Scanning_ScanInstruction:
     radarSetting: DDS.SILKTypes.radarMode = DDS.SILKTypes.radarMode.AI
     manualScanSetting: DDS.SILKTypes.scanState = DDS.SILKTypes.scanState.Sweep
+    RadEnable: bool = False
 
 DDS.Scanning.ScanInstruction = DDS_Scanning_ScanInstruction
 
@@ -196,8 +204,8 @@ DDS.Tracking.TrackData = DDS_Tracking_TrackData
 
 @idl.struct
 class DDS_Tracking_RadarReport:
-    Range: idl.float32 = 0
-    Azimuth: idl.float32 = 0
+    Range: idl.float32 = 0.0
+    Azimuth: idl.float32 = 0.0
     ZoneNumber: idl.int32 = 0
     EngagementZoneFlag: bool = False
 
