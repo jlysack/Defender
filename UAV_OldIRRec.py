@@ -108,3 +108,5 @@ if __name__ == "__main__":
         print(HitDetection_data)
 
     HitDetection_data.HitBoolean = False
+    HitDetection_writer.write(HitDetection_data)
+    
