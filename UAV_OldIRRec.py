@@ -1,4 +1,4 @@
-import pylirc
+#import pylirc
 import time
 import sys
 import rti.connextdds as dds
