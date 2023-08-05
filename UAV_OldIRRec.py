@@ -101,3 +101,8 @@ def capture_raw_ir():
 if __name__ == "__main__":
     for signal in capture_raw_ir():
         print("Captured signal:", signal.strip())
+
+        HitDetection_data.HitBoolean = True
+        HitDetection_writer.write(HitDetection_data)
+
+    HitDetection_data.HitBoolean = False
