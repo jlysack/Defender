@@ -112,9 +112,12 @@ async def main_execution_loop():
 
 if __name__ == "__main__":
     safety_process = sp.Popen('./safety_message_handler.py')
+    health_process = sp.Popen('./send_radar_health_message.py')
 
     try:
         asyncio.run(main_execution_loop())
     except KeyboardInterrupt:
         print("Ctrl+C Detected in defender_main.py __main__(). Exiting.")
+        safety_process.terminate()
+        health_process.terminate()
         sys.exit(0)
