@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<dds xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:noNamespaceSchemaLocation="file:///C:/Program%20Files/rti_connext_dds-7.0.0/bin/../resource/schema/rti_dds_qos_profiles.xsd">
+	<qos_library name="interfaces_Library">
+
+		<!-- QoS profile used to configure reliable communication between the DataWriter 
+             and DataReader created in the example code.
+
+             A QoS profile groups a set of related QoS.
+        -->
+		<!--<qos_profile name="interfaces_Profile" base_name="BuiltinQosLib::Generic.BestEffort" is_default_qos="true">-->
+
+
+		<qos_profile name="Generic.Common" base_name="BuiltinQosLib::Generic.Common"/>
+
+		<qos_profile name="Generic.Monitoring.Common" base_name="BuiltinQosLib::Generic.Monitoring.Common"/>
+
+		<qos_profile name="Generic.ConnextMicroCompatibility" base_name="BuiltinQosLib::Generic.ConnextMicroCompatibility"/>
+
+		<qos_profile name="Generic.OtherDDSVendorCompatibility" base_name="BuiltinQosLib::Generic.OtherDDSVendorCompatibility"/>
+
+		<qos_profile name="Generic.StrictReliable" base_name="BuiltinQosLibExp::Generic.StrictReliable"/>
+
+		<qos_profile name="Generic.KeepLastReliable" base_name="BuiltinQosLibExp::Generic.KeepLastReliable"/>
+
+		<qos_profile name="Generic.BestEffort" base_name="BuiltinQosLibExp::Generic.BestEffort"/>
+
+		<qos_profile name="Generic.StrictReliable.HighThroughput" base_name="BuiltinQosLibExp::Generic.StrictReliable.HighThroughput"/>
+
+		<qos_profile name="Generic.StrictReliable.LowLatency" base_name="BuiltinQosLibExp::Generic.StrictReliable.LowLatency"/>
+
+		<qos_profile name="Generic.Participant.LargeData" base_name="BuiltinQosLibExp::Generic.Participant.LargeData"/>
+
+		<qos_profile name="Generic.Participant.LargeData.Monitoring" base_name="BuiltinQosLibExp::Generic.Participant.LargeData.Monitoring"/>
+
+		<qos_profile name="Generic.StrictReliable.LargeData" base_name="BuiltinQosLibExp::Generic.StrictReliable.LargeData"/>
+
+		<qos_profile name="Generic.KeepLastReliable.LargeData" base_name="BuiltinQosLibExp::Generic.KeepLastReliable.LargeData"/>
+
+		<qos_profile name="Generic.StrictReliable.LargeData.FastFlow" base_name="BuiltinQosLibExp::Generic.StrictReliable.LargeData.FastFlow"/>
+
+		<qos_profile name="Generic.StrictReliable.LargeData.MediumFlow" base_name="BuiltinQosLibExp::Generic.StrictReliable.LargeData.MediumFlow"/>
+
+		<qos_profile name="Generic.StrictReliable.LargeData.SlowFlow" base_name="BuiltinQosLibExp::Generic.StrictReliable.LargeData.SlowFlow"/>
+
+		<qos_profile name="Generic.KeepLastReliable.LargeData.FastFlow" base_name="BuiltinQosLibExp::Generic.KeepLastReliable.LargeData.FastFlow"/>
+
+		<qos_profile name="Generic.KeepLastReliable.LargeData.MediumFlow" base_name="BuiltinQosLibExp::Generic.KeepLastReliable.LargeData.MediumFlow"/>
+
+		<qos_profile name="Generic.KeepLastReliable.LargeData.SlowFlow" base_name="BuiltinQosLibExp::Generic.KeepLastReliable.LargeData.SlowFlow"/>
+
+		<qos_profile name="Generic.KeepLastReliable.TransientLocal" base_name="BuiltinQosLibExp::Generic.KeepLastReliable.TransientLocal"/>
+
+		<qos_profile name="Generic.KeepLastReliable.Transient" base_name="BuiltinQosLibExp::Generic.KeepLastReliable.Transient"/>
+
+		<qos_profile name="Generic.KeepLastReliable.Persistent" base_name="BuiltinQosLibExp::Generic.KeepLastReliable.Persistent"/>
+
+		<qos_profile name="Generic.AutoTuning" base_name="BuiltinQosLibExp::Generic.AutoTuning"/>
+
+		<qos_profile name="Pattern.PeriodicData" base_name="BuiltinQosLibExp::Pattern.PeriodicData"/>
+
+
+		<!--
+        Modifications from base Pattern.PeriodicData:
+        history depth changed from default of 100 to 30 (1 second of data at 30 FPS). No point of delivering or accepting data older than 1 second!
+        -->
+		<qos_profile name="Pattern.FrameData" base_name="Generic.BestEffort">
+			<datawriter_qos>
+				<history>
+					<kind>KEEP_LAST_HISTORY_QOS</kind>
+					<depth>5</depth>
+				</history>
+			</datawriter_qos>
+
+			<datareader_qos>
+
+				<history>
+					<kind>KEEP_LAST_HISTORY_QOS</kind>
+					<depth>5</depth>
+				</history>
+
+				<!-- 
+                <time_based_filter>
+                    <minimum_separation>
+            -->
+				<!--
+                        Ensure a data rate no higher than about 30 Hz. This minimum
+                        separation is 23 ms. 30 fps is 33.3 ms separation. This allows
+                        for 10 ms of slop for early/late samples. Usually, drift
+                        from the 33.333 ms separation is less than a 1 ms.
+                        
+                        For replay:
+                        When replayed at 10x, this won't exceed 44 FPS
+                        
+                        For live:
+                        This means any topics that send more than two samples in a frame COULD get lost! (depending on the nuanced timing)
+                        For these situations, Pattern.PeriodicData should not be used.
+                        -->
+				<!--
+                        <nanosec>23000000</nanosec>
+                        <sec>0</sec>
+                    </minimum_separation>
+                </time_based_filter>
+            -->
+			</datareader_qos>
+		</qos_profile>
+
+		<qos_profile name="Pattern.Streaming" base_name="BuiltinQosLibExp::Pattern.Streaming"/>
+
+		<qos_profile name="Pattern.ReliableStreaming" base_name="BuiltinQosLibExp::Pattern.ReliableStreaming"/>
+
+		<qos_profile name="Pattern.Event" base_name="BuiltinQosLibExp::Pattern.Event"/>
+
+		<qos_profile name="Pattern.AlarmEvent" base_name="BuiltinQosLibExp::Pattern.AlarmEvent"/>
+
+		<qos_profile name="Pattern.Status" base_name="BuiltinQosLibExp::Pattern.Status"/>
+
+		<qos_profile name="Pattern.AlarmStatus" base_name="BuiltinQosLibExp::Pattern.AlarmStatus"/>
+
+		<qos_profile name="Pattern.LastValueCache" base_name="BuiltinQosLibExp::Pattern.LastValueCache">
+			<!--
+            Note: Default history depth is 1, which means if a reader doesn't read a
+                  Panel sample quick enough, it could be overritten by a newer sample
+                  with the same key. This SHOULD be perfectly fine, as long as 
+                  Panel isn't used as an event trigger.
+            -->
+		</qos_profile>
+
+		<qos_profile name="EnhancedDiscoveryParticipant" is_default_qos="false" base_name="BuiltinQosLib::Generic.Common">
+			<participant_qos>
+				<discovery_config>
+
+					<publication_writer_publish_mode>
+						<kind>ASYNCHRONOUS_PUBLISH_MODE_QOS</kind>
+					</publication_writer_publish_mode>
+
+					<subscription_writer_publish_mode>
+						<kind>ASYNCHRONOUS_PUBLISH_MODE_QOS</kind>
+					</subscription_writer_publish_mode>
+
+				</discovery_config>
+
+				<resource_limits>
+					<!-- These participant properties are really only needed to support monitoring, but
+                    harmless normally -->
+					<participant_property_string_max_length>4096</participant_property_string_max_length>
+					<participant_property_list_max_length>45</participant_property_list_max_length>
+					<type_code_max_serialized_length>0</type_code_max_serialized_length>
+					<!-- NOTE: for Monitoring, this must be at least 35840. Some scout type objects are event larger -->
+					<type_object_max_serialized_length>65536</type_object_max_serialized_length>
+				</resource_limits>
+
+			</participant_qos>
+		</qos_profile>
+
+
+
+
+	</qos_library>
+</dds>
