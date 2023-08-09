@@ -21,13 +21,12 @@ async def print_data():
 
         writer.write(RadarReport_ReceivedData)
 
-    await asyncio.sleep(0.5)
+    await asyncio.sleep(1)
 
         
 
 async def main_loop():
     print("main loop")
-
     await asyncio.sleep(1)
 
 
