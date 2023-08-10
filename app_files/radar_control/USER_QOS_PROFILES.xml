@@ -112,7 +112,7 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
 				</transport_builtin>
 				<resource_limits>
 					<type_code_max_serialized_length>
-						1000
+						100000
 					</type_code_max_serialized_length>
 				</resource_limits>
 				
