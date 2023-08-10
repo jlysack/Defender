@@ -84,6 +84,10 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
 
 			<participant_factory_qos>
 				<logging>
+					<verbosity>ALL</verbosity>
+					<category>ALL</category>
+					<print_format>MAXIMAL</print_format>
+					
 					<output_file>LogFile_</output_file>
 					<output_file_suffix>.log</output_file_suffix>
 					<max_bytes_per_file>10000</max_bytes_per_file>
