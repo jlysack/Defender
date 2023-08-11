@@ -84,7 +84,7 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
 
 			<participant_factory_qos>
 				<logging>
-					<verbosity>LOCAL</verbosity>
+					<verbosity>ALL</verbosity>
 					<category>ALL</category>
 					<print_format>MAXIMAL</print_format>
 					
