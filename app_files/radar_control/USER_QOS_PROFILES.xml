@@ -84,7 +84,7 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
 
 			<participant_factory_qos>
 				<logging>
-					<verbosity>REMOTE</verbosity>
+					<verbosity>LOCAL</verbosity>
 					<category>ALL</category>
 					<print_format>MAXIMAL</print_format>
 					
@@ -109,7 +109,7 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
 				</transport_builtin>
 				<resource_limits>
 					<type_code_max_serialized_length>
-						1000
+						6000
 					</type_code_max_serialized_length>
 				</resource_limits>
 				
